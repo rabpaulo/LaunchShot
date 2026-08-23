@@ -158,7 +158,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
         return {
           containerClass: "relative",
           textContainerClass: `absolute top-0 right-0 w-[80%] pt-8 px-8 text-right z-20 flex flex-col items-end gap-2`,
-          phoneWrapperClass: "absolute -bottom-8 left-8 -translate-x-full rotate-12 origin-bottom-right z-10",
+          phoneWrapperClass: "absolute -bottom-8 -left-[152px] rotate-12 origin-bottom-left z-10",
           textAlign: "right" as const,
         };
       case 'tilt-left':
@@ -172,7 +172,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
         return {
           containerClass: "relative",
           textContainerClass: `absolute top-0 left-0 w-[80%] pt-8 px-8 text-left z-20 flex flex-col items-start gap-2`,
-          phoneWrapperClass: "absolute -bottom-8 right-8 translate-x-full -rotate-12 origin-bottom-left z-10",
+          phoneWrapperClass: "absolute -bottom-8 -right-[152px] -rotate-12 origin-bottom-right z-10",
           textAlign: "left" as const,
         };
       case 'half-right':
