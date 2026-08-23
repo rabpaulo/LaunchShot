@@ -206,7 +206,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       className="flex flex-col items-center flex-shrink-0 group relative transition-transform duration-200"
     >
       {/* Top Control Bar */}
-      <div className={`w-full mb-4 flex items-center justify-between px-4 py-2.5 rounded-2xl shadow-sm border relative transition-colors ${
+      <div className={`w-full mb-4 flex items-center justify-between px-4 py-2.5 rounded-2xl shadow-sm border relative z-50 transition-colors ${
         isDark 
           ? 'bg-gray-900/90 backdrop-blur-md border-gray-700/80 text-gray-200' 
           : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
