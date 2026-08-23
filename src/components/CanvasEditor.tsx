@@ -13,7 +13,8 @@ import {
   Copy,
   Star,
   Sparkles,
-  X
+  X,
+  Type
 } from 'lucide-react';
 import { FastAverageColor } from 'fast-average-color';
 import { TARGET_SIZES } from '@/config/sizes';
@@ -59,7 +60,9 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
     updateCanvas, 
     removeCanvas, 
     moveCanvas, 
-    duplicateCanvas 
+    duplicateCanvas,
+    applyLayoutToAll,
+    applyContentToAll
   } = useEditorStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
@@ -235,6 +238,19 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 </option>
               ))}
             </select>
+            
+            {/* Apply Layout to All Button */}
+            <button
+              onClick={() => applyLayoutToAll(currentLayout)}
+              className={`px-2 py-1.5 ml-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm ${
+                isDark 
+                  ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30 hover:bg-indigo-500/20 hover:border-indigo-400' 
+                  : 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100'
+              }`}
+              title="Apply this layout to all screenshots"
+            >
+              Apply All
+            </button>
           </div>
 
           <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
@@ -341,6 +357,21 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             <Copy className="w-4 h-4" />
           </button>
 
+          <button
+            onClick={() => applyContentToAll(canvas.title, canvas.subtitle)}
+            className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+              isDark 
+                ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400' 
+                : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600'
+            }`}
+            title="Apply this Title & Subtitle to all screens"
+          >
+            <Type className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-wider hidden xl:block">
+              Apply Text
+            </span>
+          </button>
+
           {total > 1 && (
             <>
               <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
@@ -441,8 +472,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 type="text"
                 value={canvas.title}
                 onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
-                className={`w-full bg-transparent border-none outline-none font-bold placeholder-white/50 tracking-tight leading-tight ${
-                  isCompact ? 'text-2xl mb-1' : 'text-3xl mb-2'
+                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all ${
+                  isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
                 } ${
                   canvas.gradientText 
                     ? 'bg-gradient-to-r from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-sm' 
@@ -459,8 +490,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
               <textarea
                 value={canvas.subtitle}
                 onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
-                className={`w-full bg-transparent border-none outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-snug ${
-                  isCompact ? 'text-sm h-12' : 'text-lg h-16'
+                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
+                  isCompact ? 'text-sm h-14' : 'text-xl h-20'
                 }`}
                 style={{ 
                   color: canvas.textColor || '#ffffff', 
@@ -483,19 +514,34 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 width={phoneW} 
                 height={phoneH} 
                 targetSizeId={globalSettings.targetSize}
+                mockupStyle={globalSettings.mockupStyle}
               >
                 {canvas.imageSrc ? (
-                <div className="w-full h-full relative group/img">
+                <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
                   <img
                     src={canvas.imageSrc}
                     alt="App Screenshot"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full ${canvas.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
                   />
                   <div 
-                    className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
-                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
                   >
-                    <span className="text-white font-medium text-sm">Change Image</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                    >
+                      <UploadCloud className="w-4 h-4" />
+                      Change Image
+                    </button>
+                    <button
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        updateCanvas(canvas.id, { imageFit: canvas.imageFit === 'contain' ? 'cover' : 'contain' });
+                      }}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium text-xs rounded-full transition-colors"
+                    >
+                      Fit: {canvas.imageFit === 'contain' ? 'Contain' : 'Cover'}
+                    </button>
                   </div>
                 </div>
               ) : (

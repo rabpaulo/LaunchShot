@@ -24,13 +24,17 @@ export type CanvasItem = {
   fontFamily?: string;
   badge?: BadgeConfig;
   gradientText?: boolean;
+  imageFit?: 'cover' | 'contain';
 };
+
+export type MockupStyle = 'dark' | 'light' | 'glass';
 
 export type GlobalSettings = {
   targetSize: TargetSizeId;
   fontFamily: string;
   zoomScale: number;
   theme: 'dark' | 'light';
+  mockupStyle: MockupStyle;
 };
 
 interface EditorState {
@@ -46,6 +50,9 @@ interface EditorState {
   toggleTheme: () => void;
   applyBackgroundToAll: (bg: string, textColor?: string) => void;
   applyFontToAll: (fontFamily: string) => void;
+  applyLayoutToAll: (layout: LayoutType) => void;
+  applyContentToAll: (title: string, subtitle: string) => void;
+  clearAllCanvases: () => void;
 }
 
 const defaultGlobalSettings: GlobalSettings = {
@@ -53,6 +60,7 @@ const defaultGlobalSettings: GlobalSettings = {
   fontFamily: DEFAULT_FONT,
   zoomScale: 0.65,
   theme: 'dark',
+  mockupStyle: 'dark',
 };
 
 const LAYOUTS: LayoutType[] = [
@@ -176,6 +184,36 @@ export const useEditorStore = create<EditorState>()(
             ...c,
             fontFamily,
           })),
+        })),
+      applyLayoutToAll: (layout) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            layout,
+          })),
+        })),
+      applyContentToAll: (title, subtitle) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            title,
+            subtitle,
+          })),
+        })),
+      clearAllCanvases: () =>
+        set((state) => ({
+          canvases: [
+            {
+              id: crypto.randomUUID(),
+              imageSrc: null,
+              title: 'New Workspace',
+              subtitle: 'Drag and drop screenshots here',
+              layout: 'basic-top',
+              backgroundColor: '#000000',
+              textColor: '#ffffff',
+              fontFamily: state.globalSettings.fontFamily,
+            }
+          ]
         })),
     }),
     {

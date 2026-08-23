@@ -1,5 +1,6 @@
 import React from 'react';
 import { TargetSizeId } from '@/config/sizes';
+import { MockupStyle } from '@/store/useEditorStore';
 
 export type DeviceStyle = 'apple' | 'samsung-ultra' | 'samsung-base' | 'android';
 
@@ -8,6 +9,7 @@ interface MinimalPhoneFrameProps {
   width?: number;
   height?: number;
   targetSizeId?: TargetSizeId;
+  mockupStyle?: MockupStyle;
 }
 
 export function getDeviceStyle(targetSizeId?: TargetSizeId): DeviceStyle {
@@ -21,7 +23,8 @@ export function MinimalPhoneFrame({
   children, 
   width = 280, 
   height = 580,
-  targetSizeId = 'ios-6.5'
+  targetSizeId = 'ios-6.5',
+  mockupStyle = 'dark'
 }: MinimalPhoneFrameProps) {
   const style = getDeviceStyle(targetSizeId);
 
@@ -36,9 +39,16 @@ export function MinimalPhoneFrame({
   const innerRadius = Math.max(4, Math.round(borderRadius * 0.78));
   const bezelPadding = Math.max(5, Math.round(width * 0.024));
 
+  let outerStyleClass = "bg-[#121316] border-white/10 shadow-2xl"; // default dark
+  if (mockupStyle === 'light') {
+    outerStyleClass = "bg-[#f8fafc] border-gray-300/80 shadow-xl";
+  } else if (mockupStyle === 'glass') {
+    outerStyleClass = "bg-white/20 backdrop-blur-md border-white/40 shadow-2xl";
+  }
+
   return (
     <div 
-      className="relative inline-block bg-[#121316] shadow-2xl overflow-hidden flex-shrink-0 border border-white/10"
+      className={`relative inline-block overflow-hidden flex-shrink-0 border ${outerStyleClass}`}
       style={{
         width: `${width}px`,
         height: `${height}px`,

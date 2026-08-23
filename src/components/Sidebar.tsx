@@ -10,7 +10,8 @@ import {
   Image as ImageIcon,
   Palette,
   Type,
-  Check
+  Check,
+  Trash2
 } from 'lucide-react';
 import { exportImages } from '@/utils/export';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -25,7 +26,8 @@ export function Sidebar() {
     addCanvas, 
     canvases,
     applyBackgroundToAll,
-    applyFontToAll
+    applyFontToAll,
+    clearAllCanvases
   } = useEditorStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -232,6 +234,38 @@ export function Sidebar() {
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 
+        {/* Mockup Style */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Mockup Style
+            </h2>
+          </div>
+          <div className={`flex p-1 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
+            {['dark', 'light', 'glass'].map((style) => (
+              <button
+                key={style}
+                onClick={() => updateGlobalSettings({ mockupStyle: style as any })}
+                className={`flex-1 capitalize text-xs font-semibold py-1.5 rounded-lg transition-all ${
+                  globalSettings.mockupStyle === style
+                    ? isDark
+                      ? 'bg-gray-700 text-white shadow-sm'
+                      : 'bg-white text-gray-900 shadow-sm'
+                    : isDark
+                      ? 'text-gray-500 hover:text-gray-300'
+                      : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {style}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
         {/* Typography & Google Fonts */}
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -303,17 +337,36 @@ export function Sidebar() {
       <div className={`p-5 border-t space-y-3 shadow-lg ${
         isDark ? 'bg-[#0d1117]/95 border-gray-800' : 'bg-white/95 border-gray-200'
       }`}>
-        <button
-          onClick={() => addCanvas()}
-          className={`w-full flex items-center justify-center py-2.5 px-4 border rounded-xl shadow-sm text-xs font-bold transition-all hover:scale-[1.02] ${
-            isDark
-              ? 'border-gray-700 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white'
-              : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-white hover:shadow-md'
-          }`}
-        >
-          <PlusCircle className="w-4 h-4 mr-2 opacity-70" />
-          Add Blank Screenshot
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to clear all screenshots? This cannot be undone.')) {
+                clearAllCanvases();
+              }
+            }}
+            className={`flex items-center justify-center py-2.5 px-3 border rounded-xl shadow-sm transition-all hover:scale-[1.02] ${
+              isDark
+                ? 'border-gray-700 bg-gray-800/80 text-gray-400 hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50'
+                : 'border-gray-300 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+            }`}
+            title="Clear All Screenshots"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={() => addCanvas()}
+            className={`flex-1 flex items-center justify-center py-2.5 px-4 border rounded-xl shadow-sm text-xs font-bold transition-all hover:scale-[1.02] ${
+              isDark
+                ? 'border-gray-700 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-white hover:shadow-md'
+            }`}
+          >
+            <PlusCircle className="w-4 h-4 mr-2 opacity-70" />
+            Add Blank Screen
+          </button>
+        </div>
+        
         <button
           onClick={handleExport}
           className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/30 text-xs font-extrabold text-white bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:scale-[1.02]"
