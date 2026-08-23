@@ -23,10 +23,12 @@ import {
 export default function Home() {
   const { 
     canvases, 
+    addCanvas, 
     globalSettings, 
     setZoomScale, 
-    addCanvas,
-    toggleTheme 
+    toggleTheme,
+    isPreviewMode,
+    togglePreviewMode
   } = useEditorStore();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -124,18 +126,19 @@ export default function Home() {
         </div>
       )}
 
-      <Sidebar />
+      {!isPreviewMode && <Sidebar />}
       
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
         isDark ? 'bg-black' : 'bg-[#f8fafc]'
       }`}>
         {/* Top Navbar */}
-        <header className={`h-16 border-b flex items-center justify-between px-6 flex-shrink-0 z-20 transition-colors ${
-          isDark 
-            ? 'bg-zinc-950/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
-            : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
-        }`}>
+        {!isPreviewMode && (
+          <header className={`h-16 border-b flex items-center justify-between px-6 flex-shrink-0 z-20 transition-colors ${
+            isDark 
+              ? 'bg-zinc-950/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
+              : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
+          }`}>
           {/* Quick Jump Bar */}
           <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[65%] scrollbar-none items-center h-full">
             <IoGridOutline className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
@@ -269,13 +272,31 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </header>
+          </header>
+        )}
+
+        {isPreviewMode && (
+          <div className="absolute top-6 right-6 z-50">
+            <button
+              onClick={togglePreviewMode}
+              className={`px-4 py-2 rounded-xl font-bold text-sm shadow-xl flex items-center gap-2 transition-all ${
+                isDark 
+                  ? 'bg-zinc-800 text-white hover:bg-zinc-700' 
+                  : 'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              Exit Preview
+            </button>
+          </div>
+        )}
 
         {/* Scrollable Canvases Container */}
         <div 
           ref={scrollContainerRef}
           onWheel={handleWheel}
-          className="flex-1 overflow-x-auto overflow-y-auto flex items-start pt-12 pb-32 px-12 gap-12 scroll-smooth"
+          className={`flex-1 overflow-x-auto overflow-y-auto flex items-start pt-12 pb-32 px-12 gap-12 scroll-smooth ${
+            isPreviewMode ? 'items-center justify-start pt-0 pb-0 gap-0' : ''
+          }`}
         >
           {canvases.map((canvas, index) => (
             <CanvasEditor 
@@ -283,6 +304,7 @@ export default function Home() {
               canvas={canvas} 
               index={index} 
               total={canvases.length} 
+              isPreviewMode={isPreviewMode}
             />
           ))}
           

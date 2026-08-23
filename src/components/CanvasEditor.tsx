@@ -27,6 +27,7 @@ interface CanvasEditorProps {
   canvas: CanvasItem;
   index: number;
   total: number;
+  isPreviewMode?: boolean;
 }
 
 const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
@@ -56,7 +57,7 @@ function getContrastColor(hex: string) {
   return yiq >= 128 ? '#000000' : '#ffffff';
 }
 
-export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
+export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: CanvasEditorProps) {
   const { 
     globalSettings, 
     updateCanvas, 
@@ -222,8 +223,9 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       className="flex flex-col items-center flex-shrink-0 group relative transition-transform duration-200"
     >
       {/* Top Control Bar */}
-      <div 
-        onWheel={(e) => e.stopPropagation()}
+      {!isPreviewMode && (
+        <div 
+          onWheel={(e) => e.stopPropagation()}
         className={`w-full mb-4 flex items-center justify-between px-4 py-2.5 rounded-2xl shadow-sm border relative z-50 transition-colors ${
         isDark 
           ? 'bg-gray-900/90 backdrop-blur-md border-gray-700/80 text-gray-200' 
@@ -459,10 +461,13 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           </div>
         )}
       </div>
+      )}
 
       {/* Scaled Preview Canvas */}
       <div
-        className="origin-top shadow-2xl rounded-3xl overflow-hidden border border-black/20 transition-transform duration-150"
+        className={`origin-top overflow-hidden transition-all duration-150 ${
+          isPreviewMode ? 'pointer-events-none' : 'shadow-2xl rounded-3xl border border-black/20'
+        }`}
         style={{ 
           transform: `scale(${zoomScale})`,
           marginBottom: `calc(${canvasHeight}px * (${zoomScale} - 1))`,

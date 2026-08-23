@@ -56,6 +56,8 @@ interface EditorState {
   applyLayoutToAll: (layout: LayoutType) => void;
   applyContentToAll: (title: string, subtitle: string) => void;
   clearAllCanvases: () => void;
+  isPreviewMode: boolean;
+  togglePreviewMode: () => void;
 }
 
 const defaultGlobalSettings: GlobalSettings = {
@@ -221,6 +223,8 @@ export const useEditorStore = create<EditorState>()(
             }
           ]
         })),
+      isPreviewMode: false,
+      togglePreviewMode: () => set((state) => ({ isPreviewMode: !state.isPreviewMode })),
     }),
     {
       name: 'screenshot-editor-storage',
