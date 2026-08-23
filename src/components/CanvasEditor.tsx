@@ -415,13 +415,16 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             </div>
           )}
 
-          {/* Adaptive Phone Mockup Section */}
           <div 
             className={layoutConfig.phoneWrapperClass}
             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onDrop={handlePhoneDrop}
           >
-            <MinimalPhoneFrame width={phoneW} height={phoneH}>
+            <MinimalPhoneFrame 
+              width={phoneW} 
+              height={phoneH} 
+              targetSizeId={globalSettings.targetSize}
+            >
               {canvas.imageSrc ? (
                 <div className="w-full h-full relative group/img">
                   <img
