@@ -1,18 +1,25 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { CanvasItem, LayoutType, useEditorStore } from '@/store/useEditorStore';
 import { MinimalPhoneFrame } from './MinimalPhoneFrame';
+import { BadgeSticker } from './BadgeSticker';
 import { 
   UploadCloud, 
   Trash2, 
   LayoutTemplate, 
   ChevronLeft, 
   ChevronRight, 
-  Copy 
+  Copy,
+  Star,
+  Sparkles,
+  Type,
+  X
 } from 'lucide-react';
 import { FastAverageColor } from 'fast-average-color';
 import { TARGET_SIZES } from '@/config/sizes';
+import { FONT_OPTIONS } from '@/config/fonts';
+import { BADGE_PRESETS, BadgeConfig } from '@/config/badges';
 
 const fac = new FastAverageColor();
 
@@ -56,6 +63,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
     duplicateCanvas 
   } = useEditorStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showBadgeMenu, setShowBadgeMenu] = useState(false);
 
   const processSingleFile = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -96,7 +104,11 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
   const currentLayout = canvas.layout || 'basic-top';
   const isCompact = canvasHeight < 750;
 
-  // Compute adaptive phone frame dimensions based on target device height
+  // Active Font
+  const activeFontId = canvas.fontFamily || globalSettings.fontFamily || 'plus-jakarta';
+  const fontConfig = FONT_OPTIONS.find((f) => f.id === activeFontId) || FONT_OPTIONS[0];
+
+  // Compute adaptive phone frame dimensions
   const getPhoneDimensions = () => {
     let heightFactor = 0.65;
     if (currentLayout === 'device-only') heightFactor = 0.82;
@@ -117,42 +129,42 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       case 'basic-top':
         return {
           containerClass: "flex flex-col justify-between items-center",
-          textContainerClass: `w-full px-6 pt-10 pb-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center`,
+          textContainerClass: `w-full px-6 pt-8 pb-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2`,
           phoneWrapperClass: "w-full flex justify-center items-end flex-1 overflow-hidden relative",
           textAlign: "center" as const,
         };
       case 'basic-bottom':
         return {
           containerClass: "flex flex-col-reverse justify-between items-center",
-          textContainerClass: `w-full px-6 pb-10 pt-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center`,
+          textContainerClass: `w-full px-6 pb-8 pt-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2`,
           phoneWrapperClass: "w-full flex justify-center items-start flex-1 overflow-hidden relative pt-4",
           textAlign: "center" as const,
         };
       case 'tilt-right':
         return {
           containerClass: "relative",
-          textContainerClass: `absolute top-0 left-0 w-[80%] pt-10 px-8 text-left z-20`,
+          textContainerClass: `absolute top-0 left-0 w-[80%] pt-8 px-8 text-left z-20 flex flex-col items-start gap-2`,
           phoneWrapperClass: "absolute -bottom-8 -right-8 rotate-12 origin-bottom-right z-10",
           textAlign: "left" as const,
         };
       case 'tilt-left':
         return {
           containerClass: "relative",
-          textContainerClass: `absolute top-0 right-0 w-[80%] pt-10 px-8 text-right z-20`,
+          textContainerClass: `absolute top-0 right-0 w-[80%] pt-8 px-8 text-right z-20 flex flex-col items-end gap-2`,
           phoneWrapperClass: "absolute -bottom-8 -left-8 -rotate-12 origin-bottom-left z-10",
           textAlign: "right" as const,
         };
       case 'half-right':
         return {
           containerClass: "relative flex items-center",
-          textContainerClass: `w-[58%] pl-8 pr-2 text-left z-20 flex flex-col justify-center`,
+          textContainerClass: `w-[58%] pl-8 pr-2 text-left z-20 flex flex-col justify-center gap-2`,
           phoneWrapperClass: `absolute top-1/2 -right-16 -translate-y-1/2 z-10`,
           textAlign: "left" as const,
         };
       case 'half-left':
         return {
           containerClass: "relative flex items-center justify-end",
-          textContainerClass: `w-[58%] pr-8 pl-2 text-right z-20 flex flex-col justify-center`,
+          textContainerClass: `w-[58%] pr-8 pl-2 text-right z-20 flex flex-col justify-center gap-2`,
           phoneWrapperClass: `absolute top-1/2 -left-16 -translate-y-1/2 z-10`,
           textAlign: "right" as const,
         };
@@ -166,7 +178,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       default:
         return {
           containerClass: "flex flex-col justify-between items-center",
-          textContainerClass: `w-full px-6 pt-10 pb-2 text-center z-20 flex-shrink-0`,
+          textContainerClass: `w-full px-6 pt-8 pb-2 text-center z-20 flex-shrink-0 gap-2`,
           phoneWrapperClass: "w-full flex justify-center items-end flex-1 overflow-hidden relative",
           textAlign: "center" as const,
         };
@@ -175,18 +187,28 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
 
   const layoutConfig = getLayoutConfig();
 
+  const handleApplyBadge = (preset: BadgeConfig) => {
+    updateCanvas(canvas.id, { badge: preset });
+    setShowBadgeMenu(false);
+  };
+
+  const toggleGradientText = () => {
+    updateCanvas(canvas.id, { gradientText: !canvas.gradientText });
+  };
+
   return (
     <div 
       id={`card-${canvas.id}`}
       className="flex flex-col items-center flex-shrink-0 group relative transition-transform duration-200"
     >
       {/* Top Control Bar */}
-      <div className="w-full mb-3 flex items-center justify-between bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-200/80 gap-2">
+      <div className="w-full mb-3 flex items-center justify-between bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-200/80 gap-2 relative">
         <div className="flex items-center space-x-2">
           <span className="w-5 h-5 flex items-center justify-center bg-gray-100 text-gray-700 text-[11px] font-bold rounded-full">
             {index + 1}
           </span>
 
+          {/* Layout Selector */}
           <div className="flex items-center space-x-1">
             <LayoutTemplate className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
             <select
@@ -201,9 +223,37 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
               ))}
             </select>
           </div>
+
+          {/* Social Proof Badge Toggle / Selector */}
+          <button
+            onClick={() => setShowBadgeMenu(!showBadgeMenu)}
+            className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1 border transition-all ${
+              canvas.badge?.enabled
+                ? 'bg-amber-50 text-amber-700 border-amber-300 shadow-xs'
+                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+            }`}
+            title="Add Rating / Award Badge"
+          >
+            <Star className={`w-3.5 h-3.5 ${canvas.badge?.enabled ? 'fill-amber-400 text-amber-500' : 'text-gray-400'}`} />
+            <span>Badge</span>
+          </button>
+
+          {/* Gradient Text Toggle */}
+          <button
+            onClick={toggleGradientText}
+            className={`p-1 rounded-md border transition-all ${
+              canvas.gradientText
+                ? 'bg-indigo-50 text-indigo-700 border-indigo-300'
+                : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+            }`}
+            title="Toggle Gradient Text Style"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         <div className="flex items-center space-x-1.5">
+          {/* Colors */}
           <div className="flex items-center space-x-1 bg-gray-50 px-1.5 py-0.5 rounded-md border border-gray-200">
             <input
               type="color"
@@ -221,6 +271,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             />
           </div>
 
+          {/* Move & Duplicate */}
           <button
             disabled={index === 0}
             onClick={() => moveCanvas(canvas.id, 'left')}
@@ -261,6 +312,44 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             </button>
           )}
         </div>
+
+        {/* Badge Selector Popover */}
+        {showBadgeMenu && (
+          <div className="absolute top-12 left-20 z-50 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-72 flex flex-col gap-2">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                Select Social Proof Badge
+              </span>
+              <button 
+                onClick={() => setShowBadgeMenu(false)}
+                className="text-gray-400 hover:text-gray-600 p-0.5 rounded"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="space-y-1.5 max-h-56 overflow-y-auto">
+              <button
+                onClick={() => handleApplyBadge({ enabled: false, icon: 'none', text: '', style: 'pill-glass' })}
+                className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-red-50 text-red-600 font-medium transition-colors"
+              >
+                🚫 Remove Badge
+              </button>
+
+              {BADGE_PRESETS.map((p) => (
+                <button
+                  key={p.label}
+                  onClick={() => handleApplyBadge(p.config)}
+                  className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-indigo-50 hover:text-indigo-700 text-gray-700 flex flex-col gap-0.5 transition-colors border border-transparent hover:border-indigo-100"
+                >
+                  <span className="font-semibold">{p.label}</span>
+                  <span className="text-[10px] text-gray-500">{p.config.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Scaled Preview Canvas */}
@@ -278,24 +367,39 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             width: `${canvasWidth}px`,
             height: `${canvasHeight}px`,
             background: canvas.backgroundColor || '#000000',
+            fontFamily: fontConfig.fontFamily,
           }}
         >
-          {/* Responsive Text Section */}
+          {/* Responsive Text & Badge Section */}
           {currentLayout !== 'device-only' && (
             <div className={layoutConfig.textContainerClass}>
+              {/* Badge Sticker */}
+              {canvas.badge?.enabled && (
+                <div className="mb-1">
+                  <BadgeSticker badge={canvas.badge} textColor={canvas.textColor} />
+                </div>
+              )}
+
+              {/* Title */}
               <input
                 type="text"
                 value={canvas.title}
                 onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
                 className={`w-full bg-transparent border-none outline-none font-bold placeholder-white/50 tracking-tight leading-tight ${
-                  isCompact ? 'text-2xl mb-1.5' : 'text-3xl mb-2.5'
+                  isCompact ? 'text-2xl mb-1' : 'text-3xl mb-2'
+                } ${
+                  canvas.gradientText 
+                    ? 'bg-gradient-to-r from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-sm' 
+                    : ''
                 }`}
                 style={{ 
-                  color: canvas.textColor || '#ffffff', 
+                  color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
                   textAlign: layoutConfig.textAlign 
                 }}
                 placeholder="Enter Title"
               />
+
+              {/* Subtitle */}
               <textarea
                 value={canvas.subtitle}
                 onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}

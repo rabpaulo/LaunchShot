@@ -2,16 +2,36 @@
 
 import React, { useRef, useState } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { PlusCircle, Download, UploadCloud, Smartphone, Image as ImageIcon } from 'lucide-react';
+import { 
+  PlusCircle, 
+  Download, 
+  UploadCloud, 
+  Smartphone, 
+  Image as ImageIcon,
+  Palette,
+  Type,
+  Check
+} from 'lucide-react';
 import { exportImages } from '@/utils/export';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
+import { FONT_OPTIONS } from '@/config/fonts';
+import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 
 export function Sidebar() {
-  const { globalSettings, updateGlobalSettings, addCanvas, canvases } = useEditorStore();
+  const { 
+    globalSettings, 
+    updateGlobalSettings, 
+    addCanvas, 
+    canvases,
+    applyBackgroundToAll,
+    applyFontToAll
+  } = useEditorStore();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedBg, setSelectedBg] = useState<string | null>(null);
 
   const handleExport = async () => {
     await exportImages(canvases);
@@ -49,6 +69,16 @@ export function Sidebar() {
     if (e.dataTransfer.files) {
       await handleFiles(e.dataTransfer.files);
     }
+  };
+
+  const handleSelectBackground = (presetValue: string, textColor?: string) => {
+    setSelectedBg(presetValue);
+    applyBackgroundToAll(presetValue, textColor);
+  };
+
+  const handleFontChange = (fontId: string) => {
+    updateGlobalSettings({ fontFamily: fontId });
+    applyFontToAll(fontId);
   };
 
   // Group sizes by category
@@ -161,6 +191,61 @@ export function Sidebar() {
                 <span>{activeSize.category}</span>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Typography & Google Fonts */}
+        <section>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-semibold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Type className="w-3.5 h-3.5 text-indigo-600" />
+              Typography
+            </h2>
+            <span className="text-[10px] text-gray-400">Google Fonts</span>
+          </div>
+
+          <select
+            value={globalSettings.fontFamily || 'plus-jakarta'}
+            onChange={(e) => handleFontChange(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-xs font-medium text-gray-800 bg-white"
+          >
+            {FONT_OPTIONS.map((font) => (
+              <option key={font.id} value={font.id}>
+                {font.name}
+              </option>
+            ))}
+          </select>
+        </section>
+
+        {/* Mesh Gradients & Background Presets */}
+        <section>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-semibold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Palette className="w-3.5 h-3.5 text-indigo-600" />
+              Background Presets
+            </h2>
+            <span className="text-[10px] text-indigo-600 font-medium">Click to apply all</span>
+          </div>
+
+          <div className="grid grid-cols-5 gap-2">
+            {BACKGROUND_PRESETS.map((preset) => {
+              const isSelected = selectedBg === preset.value;
+              return (
+                <button
+                  key={preset.id}
+                  onClick={() => handleSelectBackground(preset.value, preset.textColor)}
+                  className={`h-9 rounded-lg border relative transition-all duration-150 hover:scale-105 shadow-xs flex items-center justify-center ${
+                    isSelected ? 'ring-2 ring-indigo-600 ring-offset-2 border-transparent' : 'border-gray-200'
+                  }`}
+                  style={{ background: preset.value }}
+                  title={preset.name}
+                >
+                  {isSelected && (
+                    <Check className={`w-3.5 h-3.5 ${preset.textColor === '#0f172a' ? 'text-gray-900' : 'text-white'}`} />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
       </div>

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { TargetSizeId, DEFAULT_SIZE } from '@/config/sizes';
+import { DEFAULT_FONT } from '@/config/fonts';
+import { BadgeConfig } from '@/config/badges';
 
 export type LayoutType = 
   | 'basic-top' 
@@ -19,11 +21,14 @@ export type CanvasItem = {
   layout: LayoutType;
   backgroundColor: string;
   textColor: string;
+  fontFamily?: string;
+  badge?: BadgeConfig;
+  gradientText?: boolean;
 };
 
 export type GlobalSettings = {
   targetSize: TargetSizeId;
-  font: string;
+  fontFamily: string;
   zoomScale: number;
 };
 
@@ -37,11 +42,13 @@ interface EditorState {
   duplicateCanvas: (id: string) => void;
   updateGlobalSettings: (updates: Partial<GlobalSettings>) => void;
   setZoomScale: (scale: number) => void;
+  applyBackgroundToAll: (bg: string, textColor?: string) => void;
+  applyFontToAll: (fontFamily: string) => void;
 }
 
 const defaultGlobalSettings: GlobalSettings = {
   targetSize: DEFAULT_SIZE,
-  font: 'sans',
+  fontFamily: DEFAULT_FONT,
   zoomScale: 0.65,
 };
 
@@ -67,6 +74,14 @@ export const useEditorStore = create<EditorState>()(
           layout: 'basic-top',
           backgroundColor: '#000000',
           textColor: '#ffffff',
+          fontFamily: DEFAULT_FONT,
+          badge: {
+            enabled: true,
+            icon: 'star',
+            text: '★★★★★ 4.9 App Store',
+            subtext: '30k+ ratings',
+            style: 'pill-glass',
+          },
         },
       ],
       globalSettings: defaultGlobalSettings,
@@ -86,6 +101,7 @@ export const useEditorStore = create<EditorState>()(
                 layout: LAYOUTS[nextLayoutIndex],
                 backgroundColor: '#000000',
                 textColor: '#ffffff',
+                fontFamily: state.globalSettings.fontFamily,
                 ...initialData,
               },
             ],
@@ -134,6 +150,22 @@ export const useEditorStore = create<EditorState>()(
       setZoomScale: (scale) =>
         set((state) => ({
           globalSettings: { ...state.globalSettings, zoomScale: scale },
+        })),
+      applyBackgroundToAll: (bg, textColor) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            backgroundColor: bg,
+            ...(textColor ? { textColor } : {}),
+          })),
+        })),
+      applyFontToAll: (fontFamily) =>
+        set((state) => ({
+          globalSettings: { ...state.globalSettings, fontFamily },
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            fontFamily,
+          })),
         })),
     }),
     {
