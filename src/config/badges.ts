@@ -9,28 +9,29 @@ export interface BadgeConfig {
 }
 
 export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
+  // App Store Badges
   {
-    label: '5-Star App Store Rating',
+    label: 'App Store Rating',
     config: {
       enabled: true,
       icon: 'star',
-      text: '5.0 4.9 App Store',
+      text: '4.9 App Store',
       subtext: '30k+ ratings',
       style: 'pill-glass',
     },
   },
   {
-    label: '5-Star User Praise',
+    label: 'Apple Featured',
     config: {
       enabled: true,
       icon: 'star',
-      text: '5.0 "Game changer"',
+      text: '"Game changer"',
       subtext: 'Featured by Apple',
       style: 'pill-glass',
     },
   },
   {
-    label: 'App of the Day Award',
+    label: 'Apple Design Award',
     config: {
       enabled: true,
       icon: 'trophy',
@@ -39,6 +40,38 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       style: 'pill-solid',
     },
   },
+  // Google Play Badges
+  {
+    label: 'Google Play Rating',
+    config: {
+      enabled: true,
+      icon: 'star',
+      text: '4.9 Google Play',
+      subtext: '30k+ ratings',
+      style: 'pill-glass',
+    },
+  },
+  {
+    label: 'Google Play Editors\' Choice',
+    config: {
+      enabled: true,
+      icon: 'star',
+      text: 'Editors\' Choice',
+      subtext: 'Google Play Store',
+      style: 'pill-glass',
+    },
+  },
+  {
+    label: 'Google Play Best of Award',
+    config: {
+      enabled: true,
+      icon: 'trophy',
+      text: 'Best of 2023',
+      subtext: 'Google Play Award',
+      style: 'pill-solid',
+    },
+  },
+  // Platform Agnostic
   {
     label: '#1 Product Hunt',
     config: {

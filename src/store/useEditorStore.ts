@@ -91,7 +91,7 @@ export const useEditorStore = create<EditorState>()(
           badge: {
             enabled: true,
             icon: 'star',
-            text: '5.0 4.9 App Store',
+            text: '4.9 App Store',
             subtext: '30k+ ratings',
             style: 'pill-glass',
           },
