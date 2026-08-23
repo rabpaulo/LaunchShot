@@ -23,7 +23,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff' }: BadgeStickerProps
       case 'heart':
         return <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />;
       case 'sparkle':
-        return <Sparkles className="w-3.5 h-3.5 text-indigo-400" />;
+        return <Sparkles className="w-3.5 h-3.5 text-zinc-400" />;
       case 'star':
         return <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />;
       default:

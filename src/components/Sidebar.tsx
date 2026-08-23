@@ -96,12 +96,12 @@ export function Sidebar() {
 
   return (
     <div className={`w-[340px] h-screen border-r flex flex-col flex-shrink-0 z-10 relative transition-colors ${
-      isDark ? 'bg-[#0d1117] border-gray-800/80 text-gray-200' : 'bg-white border-gray-200/80 text-gray-800 shadow-sm'
+      isDark ? 'bg-black border-gray-800/80 text-gray-200' : 'bg-white border-gray-200/80 text-gray-800 shadow-sm'
     }`}>
       <div className="p-6 flex-1 overflow-y-auto space-y-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
         {/* Header */}
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+          <div className="p-2.5 bg-gradient-to-br from-zinc-500 to-zinc-700 rounded-xl text-white shadow-lg shadow-zinc-500/20">
             <Smartphone className="w-5 h-5" />
           </div>
           <div>
@@ -140,18 +140,18 @@ export function Sidebar() {
             onClick={() => fileInputRef.current?.click()}
             className={`relative border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 group ${
               isDragging
-                ? 'border-indigo-500 bg-indigo-500/10 scale-[1.02] shadow-xl shadow-indigo-500/10'
+                ? 'border-zinc-500 bg-zinc-500/10 scale-[1.02] shadow-xl shadow-zinc-500/10'
                 : isDark
-                  ? 'border-gray-700 hover:border-indigo-500/50 bg-[#121622] hover:bg-[#161b28]'
-                  : 'border-gray-200 hover:border-indigo-300 bg-gray-50 hover:bg-indigo-50/50'
+                  ? 'border-gray-700 hover:border-zinc-500/50 bg-zinc-900 hover:bg-zinc-800'
+                  : 'border-gray-200 hover:border-zinc-300 bg-gray-50 hover:bg-zinc-50/50'
             }`}
           >
             <div className={`p-3 rounded-full transition-colors ${
               isDragging 
-                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                ? 'bg-zinc-500 text-white shadow-lg shadow-zinc-500/20' 
                 : isDark
-                  ? 'bg-gray-800 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 shadow-sm'
-                  : 'bg-white text-indigo-500 group-hover:bg-indigo-100 shadow-sm'
+                  ? 'bg-gray-800 text-zinc-400 group-hover:bg-zinc-500/20 group-hover:text-zinc-300 shadow-sm'
+                  : 'bg-white text-zinc-500 group-hover:bg-zinc-100 shadow-sm'
             }`}>
               <UploadCloud className="w-6 h-6" />
             </div>
@@ -161,14 +161,14 @@ export function Sidebar() {
                 {isProcessing ? 'Processing Images...' : isDragging ? 'Drop it like it\'s hot!' : 'Upload Screenshots'}
               </p>
               <p className={`text-[11px] font-medium leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                Drag & drop or <span className="text-indigo-500 hover:text-indigo-600 underline decoration-indigo-500/30 underline-offset-2">browse</span>
+                Drag & drop or <span className="text-zinc-500 hover:text-zinc-600 underline decoration-zinc-500/30 underline-offset-2">browse</span>
               </p>
             </div>
 
             <div className={`mt-2 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${
               isDark 
-                ? 'bg-indigo-950/40 border-indigo-500/20 text-indigo-300' 
-                : 'bg-indigo-50 border-indigo-100 text-indigo-600'
+                ? 'bg-zinc-950/40 border-zinc-500/20 text-zinc-300' 
+                : 'bg-zinc-50 border-zinc-100 text-zinc-600'
             }`}>
               <ImageIcon className="w-3.5 h-3.5" />
               <span>Auto Magic Color applied</span>
@@ -194,7 +194,7 @@ export function Sidebar() {
               onChange={(e) =>
                 updateGlobalSettings({ targetSize: e.target.value as TargetSizeId })
               }
-              className={`w-full border rounded-xl shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold transition-colors ${
+              className={`w-full border rounded-xl shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm font-semibold transition-colors ${
                 isDark 
                   ? 'bg-gray-800/60 border-gray-700/80 text-gray-200' 
                   : 'bg-white border-gray-200 text-gray-800'
@@ -275,14 +275,14 @@ export function Sidebar() {
               Typography
             </h2>
             <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-              isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+              isDark ? 'bg-zinc-500/10 text-zinc-400' : 'bg-zinc-50 text-zinc-600'
             }`}>Google Fonts</span>
           </div>
 
           <select
             value={globalSettings.fontFamily || 'plus-jakarta'}
             onChange={(e) => handleFontChange(e.target.value)}
-            className={`w-full border rounded-xl shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold transition-colors ${
+            className={`w-full border rounded-xl shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm font-semibold transition-colors ${
               isDark 
                 ? 'bg-gray-800/60 border-gray-700/80 text-gray-200' 
                 : 'bg-white border-gray-200 text-gray-800'
@@ -317,7 +317,7 @@ export function Sidebar() {
                   onClick={() => handleSelectBackground(preset.value, preset.textColor)}
                   className={`h-10 rounded-xl border relative transition-all duration-200 hover:scale-110 shadow-sm flex items-center justify-center ${
                     isSelected 
-                      ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-gray-900 border-transparent shadow-indigo-500/30' 
+                      ? 'ring-2 ring-zinc-500 ring-offset-2 ring-offset-gray-900 border-transparent shadow-zinc-500/30' 
                       : isDark ? 'border-white/10' : 'border-gray-200 hover:border-gray-300'
                   }`}
                   style={{ background: preset.value }}
@@ -335,7 +335,7 @@ export function Sidebar() {
 
       {/* Footer Controls */}
       <div className={`p-5 border-t space-y-3 shadow-lg ${
-        isDark ? 'bg-[#0d1117]/95 border-gray-800' : 'bg-white/95 border-gray-200'
+        isDark ? 'bg-black/95 border-gray-800' : 'bg-white/95 border-gray-200'
       }`}>
         <div className="flex gap-2">
           <button
@@ -369,7 +369,7 @@ export function Sidebar() {
         
         <button
           onClick={handleExport}
-          className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/30 text-xs font-extrabold text-white bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:scale-[1.02]"
+          className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold text-white bg-gradient-to-r from-zinc-500 to-zinc-700 hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 transition-all hover:scale-[1.02]"
         >
           <Download className="w-4 h-4 mr-2" />
           Export All ({canvases.length})

@@ -14,7 +14,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
     config: {
       enabled: true,
       icon: 'star',
-      text: '★★★★★ 4.9 App Store',
+      text: '5.0 4.9 App Store',
       subtext: '30k+ ratings',
       style: 'pill-glass',
     },
@@ -24,7 +24,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
     config: {
       enabled: true,
       icon: 'star',
-      text: '★★★★★ "Game changer"',
+      text: '5.0 "Game changer"',
       subtext: 'Featured by Apple',
       style: 'pill-glass',
     },

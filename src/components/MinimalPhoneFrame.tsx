@@ -65,26 +65,26 @@ export function MinimalPhoneFrame({
         {style === 'apple' ? (
           /* Apple Dynamic Island */
           <div 
-            className="absolute top-2 left-1/2 -translate-x-1/2 bg-black rounded-full z-20 shadow-inner flex items-center justify-end px-1"
+            className="absolute top-2 left-1/2 -tranzinc-x-1/2 bg-black rounded-full z-20 shadow-inner flex items-center justify-end px-1"
             style={{
               width: `${Math.round(width * 0.27)}px`,
               height: `${Math.max(13, Math.round(height * 0.028))}px`,
             }}
           >
             {/* Subtle camera lens glare */}
-            <div className="w-2 h-2 rounded-full bg-slate-900/90 border border-white/10" />
+            <div className="w-2 h-2 rounded-full bg-zinc-900/90 border border-white/10" />
           </div>
         ) : (
           /* Samsung Infinity-O Punch-Hole Camera */
           <div 
-            className="absolute top-2.5 left-1/2 -translate-x-1/2 bg-black rounded-full z-20 shadow-md border border-neutral-800 flex items-center justify-center"
+            className="absolute top-2.5 left-1/2 -tranzinc-x-1/2 bg-black rounded-full z-20 shadow-md border border-neutral-800 flex items-center justify-center"
             style={{
               width: `${Math.max(10, Math.round(width * 0.045))}px`,
               height: `${Math.max(10, Math.round(width * 0.045))}px`,
             }}
           >
             {/* Camera lens reflection */}
-            <div className="w-1.5 h-1.5 rounded-full bg-slate-950/90 border border-indigo-900/40" />
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-950/90 border border-zinc-900/40" />
           </div>
         )}
         

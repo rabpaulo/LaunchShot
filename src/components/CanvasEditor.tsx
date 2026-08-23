@@ -213,7 +213,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       }`}>
         <div className="flex items-center space-x-3">
           <span className={`w-6 h-6 flex items-center justify-center text-[11px] font-bold rounded-full shadow-sm ${
-            isDark ? 'bg-indigo-900/50 text-indigo-300' : 'bg-indigo-50 text-indigo-700'
+            isDark ? 'bg-zinc-900/50 text-zinc-300' : 'bg-zinc-50 text-zinc-700'
           }`}>
             {index + 1}
           </span>
@@ -226,7 +226,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             <select
               value={currentLayout}
               onChange={(e) => updateCanvas(canvas.id, { layout: e.target.value as LayoutType })}
-              className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer border transition-colors ${
+              className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-zinc-500 focus:outline-none cursor-pointer border transition-colors ${
                 isDark 
                   ? 'bg-gray-800/80 border-gray-700 text-gray-200 hover:border-gray-600' 
                   : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
@@ -244,8 +244,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
               onClick={() => applyLayoutToAll(currentLayout)}
               className={`px-2 py-1.5 ml-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm ${
                 isDark 
-                  ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30 hover:bg-indigo-500/20 hover:border-indigo-400' 
-                  : 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100'
+                  ? 'bg-zinc-500/10 text-zinc-300 border-zinc-500/30 hover:bg-zinc-500/20 hover:border-zinc-400' 
+                  : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100'
               }`}
               title="Apply this layout to all screenshots"
             >
@@ -279,8 +279,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             className={`p-2 rounded-lg border transition-all ${
               canvas.gradientText
                 ? isDark 
-                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
-                  : 'bg-indigo-50 text-indigo-700 border-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
+                  ? 'bg-zinc-950/60 text-zinc-300 border-zinc-500/40 shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
+                  : 'bg-zinc-50 text-zinc-700 border-zinc-300 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
                 : isDark
                   ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
                   : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
@@ -322,8 +322,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
               index === 0 
                 ? 'opacity-20 cursor-not-allowed text-gray-500' 
                 : isDark
-                  ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-indigo-600'
+                  ? 'text-gray-400 hover:bg-gray-800 hover:text-zinc-400'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-zinc-600'
             }`}
             title="Move Left"
           >
@@ -337,8 +337,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
               index === total - 1 
                 ? 'opacity-20 cursor-not-allowed text-gray-500' 
                 : isDark
-                  ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-indigo-600'
+                  ? 'text-gray-400 hover:bg-gray-800 hover:text-zinc-400'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-zinc-600'
             }`}
             title="Move Right"
           >
@@ -349,8 +349,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             onClick={() => duplicateCanvas(canvas.id)}
             className={`p-2 rounded-lg transition-colors ${
               isDark 
-                ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400' 
-                : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600'
+                ? 'text-gray-400 hover:bg-gray-800 hover:text-zinc-400' 
+                : 'text-gray-400 hover:bg-zinc-50 hover:text-zinc-600'
             }`}
             title="Duplicate Screenshot"
           >
@@ -361,8 +361,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             onClick={() => applyContentToAll(canvas.title, canvas.subtitle)}
             className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 ${
               isDark 
-                ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400' 
-                : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600'
+                ? 'text-gray-400 hover:bg-gray-800 hover:text-zinc-400' 
+                : 'text-gray-400 hover:bg-zinc-50 hover:text-zinc-600'
             }`}
             title="Apply this Title & Subtitle to all screens"
           >
@@ -417,7 +417,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                   isDark ? 'hover:bg-red-950/40 text-red-400' : 'hover:bg-red-50 text-red-600'
                 }`}
               >
-                🚫 Remove Badge
+                Remove Badge
               </button>
 
               {BADGE_PRESETS.map((p) => (
@@ -427,7 +427,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                   className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
                     isDark 
                       ? 'border-transparent hover:border-gray-700 hover:bg-gray-800 text-gray-200' 
-                      : 'border-transparent hover:border-indigo-100 hover:bg-indigo-50 text-gray-700'
+                      : 'border-transparent hover:border-zinc-100 hover:bg-zinc-50 text-gray-700'
                   }`}
                 >
                   <span className="font-semibold">{p.label}</span>
@@ -476,7 +476,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                   isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
                 } ${
                   canvas.gradientText 
-                    ? 'bg-gradient-to-r from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-sm' 
+                    ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
                     : ''
                 }`}
                 style={{ 

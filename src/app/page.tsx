@@ -87,9 +87,9 @@ export default function Home() {
 
   if (!isMounted) {
     return (
-      <div className="flex h-screen w-full bg-[#0a0d14] items-center justify-center">
+      <div className="flex h-screen w-full bg-black items-center justify-center">
         <div className="flex flex-col items-center opacity-80">
-          <Smartphone className="w-10 h-10 text-indigo-500 mb-4 animate-bounce" />
+          <Smartphone className="w-10 h-10 text-zinc-500 mb-4 animate-bounce" />
           <p className="text-gray-400 font-medium tracking-wide text-sm">Launching Studio...</p>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function Home() {
   return (
     <div 
       className={`flex h-screen w-full overflow-hidden font-sans relative select-none ${
-        isDark ? 'bg-[#0a0d14] text-gray-100' : 'bg-[#f8fafc] text-gray-900'
+        isDark ? 'bg-black text-gray-100' : 'bg-[#f8fafc] text-gray-900'
       }`}
       onDragOver={handleGlobalDragOver}
       onDragLeave={handleGlobalDragLeave}
@@ -107,16 +107,16 @@ export default function Home() {
     >
       {/* Global Drag & Drop Overlay */}
       {isDraggingGlobal && (
-        <div className="absolute inset-0 z-50 bg-indigo-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 pointer-events-none transition-all">
-          <div className="bg-gray-900/95 border border-indigo-500/50 rounded-[2rem] p-12 flex flex-col items-center text-center shadow-2xl max-w-lg scale-105 transition-transform">
-            <div className="p-4 bg-indigo-600/20 text-indigo-400 rounded-full mb-6 ring-4 ring-indigo-500/10">
+        <div className="absolute inset-0 z-50 bg-zinc-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 pointer-events-none transition-all">
+          <div className="bg-gray-900/95 border border-zinc-500/50 rounded-[2rem] p-12 flex flex-col items-center text-center shadow-2xl max-w-lg scale-105 transition-transform">
+            <div className="p-4 bg-zinc-600/20 text-zinc-400 rounded-full mb-6 ring-4 ring-zinc-500/10">
               <UploadCloud className="w-12 h-12" />
             </div>
             <h2 className="text-3xl font-bold mb-3 tracking-tight text-white">Drop Screenshots</h2>
             <p className="text-sm text-gray-300 mb-6 font-medium px-4">
               We'll automatically extract colors, apply dynamic mockups, and generate your showcase.
             </p>
-            <div className="flex items-center gap-2 text-xs font-bold text-indigo-300 bg-indigo-950/80 px-4 py-2 rounded-full border border-indigo-500/30">
+            <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 bg-zinc-950/80 px-4 py-2 rounded-full border border-zinc-500/30">
               <Sparkles className="w-4 h-4" />
               <span>Multi-image bulk processing active</span>
             </div>
@@ -128,12 +128,12 @@ export default function Home() {
       
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
-        isDark ? 'bg-[#0a0d14]' : 'bg-[#f8fafc]'
+        isDark ? 'bg-black' : 'bg-[#f8fafc]'
       }`}>
         {/* Top Navbar */}
         <header className={`h-16 border-b flex items-center justify-between px-6 flex-shrink-0 z-20 transition-colors ${
           isDark 
-            ? 'bg-[#10141e]/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
+            ? 'bg-zinc-950/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
             : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
         }`}>
           {/* Quick Jump Bar */}
@@ -167,8 +167,8 @@ export default function Home() {
               onClick={() => addCanvas()}
               className={`p-1.5 ml-1 rounded-lg transition-colors ${
                 isDark 
-                  ? 'text-gray-500 hover:bg-gray-800 hover:text-indigo-400' 
-                  : 'text-gray-400 hover:bg-gray-100 hover:text-indigo-600'
+                  ? 'text-gray-500 hover:bg-gray-800 hover:text-zinc-400' 
+                  : 'text-gray-400 hover:bg-gray-100 hover:text-zinc-600'
               }`}
               title="Add New Screenshot"
             >
@@ -184,7 +184,7 @@ export default function Home() {
               className={`p-2 rounded-lg border transition-all ${
                 isDark 
                   ? 'bg-gray-800/70 border-gray-700 text-amber-300 hover:bg-gray-700' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 shadow-sm'
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-zinc-600 shadow-sm'
               }`}
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
@@ -260,8 +260,8 @@ export default function Home() {
                 onClick={() => setZoomScale(0.65)}
                 className={`p-1.5 rounded-md transition-all ${
                   isDark 
-                    ? 'text-gray-500 hover:bg-gray-700 hover:text-indigo-400' 
-                    : 'text-gray-400 hover:bg-gray-100 hover:text-indigo-600'
+                    ? 'text-gray-500 hover:bg-gray-700 hover:text-zinc-400' 
+                    : 'text-gray-400 hover:bg-gray-100 hover:text-zinc-600'
                 }`}
                 title="Reset Zoom (Fit)"
               >
@@ -290,18 +290,18 @@ export default function Home() {
           <div 
             className={`flex flex-col items-center justify-center min-w-[200px] h-[520px] rounded-3xl transition-all cursor-pointer group flex-shrink-0 ${
               isDark 
-                ? 'border-2 border-dashed border-gray-800 bg-[#121622]/40 hover:bg-[#121622]/90 hover:border-indigo-500' 
-                : 'border-2 border-dashed border-gray-300 bg-white/40 hover:bg-white/80 hover:border-indigo-400'
+                ? 'border-2 border-dashed border-gray-800 bg-zinc-900/40 hover:bg-zinc-900/90 hover:border-zinc-500' 
+                : 'border-2 border-dashed border-gray-300 bg-white/40 hover:bg-white/80 hover:border-zinc-400'
             }`}
             onClick={() => addCanvas()}
           >
             <div className={`p-4 rounded-full group-hover:scale-110 transition-transform mb-3 shadow-sm ${
-              isDark ? 'bg-indigo-900/40 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+              isDark ? 'bg-zinc-900/40 text-zinc-400' : 'bg-zinc-50 text-zinc-600'
             }`}>
               <Plus className="w-8 h-8" />
             </div>
             <span className={`text-sm font-bold tracking-tight transition-colors ${
-              isDark ? 'text-gray-500 group-hover:text-indigo-400' : 'text-gray-400 group-hover:text-indigo-600'
+              isDark ? 'text-gray-500 group-hover:text-zinc-400' : 'text-gray-400 group-hover:text-zinc-600'
             }`}>
               Add New Slide
             </span>
