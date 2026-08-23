@@ -13,7 +13,6 @@ import {
   Copy,
   Star,
   Sparkles,
-  Type,
   X
 } from 'lucide-react';
 import { FastAverageColor } from 'fast-average-color';
@@ -64,6 +63,8 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
   } = useEditorStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
+
+  const isDark = globalSettings.theme !== 'light';
 
   const processSingleFile = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -202,35 +203,49 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       className="flex flex-col items-center flex-shrink-0 group relative transition-transform duration-200"
     >
       {/* Top Control Bar */}
-      <div className="w-full mb-3 flex items-center justify-between bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-200/80 gap-2 relative">
+      <div className={`w-full mb-3 flex items-center justify-between px-3 py-2 rounded-xl shadow-xs border gap-2 relative transition-colors ${
+        isDark 
+          ? 'bg-[#10141e] border-gray-800 text-gray-200' 
+          : 'bg-white border-gray-200/80 text-gray-800'
+      }`}>
         <div className="flex items-center space-x-2">
-          <span className="w-5 h-5 flex items-center justify-center bg-gray-100 text-gray-700 text-[11px] font-bold rounded-full">
+          <span className={`w-5 h-5 flex items-center justify-center text-[11px] font-bold rounded-full ${
+            isDark ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
+          }`}>
             {index + 1}
           </span>
 
           {/* Layout Selector */}
           <div className="flex items-center space-x-1">
-            <LayoutTemplate className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
+            <LayoutTemplate className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
             <select
               value={currentLayout}
               onChange={(e) => updateCanvas(canvas.id, { layout: e.target.value as LayoutType })}
-              className="text-xs font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-2 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none cursor-pointer"
+              className={`text-xs font-semibold rounded-lg px-2 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none cursor-pointer border ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 text-gray-200' 
+                  : 'bg-gray-50 border-gray-200 text-gray-700'
+              }`}
             >
               {LAYOUT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
                   {opt.label}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Social Proof Badge Toggle / Selector */}
+          {/* Social Proof Badge Toggle */}
           <button
             onClick={() => setShowBadgeMenu(!showBadgeMenu)}
-            className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1 border transition-all ${
+            className={`px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 border transition-all ${
               canvas.badge?.enabled
-                ? 'bg-amber-50 text-amber-700 border-amber-300 shadow-xs'
-                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                ? isDark 
+                  ? 'bg-amber-950/60 text-amber-300 border-amber-500/40' 
+                  : 'bg-amber-50 text-amber-700 border-amber-300'
+                : isDark
+                  ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
+                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
             }`}
             title="Add Rating / Award Badge"
           >
@@ -241,10 +256,14 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           {/* Gradient Text Toggle */}
           <button
             onClick={toggleGradientText}
-            className={`p-1 rounded-md border transition-all ${
+            className={`p-1.5 rounded-lg border transition-all ${
               canvas.gradientText
-                ? 'bg-indigo-50 text-indigo-700 border-indigo-300'
-                : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                ? isDark 
+                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40' 
+                  : 'bg-indigo-50 text-indigo-700 border-indigo-300'
+                : isDark
+                  ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
+                  : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
             }`}
             title="Toggle Gradient Text Style"
           >
@@ -254,7 +273,9 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
 
         <div className="flex items-center space-x-1.5">
           {/* Colors */}
-          <div className="flex items-center space-x-1 bg-gray-50 px-1.5 py-0.5 rounded-md border border-gray-200">
+          <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded-lg border ${
+            isDark ? 'bg-gray-800/70 border-gray-700' : 'bg-gray-50 border-gray-200'
+          }`}>
             <input
               type="color"
               value={canvas.backgroundColor || '#000000'}
@@ -275,8 +296,12 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           <button
             disabled={index === 0}
             onClick={() => moveCanvas(canvas.id, 'left')}
-            className={`p-1 rounded text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition-colors ${
-              index === 0 ? 'opacity-30 cursor-not-allowed' : ''
+            className={`p-1.5 rounded-lg transition-colors ${
+              index === 0 
+                ? 'opacity-20 cursor-not-allowed text-gray-500' 
+                : isDark
+                  ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-indigo-600'
             }`}
             title="Move Left"
           >
@@ -286,8 +311,12 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           <button
             disabled={index === total - 1}
             onClick={() => moveCanvas(canvas.id, 'right')}
-            className={`p-1 rounded text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition-colors ${
-              index === total - 1 ? 'opacity-30 cursor-not-allowed' : ''
+            className={`p-1.5 rounded-lg transition-colors ${
+              index === total - 1 
+                ? 'opacity-20 cursor-not-allowed text-gray-500' 
+                : isDark
+                  ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-indigo-600'
             }`}
             title="Move Right"
           >
@@ -296,7 +325,11 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
 
           <button
             onClick={() => duplicateCanvas(canvas.id)}
-            className="p-1 rounded text-gray-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+            className={`p-1.5 rounded-lg transition-colors ${
+              isDark 
+                ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400' 
+                : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600'
+            }`}
             title="Duplicate Screenshot"
           >
             <Copy className="w-3.5 h-3.5" />
@@ -305,7 +338,11 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           {total > 1 && (
             <button
               onClick={() => removeCanvas(canvas.id)}
-              className="p-1 rounded text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+              className={`p-1.5 rounded-lg transition-colors ${
+                isDark 
+                  ? 'text-gray-400 hover:bg-red-950/50 hover:text-red-400' 
+                  : 'text-gray-400 hover:bg-red-50 hover:text-red-600'
+              }`}
               title="Delete Screenshot"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -315,15 +352,19 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
 
         {/* Badge Selector Popover */}
         {showBadgeMenu && (
-          <div className="absolute top-12 left-20 z-50 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-72 flex flex-col gap-2">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+          <div className={`absolute top-12 left-20 z-50 rounded-2xl shadow-2xl border p-3 w-72 flex flex-col gap-2 ${
+            isDark ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'
+          }`}>
+            <div className={`flex items-center justify-between border-b pb-2 ${
+              isDark ? 'border-gray-800' : 'border-gray-100'
+            }`}>
+              <span className="text-xs font-bold flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 Select Social Proof Badge
               </span>
               <button 
                 onClick={() => setShowBadgeMenu(false)}
-                className="text-gray-400 hover:text-gray-600 p-0.5 rounded"
+                className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -332,7 +373,9 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             <div className="space-y-1.5 max-h-56 overflow-y-auto">
               <button
                 onClick={() => handleApplyBadge({ enabled: false, icon: 'none', text: '', style: 'pill-glass' })}
-                className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-red-50 text-red-600 font-medium transition-colors"
+                className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl font-medium transition-colors ${
+                  isDark ? 'hover:bg-red-950/40 text-red-400' : 'hover:bg-red-50 text-red-600'
+                }`}
               >
                 🚫 Remove Badge
               </button>
@@ -341,10 +384,14 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 <button
                   key={p.label}
                   onClick={() => handleApplyBadge(p.config)}
-                  className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-indigo-50 hover:text-indigo-700 text-gray-700 flex flex-col gap-0.5 transition-colors border border-transparent hover:border-indigo-100"
+                  className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
+                    isDark 
+                      ? 'border-transparent hover:border-gray-700 hover:bg-gray-800 text-gray-200' 
+                      : 'border-transparent hover:border-indigo-100 hover:bg-indigo-50 text-gray-700'
+                  }`}
                 >
                   <span className="font-semibold">{p.label}</span>
-                  <span className="text-[10px] text-gray-500">{p.config.text}</span>
+                  <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{p.config.text}</span>
                 </button>
               ))}
             </div>
@@ -354,7 +401,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
 
       {/* Scaled Preview Canvas */}
       <div
-        className="origin-top shadow-xl rounded-2xl overflow-hidden border border-gray-200/90 transition-transform duration-150"
+        className="origin-top shadow-2xl rounded-3xl overflow-hidden border border-black/20 transition-transform duration-150"
         style={{ 
           transform: `scale(${zoomScale})`,
           marginBottom: `calc(${canvasHeight}px * (${zoomScale} - 1))`,
@@ -415,6 +462,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             </div>
           )}
 
+          {/* Adaptive Phone Mockup Section */}
           <div 
             className={layoutConfig.phoneWrapperClass}
             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}

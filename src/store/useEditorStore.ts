@@ -30,6 +30,7 @@ export type GlobalSettings = {
   targetSize: TargetSizeId;
   fontFamily: string;
   zoomScale: number;
+  theme: 'dark' | 'light';
 };
 
 interface EditorState {
@@ -42,6 +43,7 @@ interface EditorState {
   duplicateCanvas: (id: string) => void;
   updateGlobalSettings: (updates: Partial<GlobalSettings>) => void;
   setZoomScale: (scale: number) => void;
+  toggleTheme: () => void;
   applyBackgroundToAll: (bg: string, textColor?: string) => void;
   applyFontToAll: (fontFamily: string) => void;
 }
@@ -50,6 +52,7 @@ const defaultGlobalSettings: GlobalSettings = {
   targetSize: DEFAULT_SIZE,
   fontFamily: DEFAULT_FONT,
   zoomScale: 0.65,
+  theme: 'dark',
 };
 
 const LAYOUTS: LayoutType[] = [
@@ -150,6 +153,13 @@ export const useEditorStore = create<EditorState>()(
       setZoomScale: (scale) =>
         set((state) => ({
           globalSettings: { ...state.globalSettings, zoomScale: scale },
+        })),
+      toggleTheme: () =>
+        set((state) => ({
+          globalSettings: {
+            ...state.globalSettings,
+            theme: state.globalSettings.theme === 'dark' ? 'light' : 'dark',
+          },
         })),
       applyBackgroundToAll: (bg, textColor) =>
         set((state) => ({
