@@ -4,18 +4,18 @@ import React, { useRef, useState } from 'react';
 import { CanvasItem, LayoutType, useEditorStore } from '@/store/useEditorStore';
 import { MinimalPhoneFrame } from './MinimalPhoneFrame';
 import { BadgeSticker } from './BadgeSticker';
-import { 
-  UploadCloud, 
-  Trash2, 
-  LayoutTemplate, 
-  ChevronLeft, 
-  ChevronRight, 
-  Copy,
-  Star,
-  Sparkles,
-  X,
-  Type
-} from 'lucide-react';
+import {
+  IoCloudUploadOutline,
+  IoTrashOutline,
+  IoBrowsersOutline,
+  IoChevronBack,
+  IoChevronForward,
+  IoCopyOutline,
+  IoStar,
+  IoSparklesOutline,
+  IoClose,
+  IoTextOutline
+} from 'react-icons/io5';
 import { FastAverageColor } from 'fast-average-color';
 import { TARGET_SIZES } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
@@ -222,7 +222,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
 
           {/* Layout Selector */}
           <div className="flex items-center space-x-1.5">
-            <LayoutTemplate className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+            <IoBrowsersOutline className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             <select
               value={currentLayout}
               onChange={(e) => updateCanvas(canvas.id, { layout: e.target.value as LayoutType })}
@@ -269,7 +269,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Add Rating / Award Badge"
           >
-            <Star className={`w-3.5 h-3.5 ${canvas.badge?.enabled ? 'fill-amber-400 text-amber-500' : 'text-gray-400'}`} />
+            <IoStar className={`w-3.5 h-3.5 ${canvas.badge?.enabled ? 'fill-amber-400 text-amber-500' : 'text-gray-400'}`} />
             <span>Badge</span>
           </button>
 
@@ -287,7 +287,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Toggle Gradient Text Style"
           >
-            <Sparkles className="w-4 h-4" />
+            <IoSparklesOutline className="w-4 h-4" />
           </button>
         </div>
 
@@ -327,7 +327,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Move Left"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <IoChevronBack className="w-4 h-4" />
           </button>
 
           <button
@@ -342,7 +342,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Move Right"
           >
-            <ChevronRight className="w-4 h-4" />
+            <IoChevronForward className="w-4 h-4" />
           </button>
 
           <button
@@ -354,7 +354,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Duplicate Screenshot"
           >
-            <Copy className="w-4 h-4" />
+            <IoCopyOutline className="w-4 h-4" />
           </button>
 
           <button
@@ -366,7 +366,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Apply this Title & Subtitle to all screens"
           >
-            <Type className="w-4 h-4" />
+            <IoTextOutline className="w-4 h-4" />
             <span className="text-[10px] font-bold uppercase tracking-wider hidden xl:block">
               Apply Text
             </span>
@@ -384,7 +384,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 }`}
                 title="Delete Screenshot"
               >
-                <Trash2 className="w-4 h-4" />
+                <IoTrashOutline className="w-4 h-4" />
               </button>
             </>
           )}
@@ -399,14 +399,14 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
               isDark ? 'border-gray-800' : 'border-gray-100'
             }`}>
               <span className="text-xs font-bold flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <IoStar className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 Select Social Proof Badge
               </span>
               <button 
                 onClick={() => setShowBadgeMenu(false)}
                 className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
-                <X className="w-3.5 h-3.5" />
+                <IoClose className="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -530,7 +530,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                       onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                       className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
                     >
-                      <UploadCloud className="w-4 h-4" />
+                      <IoCloudUploadOutline className="w-4 h-4" />
                       Change Image
                     </button>
                     <button
@@ -549,7 +549,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                   className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <UploadCloud className="w-10 h-10 text-gray-400 mb-2" />
+                  <IoCloudUploadOutline className="w-10 h-10 text-gray-400 mb-2" />
                   <span className="text-xs font-semibold text-gray-500">Upload Screenshot</span>
                 </div>
               )}

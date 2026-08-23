@@ -5,20 +5,20 @@ import { Sidebar } from '@/components/Sidebar';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
-import { 
-  UploadCloud, 
-  Sparkles, 
-  ZoomIn, 
-  ZoomOut, 
-  Maximize2, 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus,
-  Moon,
-  Sun,
-  Layout,
-  Smartphone
-} from 'lucide-react';
+import {
+  IoCloudUploadOutline,
+  IoSparklesOutline,
+  IoAddOutline,
+  IoRemoveOutline,
+  IoExpandOutline,
+  IoChevronBack,
+  IoChevronForward,
+  IoAdd,
+  IoMoonOutline,
+  IoSunnyOutline,
+  IoGridOutline,
+  IoPhonePortraitOutline
+} from 'react-icons/io5';
 
 export default function Home() {
   const { 
@@ -89,7 +89,7 @@ export default function Home() {
     return (
       <div className="flex h-screen w-full bg-black items-center justify-center">
         <div className="flex flex-col items-center opacity-80">
-          <Smartphone className="w-10 h-10 text-zinc-500 mb-4 animate-bounce" />
+          <IoPhonePortraitOutline className="w-10 h-10 text-zinc-500 mb-4 animate-bounce" />
           <p className="text-gray-400 font-medium tracking-wide text-sm">Launching Studio...</p>
         </div>
       </div>
@@ -110,14 +110,14 @@ export default function Home() {
         <div className="absolute inset-0 z-50 bg-zinc-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 pointer-events-none transition-all">
           <div className="bg-gray-900/95 border border-zinc-500/50 rounded-[2rem] p-12 flex flex-col items-center text-center shadow-2xl max-w-lg scale-105 transition-transform">
             <div className="p-4 bg-zinc-600/20 text-zinc-400 rounded-full mb-6 ring-4 ring-zinc-500/10">
-              <UploadCloud className="w-12 h-12" />
+              <IoCloudUploadOutline className="w-12 h-12" />
             </div>
             <h2 className="text-3xl font-bold mb-3 tracking-tight text-white">Drop Screenshots</h2>
             <p className="text-sm text-gray-300 mb-6 font-medium px-4">
               We'll automatically extract colors, apply dynamic mockups, and generate your showcase.
             </p>
             <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 bg-zinc-950/80 px-4 py-2 rounded-full border border-zinc-500/30">
-              <Sparkles className="w-4 h-4" />
+              <IoSparklesOutline className="w-4 h-4" />
               <span>Multi-image bulk processing active</span>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function Home() {
         }`}>
           {/* Quick Jump Bar */}
           <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[65%] scrollbar-none items-center h-full">
-            <Layout className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+            <IoGridOutline className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             
             <div className={`flex items-center p-1 rounded-lg ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-gray-100 border border-gray-200/50'}`}>
               {canvases.map((canvas, i) => (
@@ -172,7 +172,7 @@ export default function Home() {
               }`}
               title="Add New Screenshot"
             >
-              <Plus className="w-4 h-4" />
+              <IoAdd className="w-4 h-4" />
             </button>
           </div>
 
@@ -188,7 +188,7 @@ export default function Home() {
               }`}
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <IoSunnyOutline className="w-4 h-4" /> : <IoMoonOutline className="w-4 h-4" />}
             </button>
 
             {/* Scroll Jump Arrows */}
@@ -204,7 +204,7 @@ export default function Home() {
                 }`}
                 title="Scroll Left"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <IoChevronBack className="w-4 h-4" />
               </button>
               <div className={`w-px h-4 mx-0.5 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
               <button
@@ -216,7 +216,7 @@ export default function Home() {
                 }`}
                 title="Scroll Right"
               >
-                <ChevronRight className="w-4 h-4" />
+                <IoChevronForward className="w-4 h-4" />
               </button>
             </div>
 
@@ -233,7 +233,7 @@ export default function Home() {
                 }`}
                 title="Zoom Out"
               >
-                <ZoomOut className="w-4 h-4" />
+                <IoRemoveOutline className="w-4 h-4" />
               </button>
               
               <span className={`text-xs font-bold w-12 text-center select-none ${
@@ -251,7 +251,7 @@ export default function Home() {
                 }`}
                 title="Zoom In"
               >
-                <ZoomIn className="w-4 h-4" />
+                <IoAddOutline className="w-4 h-4" />
               </button>
 
               <div className={`w-px h-4 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
@@ -265,7 +265,7 @@ export default function Home() {
                 }`}
                 title="Reset Zoom (Fit)"
               >
-                <Maximize2 className="w-3.5 h-3.5" />
+                <IoExpandOutline className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function Home() {
             <div className={`p-4 rounded-full group-hover:scale-110 transition-transform mb-3 shadow-sm ${
               isDark ? 'bg-zinc-900/40 text-zinc-400' : 'bg-zinc-50 text-zinc-600'
             }`}>
-              <Plus className="w-8 h-8" />
+              <IoAdd className="w-8 h-8" />
             </div>
             <span className={`text-sm font-bold tracking-tight transition-colors ${
               isDark ? 'text-gray-500 group-hover:text-zinc-400' : 'text-gray-400 group-hover:text-zinc-600'

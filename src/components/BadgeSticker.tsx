@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { BadgeConfig } from '@/config/badges';
-import { Trophy, Flame, Shield, Heart, Sparkles, Star } from 'lucide-react';
+import { IoTrophy, IoFlame, IoShieldCheckmark, IoHeart, IoSparkles, IoStar } from 'react-icons/io5';
 
 interface BadgeStickerProps {
   badge?: BadgeConfig;
@@ -15,17 +15,17 @@ export function BadgeSticker({ badge, textColor = '#ffffff' }: BadgeStickerProps
   const renderIcon = () => {
     switch (badge.icon) {
       case 'trophy':
-        return <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />;
+        return <IoTrophy className="w-3.5 h-3.5 text-amber-400" />;
       case 'flame':
-        return <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />;
+        return <IoFlame className="w-3.5 h-3.5 text-orange-400" />;
       case 'shield':
-        return <Shield className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400/30" />;
+        return <IoShieldCheckmark className="w-3.5 h-3.5 text-emerald-400" />;
       case 'heart':
-        return <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />;
+        return <IoHeart className="w-3.5 h-3.5 text-rose-400" />;
       case 'sparkle':
-        return <Sparkles className="w-3.5 h-3.5 text-zinc-400" />;
+        return <IoSparkles className="w-3.5 h-3.5 text-zinc-400" />;
       case 'star':
-        return <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />;
+        return <IoStar className="w-3.5 h-3.5 text-amber-400" />;
       default:
         return null;
     }

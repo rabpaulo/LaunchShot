@@ -2,17 +2,17 @@
 
 import React, { useRef, useState } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { 
-  PlusCircle, 
-  Download, 
-  UploadCloud, 
-  Smartphone, 
-  Image as ImageIcon,
-  Palette,
-  Type,
-  Check,
-  Trash2
-} from 'lucide-react';
+import {
+  IoAddCircleOutline,
+  IoDownloadOutline,
+  IoCloudUploadOutline,
+  IoPhonePortraitOutline,
+  IoImageOutline,
+  IoColorPaletteOutline,
+  IoTextOutline,
+  IoCheckmark,
+  IoTrashOutline
+} from 'react-icons/io5';
 import { exportImages } from '@/utils/export';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
@@ -102,7 +102,7 @@ export function Sidebar() {
         {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-gradient-to-br from-zinc-500 to-zinc-700 rounded-xl text-white shadow-lg shadow-zinc-500/20">
-            <Smartphone className="w-5 h-5" />
+            <IoPhonePortraitOutline className="w-5 h-5" />
           </div>
           <div>
             <h1 className={`text-lg font-extrabold tracking-tight leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -153,7 +153,7 @@ export function Sidebar() {
                   ? 'bg-gray-800 text-zinc-400 group-hover:bg-zinc-500/20 group-hover:text-zinc-300 shadow-sm'
                   : 'bg-white text-zinc-500 group-hover:bg-zinc-100 shadow-sm'
             }`}>
-              <UploadCloud className="w-6 h-6" />
+              <IoCloudUploadOutline className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
@@ -170,7 +170,7 @@ export function Sidebar() {
                 ? 'bg-zinc-950/40 border-zinc-500/20 text-zinc-300' 
                 : 'bg-zinc-50 border-zinc-100 text-zinc-600'
             }`}>
-              <ImageIcon className="w-3.5 h-3.5" />
+              <IoImageOutline className="w-3.5 h-3.5" />
               <span>Auto Magic Color applied</span>
             </div>
           </div>
@@ -324,7 +324,7 @@ export function Sidebar() {
                   title={preset.name}
                 >
                   {isSelected && (
-                    <Check className={`w-4 h-4 ${preset.textColor === '#0f172a' ? 'text-gray-900' : 'text-white drop-shadow-md'}`} />
+                    <IoCheckmark className={`w-4 h-4 ${preset.textColor === '#0f172a' ? 'text-gray-900' : 'text-white drop-shadow-md'}`} />
                   )}
                 </button>
               );
@@ -351,7 +351,7 @@ export function Sidebar() {
             }`}
             title="Clear All Screenshots"
           >
-            <Trash2 className="w-4 h-4" />
+            <IoTrashOutline className="w-4 h-4" />
           </button>
           
           <button
@@ -362,7 +362,7 @@ export function Sidebar() {
                 : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-white hover:shadow-md'
             }`}
           >
-            <PlusCircle className="w-4 h-4 mr-2 opacity-70" />
+            <IoAddCircleOutline className="w-4 h-4 mr-2 opacity-70" />
             Add Blank Screen
           </button>
         </div>
@@ -371,7 +371,7 @@ export function Sidebar() {
           onClick={handleExport}
           className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold text-white bg-gradient-to-r from-zinc-500 to-zinc-700 hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 transition-all hover:scale-[1.02]"
         >
-          <Download className="w-4 h-4 mr-2" />
+          <IoDownloadOutline className="w-4 h-4 mr-2" />
           Export All ({canvases.length})
         </button>
       </div>
