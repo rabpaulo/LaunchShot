@@ -35,6 +35,7 @@ export type GlobalSettings = {
   zoomScale: number;
   theme: 'dark' | 'light';
   mockupStyle: MockupStyle;
+  showNotch: boolean;
 };
 
 interface EditorState {
@@ -61,6 +62,7 @@ const defaultGlobalSettings: GlobalSettings = {
   zoomScale: 0.65,
   theme: 'dark',
   mockupStyle: 'dark',
+  showNotch: true,
 };
 
 const LAYOUTS: LayoutType[] = [

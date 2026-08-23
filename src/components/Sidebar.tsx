@@ -19,6 +19,8 @@ import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 
+import { ExportModal } from './ExportModal';
+
 export function Sidebar() {
   const { 
     globalSettings, 
@@ -34,12 +36,9 @@ export function Sidebar() {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
-
-  const handleExport = async () => {
-    await exportImages(canvases);
-  };
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -248,13 +247,13 @@ export function Sidebar() {
               <button
                 key={style}
                 onClick={() => updateGlobalSettings({ mockupStyle: style as any })}
-                className={`flex-1 capitalize text-xs font-semibold py-1.5 rounded-lg transition-all ${
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${
                   globalSettings.mockupStyle === style
-                    ? isDark
-                      ? 'bg-gray-700 text-white shadow-sm'
+                    ? isDark 
+                      ? 'bg-zinc-800 text-zinc-100 shadow-sm' 
                       : 'bg-white text-gray-900 shadow-sm'
-                    : isDark
-                      ? 'text-gray-500 hover:text-gray-300'
+                    : isDark 
+                      ? 'text-gray-500 hover:text-gray-300' 
                       : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -262,6 +261,39 @@ export function Sidebar() {
               </button>
             ))}
           </div>
+        </section>
+
+        {/* Phone Settings */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Phone Settings
+            </h2>
+          </div>
+          <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-colors ${
+            isDark 
+              ? 'bg-gray-800/40 border-gray-700/60 hover:bg-gray-800/80' 
+              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+          }`}>
+            <span className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Show Camera Hole
+            </span>
+            <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+              globalSettings.showNotch ? (isDark ? 'bg-zinc-500' : 'bg-zinc-900') : (isDark ? 'bg-gray-700' : 'bg-gray-300')
+            }`}>
+              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                globalSettings.showNotch ? 'translate-x-5' : 'translate-x-1'
+              }`} />
+            </div>
+            <input 
+              type="checkbox" 
+              className="sr-only"
+              checked={globalSettings.showNotch}
+              onChange={(e) => updateGlobalSettings({ showNotch: e.target.checked })}
+            />
+          </label>
         </section>
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
@@ -368,13 +400,15 @@ export function Sidebar() {
         </div>
         
         <button
-          onClick={handleExport}
+          onClick={() => setShowExportModal(true)}
           className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold text-white bg-gradient-to-r from-zinc-500 to-zinc-700 hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 transition-all hover:scale-[1.02]"
         >
           <IoDownloadOutline className="w-4 h-4 mr-2" />
           Export All ({canvases.length})
         </button>
       </div>
+
+      {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
     </div>
   );
 }

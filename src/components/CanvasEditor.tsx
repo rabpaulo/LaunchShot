@@ -515,6 +515,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 height={phoneH} 
                 targetSizeId={globalSettings.targetSize}
                 mockupStyle={globalSettings.mockupStyle}
+                showNotch={globalSettings.showNotch}
               >
                 {canvas.imageSrc ? (
                 <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>

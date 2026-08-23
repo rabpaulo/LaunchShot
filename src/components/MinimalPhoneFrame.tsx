@@ -10,6 +10,7 @@ interface MinimalPhoneFrameProps {
   height?: number;
   targetSizeId?: TargetSizeId;
   mockupStyle?: MockupStyle;
+  showNotch?: boolean;
 }
 
 export function getDeviceStyle(targetSizeId?: TargetSizeId): DeviceStyle {
@@ -24,7 +25,8 @@ export function MinimalPhoneFrame({
   width = 280, 
   height = 580,
   targetSizeId = 'ios-6.5',
-  mockupStyle = 'dark'
+  mockupStyle = 'dark',
+  showNotch = true
 }: MinimalPhoneFrameProps) {
   const style = getDeviceStyle(targetSizeId);
 
@@ -62,10 +64,11 @@ export function MinimalPhoneFrame({
         style={{ borderRadius: `${innerRadius}px` }}
       >
         {/* Device-Specific Cutout (Apple Dynamic Island vs Samsung Punch Hole) */}
-        {style === 'apple' ? (
+        {showNotch && (
+          style === 'apple' ? (
           /* Apple Dynamic Island */
           <div 
-            className="absolute top-2 left-1/2 -tranzinc-x-1/2 bg-black rounded-full z-20 shadow-inner flex items-center justify-end px-1"
+            className="absolute top-2 left-1/2 -translate-x-1/2 bg-black rounded-full z-20 shadow-inner flex items-center justify-end px-1"
             style={{
               width: `${Math.round(width * 0.27)}px`,
               height: `${Math.max(13, Math.round(height * 0.028))}px`,
@@ -77,7 +80,7 @@ export function MinimalPhoneFrame({
         ) : (
           /* Samsung Infinity-O Punch-Hole Camera */
           <div 
-            className="absolute top-2.5 left-1/2 -tranzinc-x-1/2 bg-black rounded-full z-20 shadow-md border border-neutral-800 flex items-center justify-center"
+            className="absolute top-2.5 left-1/2 -translate-x-1/2 bg-black rounded-full z-20 shadow-md border border-neutral-800 flex items-center justify-center"
             style={{
               width: `${Math.max(10, Math.round(width * 0.045))}px`,
               height: `${Math.max(10, Math.round(width * 0.045))}px`,
@@ -86,7 +89,7 @@ export function MinimalPhoneFrame({
             {/* Camera lens reflection */}
             <div className="w-1.5 h-1.5 rounded-full bg-zinc-950/90 border border-zinc-900/40" />
           </div>
-        )}
+        ))}
         
         {/* Screen Content */}
         <div className="w-full h-full bg-gray-200 z-10 overflow-hidden">
