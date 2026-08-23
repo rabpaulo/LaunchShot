@@ -9,6 +9,8 @@ export type LayoutType =
   | 'basic-bottom' 
   | 'tilt-right' 
   | 'tilt-left' 
+  | 'tilt-right-complement'
+  | 'tilt-left-complement'
   | 'half-right' 
   | 'half-left' 
   | 'device-only';
@@ -68,10 +70,12 @@ const defaultGlobalSettings: GlobalSettings = {
 const LAYOUTS: LayoutType[] = [
   'basic-top', 
   'tilt-right', 
-  'half-right', 
-  'basic-bottom', 
+  'tilt-right-complement',
   'tilt-left', 
+  'tilt-left-complement',
+  'half-right', 
   'half-left', 
+  'basic-bottom', 
   'device-only'
 ];
 

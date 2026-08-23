@@ -33,7 +33,9 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'basic-top', label: 'Basic Top (Standard)' },
   { value: 'basic-bottom', label: 'Basic Bottom (Header Phone)' },
   { value: 'tilt-right', label: 'Tilt Right (Dynamic Angle)' },
+  { value: 'tilt-right-complement', label: 'Tilt Right Complement (Angle left)' },
   { value: 'tilt-left', label: 'Tilt Left (Dynamic Angle)' },
+  { value: 'tilt-left-complement', label: 'Tilt Left Complement (Angle right)' },
   { value: 'half-right', label: 'Half Right (Bleed Right)' },
   { value: 'half-left', label: 'Half Left (Bleed Left)' },
   { value: 'device-only', label: 'Device Only (Clean Mockup)' },
@@ -151,12 +153,26 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           phoneWrapperClass: "absolute -bottom-8 -right-8 rotate-12 origin-bottom-right z-10",
           textAlign: "left" as const,
         };
+      case 'tilt-right-complement':
+        return {
+          containerClass: "relative",
+          textContainerClass: `absolute top-0 right-0 w-[80%] pt-8 px-8 text-right z-20 flex flex-col items-end gap-2`,
+          phoneWrapperClass: "absolute -bottom-8 -left-8 rotate-12 origin-bottom-left z-10",
+          textAlign: "right" as const,
+        };
       case 'tilt-left':
         return {
           containerClass: "relative",
           textContainerClass: `absolute top-0 right-0 w-[80%] pt-8 px-8 text-right z-20 flex flex-col items-end gap-2`,
           phoneWrapperClass: "absolute -bottom-8 -left-8 -rotate-12 origin-bottom-left z-10",
           textAlign: "right" as const,
+        };
+      case 'tilt-left-complement':
+        return {
+          containerClass: "relative",
+          textContainerClass: `absolute top-0 left-0 w-[80%] pt-8 px-8 text-left z-20 flex flex-col items-start gap-2`,
+          phoneWrapperClass: "absolute -bottom-8 -right-8 -rotate-12 origin-bottom-right z-10",
+          textAlign: "left" as const,
         };
       case 'half-right':
         return {
