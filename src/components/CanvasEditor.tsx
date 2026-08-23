@@ -203,28 +203,30 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
       className="flex flex-col items-center flex-shrink-0 group relative transition-transform duration-200"
     >
       {/* Top Control Bar */}
-      <div className={`w-full mb-3 flex items-center justify-between px-3 py-2 rounded-xl shadow-xs border gap-2 relative transition-colors ${
+      <div className={`w-full mb-4 flex items-center justify-between px-4 py-2.5 rounded-2xl shadow-sm border relative transition-colors ${
         isDark 
-          ? 'bg-[#10141e] border-gray-800 text-gray-200' 
-          : 'bg-white border-gray-200/80 text-gray-800'
+          ? 'bg-gray-900/90 backdrop-blur-md border-gray-700/80 text-gray-200' 
+          : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
       }`}>
-        <div className="flex items-center space-x-2">
-          <span className={`w-5 h-5 flex items-center justify-center text-[11px] font-bold rounded-full ${
-            isDark ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
+        <div className="flex items-center space-x-3">
+          <span className={`w-6 h-6 flex items-center justify-center text-[11px] font-bold rounded-full shadow-sm ${
+            isDark ? 'bg-indigo-900/50 text-indigo-300' : 'bg-indigo-50 text-indigo-700'
           }`}>
             {index + 1}
           </span>
 
+          <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+
           {/* Layout Selector */}
-          <div className="flex items-center space-x-1">
-            <LayoutTemplate className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+          <div className="flex items-center space-x-1.5">
+            <LayoutTemplate className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             <select
               value={currentLayout}
               onChange={(e) => updateCanvas(canvas.id, { layout: e.target.value as LayoutType })}
-              className={`text-xs font-semibold rounded-lg px-2 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none cursor-pointer border ${
+              className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer border transition-colors ${
                 isDark 
-                  ? 'bg-gray-800 border-gray-700 text-gray-200' 
-                  : 'bg-gray-50 border-gray-200 text-gray-700'
+                  ? 'bg-gray-800/80 border-gray-700 text-gray-200 hover:border-gray-600' 
+                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
               }`}
             >
               {LAYOUT_OPTIONS.map((opt) => (
@@ -235,10 +237,12 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             </select>
           </div>
 
+          <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+
           {/* Social Proof Badge Toggle */}
           <button
             onClick={() => setShowBadgeMenu(!showBadgeMenu)}
-            className={`px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 border transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
               canvas.badge?.enabled
                 ? isDark 
                   ? 'bg-amber-950/60 text-amber-300 border-amber-500/40' 
@@ -256,47 +260,49 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
           {/* Gradient Text Toggle */}
           <button
             onClick={toggleGradientText}
-            className={`p-1.5 rounded-lg border transition-all ${
+            className={`p-2 rounded-lg border transition-all ${
               canvas.gradientText
                 ? isDark 
-                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40' 
-                  : 'bg-indigo-50 text-indigo-700 border-indigo-300'
+                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
+                  : 'bg-indigo-50 text-indigo-700 border-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
                 : isDark
                   ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
                   : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
             }`}
             title="Toggle Gradient Text Style"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex items-center space-x-1.5">
           {/* Colors */}
-          <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded-lg border ${
-            isDark ? 'bg-gray-800/70 border-gray-700' : 'bg-gray-50 border-gray-200'
+          <div className={`flex items-center space-x-1.5 px-2 py-1 rounded-lg border mr-2 ${
+            isDark ? 'bg-gray-800/80 border-gray-700' : 'bg-gray-50 border-gray-200'
           }`}>
             <input
               type="color"
               value={canvas.backgroundColor || '#000000'}
               onChange={(e) => updateCanvas(canvas.id, { backgroundColor: e.target.value })}
-              className="w-4 h-4 rounded border-0 cursor-pointer p-0"
+              className="w-5 h-5 rounded-md border-0 cursor-pointer p-0 shadow-sm"
               title="Change Background Color"
             />
             <input
               type="color"
               value={canvas.textColor || '#ffffff'}
               onChange={(e) => updateCanvas(canvas.id, { textColor: e.target.value })}
-              className="w-4 h-4 rounded border-0 cursor-pointer p-0"
+              className="w-5 h-5 rounded-md border-0 cursor-pointer p-0 shadow-sm"
               title="Change Text Color"
             />
           </div>
+
+          <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
 
           {/* Move & Duplicate */}
           <button
             disabled={index === 0}
             onClick={() => moveCanvas(canvas.id, 'left')}
-            className={`p-1.5 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-colors ${
               index === 0 
                 ? 'opacity-20 cursor-not-allowed text-gray-500' 
                 : isDark
@@ -305,13 +311,13 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Move Left"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
 
           <button
             disabled={index === total - 1}
             onClick={() => moveCanvas(canvas.id, 'right')}
-            className={`p-1.5 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-colors ${
               index === total - 1 
                 ? 'opacity-20 cursor-not-allowed text-gray-500' 
                 : isDark
@@ -320,33 +326,36 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             }`}
             title="Move Right"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
 
           <button
             onClick={() => duplicateCanvas(canvas.id)}
-            className={`p-1.5 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-colors ${
               isDark 
                 ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400' 
                 : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600'
             }`}
             title="Duplicate Screenshot"
           >
-            <Copy className="w-3.5 h-3.5" />
+            <Copy className="w-4 h-4" />
           </button>
 
           {total > 1 && (
-            <button
-              onClick={() => removeCanvas(canvas.id)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                isDark 
-                  ? 'text-gray-400 hover:bg-red-950/50 hover:text-red-400' 
-                  : 'text-gray-400 hover:bg-red-50 hover:text-red-600'
-              }`}
-              title="Delete Screenshot"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            <>
+              <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+              <button
+                onClick={() => removeCanvas(canvas.id)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDark 
+                    ? 'text-gray-400 hover:bg-red-950/50 hover:text-red-400' 
+                    : 'text-gray-400 hover:bg-red-50 hover:text-red-600'
+                }`}
+                title="Delete Screenshot"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
           )}
         </div>
 
@@ -468,12 +477,14 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onDrop={handlePhoneDrop}
           >
-            <MinimalPhoneFrame 
-              width={phoneW} 
-              height={phoneH} 
-              targetSizeId={globalSettings.targetSize}
-            >
-              {canvas.imageSrc ? (
+            <div className="group/phone relative transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer"
+                 onClick={() => fileInputRef.current?.click()}>
+              <MinimalPhoneFrame 
+                width={phoneW} 
+                height={phoneH} 
+                targetSizeId={globalSettings.targetSize}
+              >
+                {canvas.imageSrc ? (
                 <div className="w-full h-full relative group/img">
                   <img
                     src={canvas.imageSrc}
@@ -497,6 +508,7 @@ export function CanvasEditor({ canvas, index, total }: CanvasEditorProps) {
                 </div>
               )}
             </MinimalPhoneFrame>
+            </div>
           </div>
         </div>
       </div>

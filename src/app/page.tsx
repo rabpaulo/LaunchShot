@@ -15,7 +15,9 @@ import {
   ChevronRight, 
   Plus,
   Moon,
-  Sun
+  Sun,
+  Layout,
+  Smartphone
 } from 'lucide-react';
 
 export default function Home() {
@@ -32,7 +34,7 @@ export default function Home() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const zoom = globalSettings.zoomScale || 0.65;
-  const isDark = globalSettings.theme !== 'light'; // default dark
+  const isDark = globalSettings.theme !== 'light';
 
   useEffect(() => {
     setIsMounted(true);
@@ -86,9 +88,9 @@ export default function Home() {
   if (!isMounted) {
     return (
       <div className="flex h-screen w-full bg-[#0a0d14] items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-400 font-medium">Loading LaunchShot...</p>
+        <div className="flex flex-col items-center opacity-80">
+          <Smartphone className="w-10 h-10 text-indigo-500 mb-4 animate-bounce" />
+          <p className="text-gray-400 font-medium tracking-wide text-sm">Launching Studio...</p>
         </div>
       </div>
     );
@@ -97,7 +99,7 @@ export default function Home() {
   return (
     <div 
       className={`flex h-screen w-full overflow-hidden font-sans relative select-none ${
-        isDark ? 'bg-[#0a0d14] text-gray-100' : 'bg-gray-50 text-gray-900'
+        isDark ? 'bg-[#0a0d14] text-gray-100' : 'bg-[#f8fafc] text-gray-900'
       }`}
       onDragOver={handleGlobalDragOver}
       onDragLeave={handleGlobalDragLeave}
@@ -106,15 +108,15 @@ export default function Home() {
       {/* Global Drag & Drop Overlay */}
       {isDraggingGlobal && (
         <div className="absolute inset-0 z-50 bg-indigo-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 pointer-events-none transition-all">
-          <div className="bg-gray-900/95 border-4 border-dashed border-indigo-500 rounded-3xl p-12 flex flex-col items-center text-center shadow-2xl max-w-lg animate-bounce text-white">
-            <div className="p-4 bg-indigo-600/20 text-indigo-400 rounded-full mb-4">
+          <div className="bg-gray-900/95 border border-indigo-500/50 rounded-[2rem] p-12 flex flex-col items-center text-center shadow-2xl max-w-lg scale-105 transition-transform">
+            <div className="p-4 bg-indigo-600/20 text-indigo-400 rounded-full mb-6 ring-4 ring-indigo-500/10">
               <UploadCloud className="w-12 h-12" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Drop your screenshots here!</h2>
-            <p className="text-sm text-gray-300 mb-4">
+            <h2 className="text-3xl font-bold mb-3 tracking-tight text-white">Drop Screenshots</h2>
+            <p className="text-sm text-gray-300 mb-6 font-medium px-4">
               We'll automatically extract colors, apply dynamic mockups, and generate your showcase.
             </p>
-            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300 bg-indigo-950/80 px-3 py-1.5 rounded-full border border-indigo-500/30">
+            <div className="flex items-center gap-2 text-xs font-bold text-indigo-300 bg-indigo-950/80 px-4 py-2 rounded-full border border-indigo-500/30">
               <Sparkles className="w-4 h-4" />
               <span>Multi-image bulk processing active</span>
             </div>
@@ -126,50 +128,47 @@ export default function Home() {
       
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
-        isDark ? 'bg-[#0a0d14]' : 'bg-gray-100/70'
+        isDark ? 'bg-[#0a0d14]' : 'bg-[#f8fafc]'
       }`}>
         {/* Top Navbar */}
-        <header className={`h-14 border-b flex items-center justify-between px-6 flex-shrink-0 shadow-xs z-20 transition-colors ${
+        <header className={`h-16 border-b flex items-center justify-between px-6 flex-shrink-0 z-20 transition-colors ${
           isDark 
-            ? 'bg-[#10141e] border-gray-800/80 text-gray-200' 
-            : 'bg-white border-gray-200 text-gray-800'
+            ? 'bg-[#10141e]/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
+            : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
         }`}>
           {/* Quick Jump Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[60%] scrollbar-none">
-            <span className={`text-xs font-bold uppercase tracking-wider mr-1 ${
-              isDark ? 'text-gray-500' : 'text-gray-400'
-            }`}>
-              Slides:
-            </span>
-            {canvases.map((canvas, i) => (
-              <button
-                key={canvas.id}
-                onClick={() => scrollToCanvas(canvas.id)}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 flex-shrink-0 ${
-                  isDark
-                    ? 'border-gray-700/60 bg-gray-800/60 text-gray-300 hover:bg-indigo-950/70 hover:text-indigo-300 hover:border-indigo-500/50'
-                    : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200'
-                }`}
-              >
-                <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
-                  isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'
-                }`}>
-                  {i + 1}
-                </span>
-                <span className={`max-w-[80px] truncate text-[11px] ${
-                  isDark ? 'text-gray-300' : 'text-gray-600'
-                }`}>
-                  {canvas.title || `Slide ${i + 1}`}
-                </span>
-              </button>
-            ))}
+          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[65%] scrollbar-none items-center h-full">
+            <Layout className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+            
+            <div className={`flex items-center p-1 rounded-lg ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-gray-100 border border-gray-200/50'}`}>
+              {canvases.map((canvas, i) => (
+                <button
+                  key={canvas.id}
+                  onClick={() => scrollToCanvas(canvas.id)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-2 flex-shrink-0 ${
+                    isDark
+                      ? 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                      : 'text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-sm'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full text-[9px] flex items-center justify-center font-bold ${
+                    isDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    {i + 1}
+                  </span>
+                  <span className="max-w-[90px] truncate">
+                    {canvas.title || `Slide ${i + 1}`}
+                  </span>
+                </button>
+              ))}
+            </div>
             
             <button
               onClick={() => addCanvas()}
-              className={`p-1 rounded-lg border border-dashed transition-colors ${
+              className={`p-1.5 ml-1 rounded-lg transition-colors ${
                 isDark 
-                  ? 'border-gray-700 text-gray-400 hover:text-indigo-400 hover:border-indigo-500' 
-                  : 'border-gray-300 text-gray-400 hover:text-indigo-600 hover:border-indigo-400'
+                  ? 'text-gray-500 hover:bg-gray-800 hover:text-indigo-400' 
+                  : 'text-gray-400 hover:bg-gray-100 hover:text-indigo-600'
               }`}
               title="Add New Screenshot"
             >
@@ -178,14 +177,14 @@ export default function Home() {
           </div>
 
           {/* Theme Toggle, Pan Arrows & Zoom Controls */}
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-3">
             {/* Dark / Light Theme Toggle */}
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg border transition-all ${
                 isDark 
                   ? 'bg-gray-800/70 border-gray-700 text-amber-300 hover:bg-gray-700' 
-                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-indigo-600'
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 shadow-sm'
               }`}
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
@@ -194,25 +193,26 @@ export default function Home() {
 
             {/* Scroll Jump Arrows */}
             <div className={`flex items-center border rounded-lg p-0.5 ${
-              isDark ? 'bg-gray-800/50 border-gray-700/80' : 'bg-gray-50 border-gray-200'
+              isDark ? 'bg-gray-800/50 border-gray-700/80' : 'bg-white border-gray-200 shadow-sm'
             }`}>
               <button
                 onClick={() => scrollByAmount(-400)}
-                className={`p-1 rounded transition-all ${
+                className={`p-1.5 rounded-md transition-all ${
                   isDark 
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
-                    : 'text-gray-500 hover:bg-white hover:text-gray-900'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
                 title="Scroll Left"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
+              <div className={`w-px h-4 mx-0.5 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
               <button
                 onClick={() => scrollByAmount(400)}
-                className={`p-1 rounded transition-all ${
+                className={`p-1.5 rounded-md transition-all ${
                   isDark 
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
-                    : 'text-gray-500 hover:bg-white hover:text-gray-900'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
                 title="Scroll Right"
               >
@@ -222,21 +222,21 @@ export default function Home() {
 
             {/* Zoom Slider / Controls */}
             <div className={`flex items-center border rounded-lg p-1 space-x-1 ${
-              isDark ? 'bg-gray-800/50 border-gray-700/80' : 'bg-gray-50 border-gray-200'
+              isDark ? 'bg-gray-800/50 border-gray-700/80' : 'bg-white border-gray-200 shadow-sm'
             }`}>
               <button
                 onClick={() => setZoomScale(Math.max(0.4, Number((zoom - 0.05).toFixed(2))))}
-                className={`p-1 rounded transition-all ${
+                className={`p-1.5 rounded-md transition-all ${
                   isDark 
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
-                    : 'text-gray-500 hover:bg-white hover:text-gray-900'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
               
-              <span className={`text-xs font-semibold w-12 text-center select-none ${
+              <span className={`text-xs font-bold w-12 text-center select-none ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}>
                 {Math.round(zoom * 100)}%
@@ -244,22 +244,24 @@ export default function Home() {
 
               <button
                 onClick={() => setZoomScale(Math.min(1.0, Number((zoom + 0.05).toFixed(2))))}
-                className={`p-1 rounded transition-all ${
+                className={`p-1.5 rounded-md transition-all ${
                   isDark 
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
-                    : 'text-gray-500 hover:bg-white hover:text-gray-900'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
                 title="Zoom In"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
 
+              <div className={`w-px h-4 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+
               <button
                 onClick={() => setZoomScale(0.65)}
-                className={`p-1 rounded transition-all ${
+                className={`p-1.5 rounded-md transition-all ${
                   isDark 
                     ? 'text-gray-500 hover:bg-gray-700 hover:text-indigo-400' 
-                    : 'text-gray-400 hover:bg-white hover:text-indigo-600'
+                    : 'text-gray-400 hover:bg-gray-100 hover:text-indigo-600'
                 }`}
                 title="Reset Zoom (Fit)"
               >
@@ -273,7 +275,7 @@ export default function Home() {
         <div 
           ref={scrollContainerRef}
           onWheel={handleWheel}
-          className="flex-1 overflow-x-auto overflow-y-auto flex items-start pt-10 pb-28 px-12 gap-8 scroll-smooth"
+          className="flex-1 overflow-x-auto overflow-y-auto flex items-start pt-12 pb-32 px-12 gap-12 scroll-smooth"
         >
           {canvases.map((canvas, index) => (
             <CanvasEditor 
@@ -286,26 +288,26 @@ export default function Home() {
           
           {/* Add Slide Quick Button at End */}
           <div 
-            className={`flex flex-col items-center justify-center min-w-[180px] h-[500px] border-2 border-dashed rounded-2xl transition-all cursor-pointer group flex-shrink-0 ${
+            className={`flex flex-col items-center justify-center min-w-[200px] h-[520px] rounded-3xl transition-all cursor-pointer group flex-shrink-0 ${
               isDark 
-                ? 'border-gray-800 bg-[#121622]/40 hover:bg-[#121622]/90 hover:border-indigo-500' 
-                : 'border-gray-300 bg-white/40 hover:bg-white/80 hover:border-indigo-400'
+                ? 'border-2 border-dashed border-gray-800 bg-[#121622]/40 hover:bg-[#121622]/90 hover:border-indigo-500' 
+                : 'border-2 border-dashed border-gray-300 bg-white/40 hover:bg-white/80 hover:border-indigo-400'
             }`}
             onClick={() => addCanvas()}
           >
-            <div className={`p-3 rounded-full group-hover:scale-110 transition-transform mb-2 shadow-sm ${
+            <div className={`p-4 rounded-full group-hover:scale-110 transition-transform mb-3 shadow-sm ${
               isDark ? 'bg-indigo-900/40 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
             }`}>
-              <Plus className="w-6 h-6" />
+              <Plus className="w-8 h-8" />
             </div>
-            <span className={`text-xs font-semibold transition-colors ${
-              isDark ? 'text-gray-400 group-hover:text-indigo-400' : 'text-gray-600 group-hover:text-indigo-600'
+            <span className={`text-sm font-bold tracking-tight transition-colors ${
+              isDark ? 'text-gray-500 group-hover:text-indigo-400' : 'text-gray-400 group-hover:text-indigo-600'
             }`}>
               Add New Slide
             </span>
           </div>
 
-          <div className="w-16 h-full flex-shrink-0" />
+          <div className="w-20 h-full flex-shrink-0" />
         </div>
       </main>
     </div>
