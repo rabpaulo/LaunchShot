@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
 import {
   IoAddCircleOutline,
@@ -27,6 +27,43 @@ import { TEMPLATES } from '@/config/templates';
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(340);
+  const [isResizing, setIsResizing] = useState(false);
+
+  const startResizing = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = useCallback(
+    (e: MouseEvent) => {
+      if (isResizing) {
+        let newWidth = e.clientX;
+        if (newWidth < 280) newWidth = 280;
+        if (newWidth > 700) newWidth = 700;
+        setSidebarWidth(newWidth);
+      }
+    },
+    [isResizing]
+  );
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', resize);
+      window.addEventListener('mouseup', stopResizing);
+    } else {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+    }
+    return () => {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+    };
+  }, [isResizing, resize, stopResizing]);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
   const { 
     globalSettings, 
@@ -100,11 +137,24 @@ export function Sidebar() {
   const activeSize = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
 
   return (
-    <div className={`h-screen border-r flex flex-col flex-shrink-0 z-50 relative transition-all duration-300 ease-in-out ${
-      isCollapsed ? 'w-0 border-transparent' : 'w-[340px]'
-    } ${
-      isDark ? 'bg-black border-gray-800/80 text-gray-200' : 'bg-white border-gray-200/80 text-gray-800 shadow-sm'
-    }`}>
+    <div 
+      style={{ width: isCollapsed ? 0 : sidebarWidth }}
+      className={`h-screen border-r flex flex-col flex-shrink-0 z-50 relative ${
+        !isResizing ? 'transition-all duration-300 ease-in-out' : ''
+      } ${
+        isCollapsed ? 'border-transparent' : ''
+      } ${
+        isDark ? 'bg-black border-gray-800/80 text-gray-200' : 'bg-white border-gray-200/80 text-gray-800 shadow-sm'
+      }`}
+    >
+      {/* Resizer Handle */}
+      {!isCollapsed && (
+        <div
+          onMouseDown={startResizing}
+          className="absolute right-0 top-0 w-1.5 h-full cursor-col-resize hover:bg-blue-500/50 active:bg-blue-500 z-40 transition-colors"
+        />
+      )}
+
       {/* Collapse Toggle */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -118,10 +168,13 @@ export function Sidebar() {
       </button>
 
       {/* Inner Content */}
-      <div className={`flex-1 overflow-hidden transition-opacity duration-200 ${
+      <div className={`flex-1 overflow-hidden ${!isResizing ? 'transition-opacity duration-200' : ''} ${
         isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}>
-        <div className="p-6 h-full overflow-y-auto space-y-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 w-[340px]">
+        <div 
+          style={{ width: sidebarWidth }}
+          className="p-6 h-full overflow-y-auto space-y-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700"
+        >
         {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-gradient-to-br from-zinc-500 to-zinc-700 rounded-xl text-white shadow-lg shadow-zinc-500/20">
@@ -592,6 +645,11 @@ export function Sidebar() {
       </div>
       </div>
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
+      
+      {/* Invisible overlay while resizing to capture global mouse events */}
+      {isResizing && (
+        <div className="fixed inset-0 z-40 cursor-col-resize" />
+      )}
     </div>
   );
 }
