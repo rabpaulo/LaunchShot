@@ -58,8 +58,8 @@
 
 1. Clone your repository:
    ```bash
-   git clone <your-repo-url>
-   cd applaunch
+   git clone https://github.com/rabpaulo/LaunchShot.git
+   cd LaunchShot
    ```
 
 2. Install dependencies:

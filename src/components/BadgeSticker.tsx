@@ -8,9 +8,10 @@ interface BadgeStickerProps {
   badge?: BadgeConfig;
   textColor?: string;
   onChangeText?: (text: string) => void;
+  onChangeSubtext?: (text: string) => void;
 }
 
-export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText }: BadgeStickerProps) {
+export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onChangeSubtext }: BadgeStickerProps) {
   if (!badge || !badge.enabled || !badge.text) return null;
 
   const renderIcon = () => {
@@ -38,6 +39,12 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText }: Bad
     }
   };
 
+  const handleSubtextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChangeSubtext) {
+      onChangeSubtext(e.target.value);
+    }
+  };
+
   if (badge.style === 'minimal-star') {
     return (
       <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 text-xs font-semibold tracking-wide"
@@ -55,7 +62,22 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText }: Bad
         ) : (
           <span>{badge.text}</span>
         )}
-        {badge.subtext && <span className="opacity-75 font-normal">· {badge.subtext}</span>}
+        {badge.subtext && (
+          <span className="opacity-75 font-normal flex items-center gap-1">
+            · 
+            {onChangeSubtext ? (
+              <input
+                type="text"
+                value={badge.subtext}
+                onChange={handleSubtextChange}
+                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-white/30 rounded px-1 transition-all w-24"
+                style={{ color: textColor }}
+              />
+            ) : (
+              badge.subtext
+            )}
+          </span>
+        )}
       </div>
     );
   }
@@ -75,8 +97,17 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText }: Bad
           <span className="tracking-tight">{badge.text}</span>
         )}
         {badge.subtext && (
-          <span className="text-[10px] text-gray-500 font-medium pl-1 border-l border-gray-200">
-            {badge.subtext}
+          <span className="text-[10px] text-gray-500 font-medium pl-1 border-l border-gray-200 flex items-center">
+            {onChangeSubtext ? (
+              <input
+                type="text"
+                value={badge.subtext}
+                onChange={handleSubtextChange}
+                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-black/10 rounded px-1 transition-all w-20 text-gray-500"
+              />
+            ) : (
+              badge.subtext
+            )}
           </span>
         )}
       </div>
@@ -101,8 +132,18 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText }: Bad
         <span className="tracking-tight">{badge.text}</span>
       )}
       {badge.subtext && (
-        <span className="text-[10px] opacity-80 font-normal pl-1 border-l border-white/20">
-          {badge.subtext}
+        <span className="text-[10px] opacity-80 font-normal pl-1 border-l border-white/20 flex items-center">
+          {onChangeSubtext ? (
+            <input
+              type="text"
+              value={badge.subtext}
+              onChange={handleSubtextChange}
+              className="bg-transparent border-none outline-none focus:ring-1 focus:ring-white/30 rounded px-1 transition-all w-20"
+              style={{ color: textColor }}
+            />
+          ) : (
+            badge.subtext
+          )}
         </span>
       )}
     </div>

@@ -568,6 +568,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                     badge={canvas.badge} 
                     textColor={canvas.textColor} 
                     onChangeText={(newText) => updateCanvas(canvas.id, { badge: { ...canvas.badge!, text: newText } })}
+                    onChangeSubtext={(newSubtext) => updateCanvas(canvas.id, { badge: { ...canvas.badge!, subtext: newSubtext } })}
                   />
                 </div>
               )}
