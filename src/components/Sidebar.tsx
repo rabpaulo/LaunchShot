@@ -460,6 +460,38 @@ export function Sidebar() {
           </div>
         </section>
 
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
+        {/* Screenshot Fit */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Screenshot Fit
+            </h2>
+          </div>
+          <div className={`flex gap-1 p-1 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
+            {['cover', 'contain'].map((fit) => (
+              <button
+                key={fit}
+                onClick={() => updateGlobalSettings({ imageFit: fit as 'cover' | 'contain' })}
+                className={`flex-1 py-1.5 px-2 text-xs font-semibold rounded-lg capitalize transition-all ${
+                  (globalSettings.imageFit || 'cover') === fit
+                    ? isDark 
+                      ? 'bg-zinc-800 text-zinc-100 shadow-sm' 
+                      : 'bg-white text-gray-900 shadow-sm'
+                    : isDark 
+                      ? 'text-gray-500 hover:text-gray-300' 
+                      : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {fit}
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* Phone Settings */}
         <section>
           <div className="flex items-center justify-between mb-3">

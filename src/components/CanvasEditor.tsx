@@ -686,7 +686,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   <img
                     src={canvas.imageSrc}
                     alt="App Screenshot"
-                    className={`w-full h-full ${canvas.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
+                    className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
                   />
                   <div 
                     className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
@@ -734,7 +734,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvas.imageSrc} alt="App screen" className="w-full h-full object-cover" />
+                        <img src={canvas.imageSrc} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -754,7 +754,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvas.imageSrc} alt="App screen" className="w-full h-full object-cover" />
+                        <img src={canvas.imageSrc} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
