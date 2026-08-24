@@ -17,6 +17,7 @@
   - **Social Graphics:** Play Store Feature Graphic (`1024x500`).
 - **Showcase Layout Templates:**
   - Includes a wide variety of templates covering Basic layouts, Tilt angles, Half bleeds, 3D Isometrics, Split-verticals, and custom Social Graphics templates.
+  - **Multi-Phone Composites:** Advanced banner templates (e.g., "Banner Stacked Right", "Banner Triple Bottom") that automatically composite multiple sequential screenshots onto a single beautiful canvas for feature graphics and social media headers.
 - **Smart ASO Copywriter & Niche Generator:** 
   - Automatically extract keywords from your app's description and inject them into proven App Store Optimization formulas.
   - One-click Niche template generator applies specialized colors, copy, and layouts based on your app's category (Fitness, Finance, Dating, Food, etc.).
@@ -30,7 +31,8 @@
 - **Customizable Interface & Flow:**
   - Horizontally or vertically resize the sidebar to fit your workflow.
   - Toggle between **Horizontal Scrolling** or **Vertical Stacking** canvas view modes.
-  - Distraction-free **Preview Mode** accessible directly from the top navigation bar.
+  - **Presentation Slideshow:** A distraction-free, full-screen Preview Mode featuring snap-to-center scrolling and dynamic floating navigation arrows.
+  - **Quick Access Toolbar:** Essential actions like Preview and high-res Export are always accessible in the top navigation bar.
   - Mouse wheel scrolling maps dynamically to your chosen view mode.
   - Zoom controls (`40%` to `150%`) with quick-fit reset.
 - **Advanced Image Processing:**
