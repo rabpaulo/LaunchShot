@@ -29,29 +29,35 @@ export async function processUploadedFiles(
 
   const { canvases, updateCanvas, addCanvas } = useEditorStore.getState();
 
-  // If there's only 1 default empty canvas, replace it with the first uploaded image
-  let startIndex = 0;
-  if (canvases.length === 1 && !canvases[0].imageSrc) {
-    const firstFile = imageFiles[0];
-    const url = URL.createObjectURL(firstFile);
+  // First, find all canvases that don't have an image
+  const emptyCanvases = canvases.filter(c => !c.imageSrc);
+  
+  let processedCount = 0;
+
+  // 1. Fill empty canvases first
+  for (let i = 0; i < Math.min(emptyCanvases.length, imageFiles.length); i++) {
+    const file = imageFiles[i];
+    const url = URL.createObjectURL(file);
     try {
       const color = await fac.getColorAsync(url);
-      updateCanvas(canvases[0].id, {
+      updateCanvas(emptyCanvases[i].id, { 
         imageSrc: url,
         backgroundColor: color.hex,
         textColor: getContrastColor(color.hex),
       });
     } catch {
-      updateCanvas(canvases[0].id, { imageSrc: url });
+      updateCanvas(emptyCanvases[i].id, { imageSrc: url });
     }
-    startIndex = 1;
+    processedCount++;
+    if (onProgress) {
+      onProgress(Math.round((processedCount / imageFiles.length) * 100), processedCount, imageFiles.length);
+    }
   }
 
-  // Add the remaining images
-  for (let i = startIndex; i < imageFiles.length; i++) {
-    if (onProgress) {
-      onProgress(Math.round((i / imageFiles.length) * 100), i, imageFiles.length);
-    }
+  // 2. If we still have images left, append new canvases using the layout of the last canvas (if any)
+  const lastCanvas = canvases.length > 0 ? canvases[canvases.length - 1] : null;
+  
+  for (let i = processedCount; i < imageFiles.length; i++) {
     const file = imageFiles[i];
     const url = URL.createObjectURL(file);
     try {
@@ -60,11 +66,24 @@ export async function processUploadedFiles(
         imageSrc: url,
         backgroundColor: color.hex,
         textColor: getContrastColor(color.hex),
+        title: 'Amazing Feature',
+        subtitle: 'Describe your feature here',
+        layout: lastCanvas ? lastCanvas.layout : 'basic-top',
+        fontFamily: lastCanvas ? lastCanvas.fontFamily : 'inter'
       });
     } catch {
-      addCanvas({ imageSrc: url });
+      addCanvas({ 
+        imageSrc: url,
+        layout: lastCanvas ? lastCanvas.layout : 'basic-top',
+        fontFamily: lastCanvas ? lastCanvas.fontFamily : 'inter'
+      });
+    }
+    processedCount++;
+    if (onProgress) {
+      onProgress(Math.round((processedCount / imageFiles.length) * 100), processedCount, imageFiles.length);
     }
   }
+  
   if (onProgress) {
     onProgress(100, imageFiles.length, imageFiles.length);
   }
