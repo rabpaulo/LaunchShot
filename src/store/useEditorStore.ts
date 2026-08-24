@@ -23,9 +23,13 @@ export type LayoutType =
   | 'og-style-3'
   | 'hero-3d-center'
   | 'dynamic-overlap'
+  | 'banner-stack-right'
+  | 'banner-triple-bottom'
   | 'og-style-3'
   | 'hero-3d-center'
   | 'dynamic-overlap'
+  | 'banner-stack-right'
+  | 'banner-triple-bottom'
 
 export type CanvasItem = {
   id: string;

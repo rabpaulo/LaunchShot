@@ -10,6 +10,102 @@ export interface TemplateDefinition {
 
 export const TEMPLATES: TemplateDefinition[] = [
   {
+    name: 'Banner Stacked Right',
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Calories, macros and workouts. In one app.',
+          subtitle: 'Log in seconds.\nUnderstand what you eat.',
+          layout: 'banner-stack-right',
+          backgroundColor: '#0f3a21', // Dark green like idea1
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Banner Triple Bottom',
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'The why behind your recovery.',
+          subtitle: 'Every metric with its story: sleep stages, resting HR and HRV.',
+          layout: 'banner-triple-bottom',
+          backgroundColor: '#113c2c', // Dark green like idea2
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Hero 3D Showcase',
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Unleash Your Productivity.',
+          subtitle: 'The ultimate tool for modern professionals.',
+          layout: 'hero-3d-center',
+          backgroundColor: 'radial-gradient(circle at 50% 0%, #334155 0%, #0f172a 60%, #000000 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Track Everything.',
+          subtitle: 'Never miss a detail again.',
+          layout: 'hero-3d-center',
+          backgroundColor: 'radial-gradient(circle at 50% 0%, #334155 0%, #0f172a 60%, #000000 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Dynamic Overlap',
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Immersive Experience',
+          subtitle: 'Focus on what matters most.',
+          layout: 'dynamic-overlap',
+          backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'trophy' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Seamless Flow',
+          subtitle: 'Your data, beautifully visualized.',
+          layout: 'dynamic-overlap',
+          backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+        }
+      ]);
+    }
+  },
+
+  {
     name: `NeonCard Template`,
     apply: (loadTemplate, updateGlobalSettings) => {
       loadTemplate([

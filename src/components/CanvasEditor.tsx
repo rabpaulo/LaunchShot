@@ -65,6 +65,7 @@ function getContrastColor(hex: string) {
 export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: CanvasEditorProps) {
   const { 
     globalSettings, 
+    canvases,
     updateCanvas, 
     removeCanvas, 
     moveCanvas, 
@@ -271,6 +272,20 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
           containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-12 [perspective:2000px]",
           textContainerClass: "w-[80%] text-center z-20 drop-shadow-2xl flex flex-col justify-center items-center gap-6",
           phoneWrapperClass: "absolute bottom-[-15%] z-10 [transform:rotateX(30deg)_rotateY(0deg)_scale(1.15)] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:[transform:rotateX(20deg)_scale(1.15)]",
+          textAlign: "center" as const,
+        };
+      case 'banner-stack-right':
+        return {
+          containerClass: "relative flex items-center overflow-hidden",
+          textContainerClass: "w-[48%] pl-12 pr-4 text-left z-30 flex flex-col justify-center items-start gap-4",
+          phoneWrapperClass: "absolute top-1/2 right-4 -translate-y-1/2 z-30 scale-100",
+          textAlign: "left" as const,
+        };
+      case 'banner-triple-bottom':
+        return {
+          containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-12",
+          textContainerClass: "w-[80%] text-center z-30 drop-shadow-2xl flex flex-col justify-center items-center gap-4",
+          phoneWrapperClass: "absolute bottom-[-10%] z-30 scale-100",
           textAlign: "center" as const,
         };
       case 'dynamic-overlap':
@@ -738,6 +753,96 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
               )}
             </MinimalPhoneFrame>
             </div>
+            
+            {(currentLayout === 'banner-stack-right') && (
+              <>
+                <div className="absolute top-8 -left-[28%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 opacity-95 scale-[0.85]"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                  >
+                    {canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <img src={canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
+                        <IoCloudUploadOutline className="w-12 h-12" />
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+                <div className="absolute top-16 -left-[56%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-20 opacity-80 scale-[0.7]"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                  >
+                    {canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <img src={canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
+                        <IoCloudUploadOutline className="w-12 h-12" />
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+              </>
+            )}
+
+            {(currentLayout === 'banner-triple-bottom') && (
+              <>
+                <div className="absolute top-12 -left-[95%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 scale-[0.85]"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                  >
+                    {canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <img src={canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
+                        <IoCloudUploadOutline className="w-12 h-12" />
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+                <div className="absolute top-12 -right-[95%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 scale-[0.85]"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                  >
+                    {canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <img src={canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
+                        <IoCloudUploadOutline className="w-12 h-12" />
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+              </>
+            )}
             
             {currentLayout === 'og-style-3' && (
               <>
