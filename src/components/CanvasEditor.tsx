@@ -15,7 +15,8 @@ import {
   IoSparklesOutline,
   IoClose,
   IoTextOutline,
-  IoLogoApple
+  IoLogoApple,
+  IoLogoGooglePlaystore
 } from 'react-icons/io5';
 import { FastAverageColor } from 'fast-average-color';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -73,6 +74,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
+  const isAndroid = globalSettings.targetSize.includes('samsung') || globalSettings.targetSize.includes('android') || globalSettings.targetSize.includes('play');
 
   const processSingleFile = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -249,6 +251,20 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
           textContainerClass: "w-[45%] pl-12 pr-4 text-left z-20 flex flex-col justify-center items-start gap-6",
           phoneWrapperClass: "absolute top-1/2 -right-16 -translate-y-1/2 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.9)]",
           textAlign: "left" as const,
+        };
+      case 'hero-3d-center':
+        return {
+          containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-12 [perspective:2000px]",
+          textContainerClass: "w-[80%] text-center z-20 drop-shadow-2xl flex flex-col justify-center items-center gap-6",
+          phoneWrapperClass: "absolute bottom-[-15%] z-10 [transform:rotateX(30deg)_rotateY(0deg)_scale(1.15)] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:[transform:rotateX(20deg)_scale(1.15)]",
+          textAlign: "center" as const,
+        };
+      case 'dynamic-overlap':
+        return {
+          containerClass: "relative flex items-center justify-center overflow-hidden",
+          textContainerClass: "w-[75%] p-10 bg-black/40 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl text-center z-20 flex flex-col justify-center items-center gap-6",
+          phoneWrapperClass: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 scale-[1.3] opacity-80 blur-[2px] -rotate-6",
+          textAlign: "center" as const,
         };
       case 'device-only':
         return {
@@ -610,11 +626,23 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
               {/* Native App Store Badge (Social Graphics) */}
               {canvas.showAppStoreBadge && (
                 <div className={`mt-2 flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 rounded-lg border border-white/20 shadow-md hover:scale-105 transition-transform cursor-pointer w-max ${layoutConfig.textAlign === 'center' ? 'mx-auto' : ''} ${layoutConfig.textAlign === 'right' ? 'ml-auto' : ''}`}>
-                  <IoLogoApple className="w-[22px] h-[22px]" />
-                  <div className="flex flex-col text-left justify-center">
-                    <span className="text-[7px] uppercase tracking-wide leading-none opacity-80 mb-0.5">Download on the</span>
-                    <span className="text-[14px] font-semibold leading-none tracking-tight">App Store</span>
-                  </div>
+                  {!isAndroid ? (
+                    <>
+                      <IoLogoApple className="w-[22px] h-[22px]" />
+                      <div className="flex flex-col text-left justify-center">
+                        <span className="text-[7px] uppercase tracking-wide leading-none opacity-80 mb-0.5">Download on the</span>
+                        <span className="text-[14px] font-semibold leading-none tracking-tight">App Store</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <IoLogoGooglePlaystore className="w-[20px] h-[20px]" />
+                      <div className="flex flex-col text-left justify-center pl-0.5">
+                        <span className="text-[7px] uppercase tracking-wide leading-none opacity-80 mb-0.5">GET IT ON</span>
+                        <span className="text-[14px] font-semibold leading-none tracking-tight">Google Play</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
