@@ -73,7 +73,8 @@ export function Sidebar() {
     canvases,
     applyBackgroundToAll,
     applyFontToAll,
-    clearAllCanvases
+    clearAllCanvases,
+    setIsDraggingGlobal
   } = useEditorStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -120,6 +121,7 @@ export function Sidebar() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
+    setIsDraggingGlobal(false);
     if (e.dataTransfer.files) {
       await handleFiles(e.dataTransfer.files);
     }

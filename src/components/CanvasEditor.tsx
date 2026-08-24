@@ -68,8 +68,9 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
     moveCanvas, 
     duplicateCanvas,
     applyLayoutToAll,
-    applyContentToAll
-  } = useEditorStore();
+    applyContentToAll,
+    setIsDraggingGlobal
+} = useEditorStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
 
@@ -101,6 +102,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
   const handlePhoneDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDraggingGlobal(false);
     const file = e.dataTransfer.files?.[0];
     if (file) {
       await processSingleFile(file);

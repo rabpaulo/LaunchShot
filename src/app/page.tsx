@@ -28,11 +28,13 @@ export default function Home() {
     setZoomScale, 
     toggleTheme,
     isPreviewMode,
-    togglePreviewMode
+    togglePreviewMode,
+    isDraggingGlobal,
+    setIsDraggingGlobal
   } = useEditorStore();
 
   const [isMounted, setIsMounted] = useState(false);
-  const [isDraggingGlobal, setIsDraggingGlobal] = useState(false);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const zoom = globalSettings.zoomScale || 0.65;
