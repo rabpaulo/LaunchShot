@@ -18,7 +18,11 @@ import {
   IoMoonOutline,
   IoSunnyOutline,
   IoGridOutline,
-  IoPhonePortraitOutline
+  IoPhonePortraitOutline,
+  IoListOutline,
+  IoAlbumsOutline,
+  IoChevronUp,
+  IoChevronDown
 } from 'react-icons/io5';
 
 export default function Home() {
@@ -31,7 +35,8 @@ export default function Home() {
     isPreviewMode,
     togglePreviewMode,
     isDraggingGlobal,
-    setIsDraggingGlobal
+    setIsDraggingGlobal,
+    updateGlobalSettings
   } = useEditorStore();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -89,7 +94,7 @@ export default function Home() {
 
 
   const handleWheel = (e: React.WheelEvent) => {
-    if (scrollContainerRef.current) {
+    if (scrollContainerRef.current && globalSettings.viewMode !== 'vertical') {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         scrollContainerRef.current.scrollLeft += e.deltaY;
       }
@@ -98,7 +103,11 @@ export default function Home() {
 
   const scrollByAmount = (amount: number) => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+      if (globalSettings.viewMode === 'vertical') {
+        scrollContainerRef.current.scrollBy({ top: amount, behavior: 'smooth' });
+      } else {
+        scrollContainerRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+      }
     }
   };
 
@@ -229,9 +238,9 @@ export default function Home() {
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
-                title="Scroll Left"
+                title={globalSettings.viewMode === 'vertical' ? "Scroll Up" : "Scroll Left"}
               >
-                <IoChevronBack className="w-4 h-4" />
+                {globalSettings.viewMode === 'vertical' ? <IoChevronUp className="w-4 h-4" /> : <IoChevronBack className="w-4 h-4" />}
               </button>
               <div className={`w-px h-4 mx-0.5 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
               <button
@@ -241,9 +250,9 @@ export default function Home() {
                     ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
-                title="Scroll Right"
+                title={globalSettings.viewMode === 'vertical' ? "Scroll Down" : "Scroll Right"}
               >
-                <IoChevronForward className="w-4 h-4" />
+                {globalSettings.viewMode === 'vertical' ? <IoChevronDown className="w-4 h-4" /> : <IoChevronForward className="w-4 h-4" />}
               </button>
             </div>
 
@@ -318,7 +327,9 @@ export default function Home() {
         <div 
           ref={scrollContainerRef}
           onWheel={handleWheel}
-          className={`flex-1 overflow-x-auto overflow-y-auto flex items-start pt-12 pb-32 px-12 gap-12 scroll-smooth ${
+          className={`flex-1 overflow-x-auto overflow-y-auto flex pt-12 pb-32 px-12 gap-12 scroll-smooth ${
+            globalSettings.viewMode === 'vertical' ? 'flex-col items-center' : 'items-start'
+          } ${
             isPreviewMode ? 'items-center justify-start pt-0 pb-0 gap-0' : ''
           }`}
         >

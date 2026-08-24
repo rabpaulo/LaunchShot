@@ -54,6 +54,7 @@ export type GlobalSettings = {
   mockupStyle: MockupStyle;
   showNotch: boolean;
   imageFit: 'cover' | 'contain';
+  viewMode: 'horizontal' | 'vertical';
 };
 
 interface EditorState {
@@ -87,6 +88,7 @@ const defaultGlobalSettings: GlobalSettings = {
   mockupStyle: 'dark',
   showNotch: true,
   imageFit: 'cover',
+  viewMode: 'horizontal',
 };
 
 const LAYOUTS: LayoutType[] = [
