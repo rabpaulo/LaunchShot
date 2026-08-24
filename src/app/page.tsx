@@ -142,7 +142,7 @@ export default function Home() {
     >
       {/* Global Drag & Drop Overlay */}
       {isDraggingGlobal && (
-        <div className="absolute inset-0 z-50 bg-zinc-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 pointer-events-none transition-all">
+        <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 pointer-events-none transition-all">
           <div className="bg-gray-900/95 border border-zinc-500/50 rounded-[2rem] p-12 flex flex-col items-center text-center shadow-2xl max-w-lg scale-105 transition-transform">
             <div className="p-4 bg-zinc-600/20 text-zinc-400 rounded-full mb-6 ring-4 ring-zinc-500/10">
               <IoCloudUploadOutline className="w-12 h-12" />
