@@ -23,6 +23,7 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 
 import { ExportModal } from './ExportModal';
+import { CustomDropdown } from './ui/CustomDropdown';
 import { TEMPLATES } from '@/config/templates';
 
 export function Sidebar() {
@@ -264,19 +265,12 @@ export function Sidebar() {
             </h2>
           </div>
           <div className="flex flex-col gap-2">
-            <select
+            <CustomDropdown
               value={selectedTemplateIndex}
-              onChange={(e) => setSelectedTemplateIndex(Number(e.target.value))}
-              className={`w-full py-2 px-3 rounded-xl border text-sm font-medium outline-none transition-colors ${
-                isDark 
-                  ? 'bg-zinc-900/60 border-zinc-800 text-gray-200 focus:border-zinc-700' 
-                  : 'bg-white border-gray-200 text-gray-800 focus:border-gray-300'
-              }`}
-            >
-              {TEMPLATES.map((t, idx) => (
-                <option key={t.name} value={idx}>{t.name}</option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedTemplateIndex(Number(val))}
+              options={TEMPLATES.map((t, idx) => ({ label: t.name, value: idx }))}
+              isDark={isDark}
+            />
             <button
               onClick={() => {
                 const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
@@ -404,27 +398,14 @@ export function Sidebar() {
           </div>
           
           <div className="space-y-3">
-            <select
+            <CustomDropdown
               value={globalSettings.targetSize || 'ios-6.5'}
-              onChange={(e) =>
-                updateGlobalSettings({ targetSize: e.target.value as TargetSizeId })
-              }
-              className={`w-full border rounded-xl shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm font-semibold transition-colors ${
-                isDark 
-                  ? 'bg-gray-800/60 border-gray-700/80 text-gray-200' 
-                  : 'bg-white border-gray-200 text-gray-800'
-              }`}
-            >
-              {Object.entries(groupedSizes).map(([category, sizes]) => (
-                <optgroup key={category} label={category} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
-                  {sizes.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+              onChange={(val) => updateGlobalSettings({ targetSize: val as TargetSizeId })}
+              options={Object.entries(groupedSizes).flatMap(([category, sizes]) => 
+                sizes.map(s => ({ label: s.name, value: s.id, category }))
+              )}
+              isDark={isDark}
+            />
 
             <div className={`p-3.5 rounded-xl border flex flex-col gap-1.5 text-xs ${
               isDark 
@@ -527,21 +508,17 @@ export function Sidebar() {
             }`}>Google Fonts</span>
           </div>
 
-          <select
+          <CustomDropdown
             value={globalSettings.fontFamily || 'plus-jakarta'}
-            onChange={(e) => handleFontChange(e.target.value)}
-            className={`w-full border rounded-xl shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm font-semibold transition-colors ${
-              isDark 
-                ? 'bg-gray-800/60 border-gray-700/80 text-gray-200' 
-                : 'bg-white border-gray-200 text-gray-800'
-            }`}
-          >
-            {FONT_OPTIONS.map((font) => (
-              <option key={font.id} value={font.id} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
-                {font.name}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => handleFontChange(val)}
+            options={FONT_OPTIONS.map(font => ({ 
+              label: font.name, 
+              value: font.id, 
+              category: font.category,
+              fontFamily: font.fontFamily 
+            }))}
+            isDark={isDark}
+          />
         </section>
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
