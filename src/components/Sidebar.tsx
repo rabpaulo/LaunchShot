@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { useEditorStore } from '@/store/useEditorStore';
 import {
   IoAddCircleOutline,
@@ -94,6 +95,7 @@ export function Sidebar() {
       await processUploadedFiles(Array.from(files), (progress) => {
         setUploadProgress(progress);
       });
+      toast.success(files.length === 1 ? "Screenshot uploaded!" : `${files.length} screenshots uploaded!`);
     } finally {
       setTimeout(() => {
         setIsProcessing(false);

@@ -64,6 +64,7 @@ export default function Home() {
       setIsDraggingGlobal(false);
       if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
         await processUploadedFiles(Array.from(e.dataTransfer.files));
+        toast.success(e.dataTransfer.files.length === 1 ? "Screenshot uploaded!" : `${e.dataTransfer.files.length} screenshots uploaded!`);
       }
     };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { CanvasItem, LayoutType, useEditorStore } from '@/store/useEditorStore';
 import { MinimalPhoneFrame } from './MinimalPhoneFrame';
 import { BadgeSticker } from './BadgeSticker';
@@ -87,8 +88,10 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
         backgroundColor: color.hex,
         textColor: getContrastColor(color.hex),
       });
+      toast.success("Screenshot replaced successfully!");
     } catch {
       updateCanvas(canvas.id, { imageSrc: url });
+      toast.success("Screenshot replaced successfully!");
     }
   };
 
