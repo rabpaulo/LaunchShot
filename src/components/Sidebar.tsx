@@ -12,7 +12,9 @@ import {
   IoTextOutline,
   IoCheckmark,
   IoTrashOutline,
-  IoSparklesOutline
+  IoSparklesOutline,
+  IoChevronBack,
+  IoChevronForward
 } from 'react-icons/io5';
 import { exportImages } from '@/utils/export';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -24,6 +26,7 @@ import { ExportModal } from './ExportModal';
 import { TEMPLATES } from '@/config/templates';
 
 export function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
   const { 
     globalSettings, 
@@ -97,10 +100,28 @@ export function Sidebar() {
   const activeSize = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
 
   return (
-    <div className={`w-[340px] h-screen border-r flex flex-col flex-shrink-0 z-10 relative transition-colors ${
+    <div className={`h-screen border-r flex flex-col flex-shrink-0 z-50 relative transition-all duration-300 ease-in-out ${
+      isCollapsed ? 'w-0 border-transparent' : 'w-[340px]'
+    } ${
       isDark ? 'bg-black border-gray-800/80 text-gray-200' : 'bg-white border-gray-200/80 text-gray-800 shadow-sm'
     }`}>
-      <div className="p-6 flex-1 overflow-y-auto space-y-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+      {/* Collapse Toggle */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className={`absolute -right-3 top-6 w-6 h-6 rounded-full border flex items-center justify-center z-50 transition-colors shadow-sm ${
+          isDark 
+            ? 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700' 
+            : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+        }`}
+      >
+        {isCollapsed ? <IoChevronForward className="w-3 h-3" /> : <IoChevronBack className="w-3 h-3" />}
+      </button>
+
+      {/* Inner Content */}
+      <div className={`flex-1 overflow-hidden transition-opacity duration-200 ${
+        isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}>
+        <div className="p-6 h-full overflow-y-auto space-y-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 w-[340px]">
         {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-gradient-to-br from-zinc-500 to-zinc-700 rounded-xl text-white shadow-lg shadow-zinc-500/20">
@@ -569,7 +590,7 @@ export function Sidebar() {
           Export All ({canvases.length})
         </button>
       </div>
-
+      </div>
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
     </div>
   );
