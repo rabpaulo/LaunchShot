@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CanvasItem, LayoutType, useEditorStore } from '@/store/useEditorStore';
+import { processUploadedFiles } from '@/utils/imageProcessor';
 import { MinimalPhoneFrame } from './MinimalPhoneFrame';
 import { BadgeSticker } from './BadgeSticker';
 import {
@@ -106,9 +107,17 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingGlobal(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      await processSingleFile(file);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
+      
+      // Process the first file for this specific canvas
+      await processSingleFile(files[0]);
+      
+      // If there are more files, process them globally (fills empty canvases or appends)
+      if (files.length > 1) {
+        await processUploadedFiles(files.slice(1));
+      }
     }
   };
 

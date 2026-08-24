@@ -238,9 +238,37 @@ export const useEditorStore = create<EditorState>()(
           canvases: []
         })),
       loadTemplate: (newCanvases) =>
-        set(() => ({
-          canvases: newCanvases
-        })),
+        set((state) => {
+          const updatedCanvases = [...newCanvases];
+          
+          // 1. Map existing images onto the template's canvases
+          for (let i = 0; i < Math.min(updatedCanvases.length, state.canvases.length); i++) {
+            if (state.canvases[i].imageSrc) {
+              updatedCanvases[i].imageSrc = state.canvases[i].imageSrc;
+            }
+          }
+
+          // 2. If the user had MORE canvases (with images) than the template, preserve them
+          if (state.canvases.length > updatedCanvases.length) {
+            const lastTemplateCanvas = updatedCanvases[updatedCanvases.length - 1];
+            
+            for (let i = updatedCanvases.length; i < state.canvases.length; i++) {
+              const userCanvas = state.canvases[i];
+              // Only preserve extra user canvases if they actually have an image
+              if (userCanvas.imageSrc) {
+                updatedCanvases.push({
+                  ...userCanvas,
+                  layout: lastTemplateCanvas ? lastTemplateCanvas.layout : userCanvas.layout,
+                  backgroundColor: lastTemplateCanvas ? lastTemplateCanvas.backgroundColor : userCanvas.backgroundColor,
+                  textColor: lastTemplateCanvas ? lastTemplateCanvas.textColor : userCanvas.textColor,
+                  fontFamily: lastTemplateCanvas ? lastTemplateCanvas.fontFamily : userCanvas.fontFamily,
+                });
+              }
+            }
+          }
+          
+          return { canvases: updatedCanvases };
+        }),
       isPreviewMode: false,
       togglePreviewMode: () => set((state) => ({ isPreviewMode: !state.isPreviewMode })),
       isDraggingGlobal: false,
