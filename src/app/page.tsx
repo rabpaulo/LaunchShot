@@ -227,6 +227,19 @@ export default function Home() {
               {isDark ? <IoSunnyOutline className="w-4 h-4" /> : <IoMoonOutline className="w-4 h-4" />}
             </button>
 
+            {/* View Mode Toggle */}
+            <button
+              onClick={() => updateGlobalSettings({ viewMode: globalSettings.viewMode === 'vertical' ? 'horizontal' : 'vertical' })}
+              className={`p-2 rounded-lg border transition-all ${
+                isDark 
+                  ? 'bg-gray-800/70 border-gray-700 text-zinc-300 hover:bg-gray-700' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-zinc-600 shadow-sm'
+              }`}
+              title={globalSettings.viewMode === 'vertical' ? "Switch to Horizontal View" : "Switch to Vertical View"}
+            >
+              {globalSettings.viewMode === 'vertical' ? <IoAlbumsOutline className="w-4 h-4" /> : <IoListOutline className="w-4 h-4" />}
+            </button>
+            
             {/* Scroll Jump Arrows */}
             <div className={`flex items-center border rounded-lg p-0.5 ${
               isDark ? 'bg-gray-800/50 border-gray-700/80' : 'bg-white border-gray-200 shadow-sm'
