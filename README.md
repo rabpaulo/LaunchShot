@@ -27,10 +27,17 @@
 - **Multi-Image Drag & Drop Workflow:**
   - Full-screen drag and drop overlay for bulk importing screenshots.
   - Automatic template cycling across all imported images.
-- **Smooth Canvas Navigation & Flow:**
-  - Mouse wheel horizontal scrolling across all slides.
-  - Zoom controls (`40%` to `100%`) with quick-fit reset.
-  - Distraction-free Preview Mode.
+- **Customizable Interface & Flow:**
+  - Horizontally or vertically resize the sidebar to fit your workflow.
+  - Toggle between **Horizontal Scrolling** or **Vertical Stacking** canvas view modes.
+  - Distraction-free **Preview Mode** accessible directly from the top navigation bar.
+  - Mouse wheel scrolling maps dynamically to your chosen view mode.
+  - Zoom controls (`40%` to `150%`) with quick-fit reset.
+- **Advanced Image Processing:**
+  - **Smart Aspect Ratio Fitting:** Toggle between "Cover" (fills the device bezel perfectly) or "Contain" (letterboxes non-standard 16:9 or Web screenshots) so you never artificially crop iPads or desktop previews.
+  - **Bulk Upload Feedback:** Animated circular progress bars for multi-file processing and seamless toast notifications upon success.
+- **Smart Device Recognition:**
+  - App Store badges automatically swap to native "Get it on Google Play" variants when Android or Samsung target dimensions are selected.
 - **LocalStorage Persistence:** Automatically persists your edits in the browser so you never lose your progress on refresh.
 - **1-Click High-Res ZIP Export:** Uses `html-to-image` and `JSZip` to generate pixel-perfect, native hardware resolution PNGs packaged in a single `.zip` file.
 
