@@ -7,13 +7,20 @@ import { BadgeConfig } from '@/config/badges';
 export type LayoutType = 
   | 'basic-top' 
   | 'basic-bottom' 
+  | 'split-vertical'
   | 'tilt-right' 
   | 'tilt-left' 
   | 'tilt-right-complement'
   | 'tilt-left-complement'
   | 'half-right' 
   | 'half-left' 
-  | 'device-only';
+  | '3d-isometric-right'
+  | '3d-isometric-left'
+  | 'device-only'
+  // Social Graphics / OG Styles
+  | 'og-style-1'
+  | 'og-style-2'
+  | 'og-style-3';
 
 export type CanvasItem = {
   id: string;
@@ -22,14 +29,17 @@ export type CanvasItem = {
   subtitle: string;
   layout: LayoutType;
   backgroundColor: string;
+  backgroundImageSrc?: string;
   textColor: string;
   fontFamily?: string;
   badge?: BadgeConfig;
+  showAppStoreBadge?: boolean;
+  appIconSrc?: string;
   gradientText?: boolean;
   imageFit?: 'cover' | 'contain';
 };
 
-export type MockupStyle = 'dark' | 'light' | 'glass';
+export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';
 
 export type GlobalSettings = {
   targetSize: TargetSizeId;
@@ -56,6 +66,7 @@ interface EditorState {
   applyLayoutToAll: (layout: LayoutType) => void;
   applyContentToAll: (title: string, subtitle: string) => void;
   clearAllCanvases: () => void;
+  loadTemplate: (canvases: CanvasItem[]) => void;
   isPreviewMode: boolean;
   togglePreviewMode: () => void;
 }
@@ -78,6 +89,9 @@ const LAYOUTS: LayoutType[] = [
   'half-right', 
   'half-left', 
   'basic-bottom', 
+  'split-vertical',
+  '3d-isometric-right',
+  '3d-isometric-left',
   'device-only'
 ];
 
@@ -209,19 +223,12 @@ export const useEditorStore = create<EditorState>()(
           })),
         })),
       clearAllCanvases: () =>
-        set((state) => ({
-          canvases: [
-            {
-              id: crypto.randomUUID(),
-              imageSrc: null,
-              title: 'New Workspace',
-              subtitle: 'Drag and drop screenshots here',
-              layout: 'basic-top',
-              backgroundColor: '#000000',
-              textColor: '#ffffff',
-              fontFamily: state.globalSettings.fontFamily,
-            }
-          ]
+        set(() => ({
+          canvases: []
+        })),
+      loadTemplate: (newCanvases) =>
+        set(() => ({
+          canvases: newCanvases
         })),
       isPreviewMode: false,
       togglePreviewMode: () => set((state) => ({ isPreviewMode: !state.isPreviewMode })),

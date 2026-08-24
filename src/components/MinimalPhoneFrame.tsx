@@ -2,7 +2,7 @@ import React from 'react';
 import { TargetSizeId } from '@/config/sizes';
 import { MockupStyle } from '@/store/useEditorStore';
 
-export type DeviceStyle = 'apple' | 'samsung-ultra' | 'samsung-base' | 'android';
+export type DeviceStyle = 'apple' | 'samsung-ultra' | 'samsung-base' | 'android' | 'ipad' | 'android-tablet';
 
 interface MinimalPhoneFrameProps {
   children: React.ReactNode;
@@ -14,7 +14,10 @@ interface MinimalPhoneFrameProps {
 }
 
 export function getDeviceStyle(targetSizeId?: TargetSizeId): DeviceStyle {
-  if (!targetSizeId || targetSizeId.startsWith('ios-')) return 'apple';
+  if (!targetSizeId) return 'apple';
+  if (targetSizeId.startsWith('ios-')) return 'apple';
+  if (targetSizeId.startsWith('ipad-')) return 'ipad';
+  if (targetSizeId === 'android-tablet-10') return 'android-tablet';
   if (targetSizeId.includes('ultra')) return 'samsung-ultra';
   if (targetSizeId.startsWith('samsung-')) return 'samsung-base';
   return 'android';
@@ -46,6 +49,10 @@ export function MinimalPhoneFrame({
     outerStyleClass = "bg-[#f8fafc] border-gray-300/80 shadow-xl";
   } else if (mockupStyle === 'glass') {
     outerStyleClass = "bg-white/20 backdrop-blur-md border-white/40 shadow-2xl";
+  } else if (mockupStyle === 'clay-dark') {
+    outerStyleClass = "bg-[#2A2A2A] border-[#3A3A3A] shadow-[-10px_-10px_30px_rgba(255,255,255,0.05),10px_10px_30px_rgba(0,0,0,0.5)]";
+  } else if (mockupStyle === 'clay-light') {
+    outerStyleClass = "bg-[#E0E5EC] border-[#FFFFFF] shadow-[-10px_-10px_30px_rgba(255,255,255,0.8),10px_10px_30px_rgba(163,177,198,0.4)]";
   }
 
   return (

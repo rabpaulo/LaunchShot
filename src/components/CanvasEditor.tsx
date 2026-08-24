@@ -14,9 +14,11 @@ import {
   IoStar,
   IoSparklesOutline,
   IoClose,
-  IoTextOutline
+  IoTextOutline,
+  IoLogoApple
 } from 'react-icons/io5';
 import { FastAverageColor } from 'fast-average-color';
+import TextareaAutosize from 'react-textarea-autosize';
 import { TARGET_SIZES } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BADGE_PRESETS, BadgeConfig } from '@/config/badges';
@@ -124,7 +126,23 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
     else if (isCompact) heightFactor = 0.58;
 
     const phoneH = Math.round(canvasHeight * heightFactor);
-    const phoneW = Math.round(phoneH * 0.48);
+    
+    // Determine the device frame aspect ratio based on the target size
+    let aspectRatio = 0.48; // Default standard phone (approx 9:19.5)
+    
+    const targetConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
+    
+    if (targetConfig.category === 'Tablet') {
+      aspectRatio = targetConfig.logicalWidth / targetConfig.logicalHeight;
+    } else if (targetConfig.category === 'Header') {
+      // For headers, keep the standard phone aspect ratio inside the banner
+      aspectRatio = 0.48;
+    } else {
+      // For phones, match the phone's actual aspect ratio
+      aspectRatio = targetConfig.logicalWidth / targetConfig.logicalHeight;
+    }
+
+    const phoneW = Math.round(phoneH * aspectRatio);
     return { phoneW, phoneH };
   };
 
@@ -188,6 +206,49 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
           textContainerClass: `w-[58%] pr-8 pl-2 text-right z-20 flex flex-col justify-center gap-2`,
           phoneWrapperClass: `absolute top-1/2 -left-16 -translate-y-1/2 z-10`,
           textAlign: "right" as const,
+        };
+            case 'split-vertical':
+        return {
+          containerClass: "flex flex-col justify-between items-center",
+          textContainerClass: "w-full px-6 pt-8 pb-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2",
+          subtitleContainerClass: "w-full px-6 pb-8 pt-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2",
+          phoneWrapperClass: "w-full flex justify-center items-center flex-1 overflow-hidden relative",
+          textAlign: "center" as const,
+        };
+      case '3d-isometric-right':
+        return {
+          containerClass: "relative [perspective:2000px]",
+          textContainerClass: "absolute top-0 left-0 w-[65%] pt-12 px-8 text-left z-20 flex flex-col items-start gap-2",
+          phoneWrapperClass: "absolute -bottom-16 -right-24 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.85)] shadow-[20px_40px_60px_rgba(0,0,0,0.5)] transition-transform duration-300",
+          textAlign: "left" as const,
+        };
+      case '3d-isometric-left':
+        return {
+          containerClass: "relative [perspective:2000px]",
+          textContainerClass: "absolute top-0 right-0 w-[65%] pt-12 px-8 text-right z-20 flex flex-col items-end gap-2",
+          phoneWrapperClass: "absolute -bottom-16 -left-24 z-10 [transform:rotateX(15deg)_rotateY(35deg)_rotateZ(-10deg)_scale(0.85)] shadow-[-20px_40px_60px_rgba(0,0,0,0.5)] transition-transform duration-300",
+          textAlign: "right" as const,
+        };
+      case 'og-style-1':
+        return {
+          containerClass: "relative flex items-center bg-white",
+          textContainerClass: "w-[55%] pl-12 pr-4 text-left z-20 flex flex-col justify-center items-start gap-4",
+          phoneWrapperClass: "absolute top-1/2 -right-8 -translate-y-1/2 z-10 scale-[1.1]",
+          textAlign: "left" as const,
+        };
+      case 'og-style-2':
+        return {
+          containerClass: "relative flex items-center overflow-hidden",
+          textContainerClass: "w-[50%] pl-14 pr-4 text-left z-20 flex flex-col justify-center items-start gap-6",
+          phoneWrapperClass: "absolute -bottom-24 -right-12 z-10 scale-[1.3] [transform:rotate(-15deg)]",
+          textAlign: "left" as const,
+        };
+      case 'og-style-3':
+        return {
+          containerClass: "relative flex items-center overflow-hidden [perspective:2000px]",
+          textContainerClass: "w-[45%] pl-12 pr-4 text-left z-20 flex flex-col justify-center items-start gap-6",
+          phoneWrapperClass: "absolute top-1/2 -right-16 -translate-y-1/2 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.9)]",
+          textAlign: "left" as const,
         };
       case 'device-only':
         return {
@@ -485,9 +546,21 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
             fontFamily: fontConfig.fontFamily,
           }}
         >
+          {/* Background Image Overlay */}
+          {canvas.backgroundImageSrc && (
+            <div className="absolute inset-0 bg-black/40 z-0" />
+          )}
+
           {/* Responsive Text & Badge Section */}
           {currentLayout !== 'device-only' && (
             <div className={layoutConfig.textContainerClass}>
+              {/* App Icon (OG Styles) */}
+              {canvas.appIconSrc && (
+                <div className="w-20 h-20 rounded-[18px] bg-white shadow-xl flex items-center justify-center overflow-hidden mb-2 border border-black/5">
+                  <img src={canvas.appIconSrc} alt="App Icon" className="w-full h-full object-cover" />
+                </div>
+              )}
+
               {/* Badge Sticker */}
               {canvas.badge?.enabled && (
                 <div className="mb-1">
@@ -496,11 +569,10 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
               )}
 
               {/* Title */}
-              <input
-                type="text"
+              <TextareaAutosize
                 value={canvas.title}
                 onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
-                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all ${
+                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden ${
                   isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
                 } ${
                   canvas.gradientText 
@@ -514,16 +586,47 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                 placeholder="Enter Title"
               />
 
-              {/* Subtitle */}
-              <textarea
+              {/* Subtitle (Only if not split-vertical) */}
+              {currentLayout !== 'split-vertical' && (
+                <TextareaAutosize
+                  value={canvas.subtitle}
+                  onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
+                  className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
+                    isCompact ? 'text-sm' : 'text-xl'
+                  }`}
+                  style={{
+                    color: canvas.textColor || '#ffffff',
+                    textAlign: layoutConfig.textAlign
+                  }}
+                  placeholder="Enter Subtitle"
+                />
+              )}
+
+              {/* Native App Store Badge (Social Graphics) */}
+              {canvas.showAppStoreBadge && (
+                <div className={`mt-2 flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 rounded-lg border border-white/20 shadow-md hover:scale-105 transition-transform cursor-pointer w-max ${layoutConfig.textAlign === 'center' ? 'mx-auto' : ''} ${layoutConfig.textAlign === 'right' ? 'ml-auto' : ''}`}>
+                  <IoLogoApple className="w-[22px] h-[22px]" />
+                  <div className="flex flex-col text-left justify-center">
+                    <span className="text-[7px] uppercase tracking-wide leading-none opacity-80 mb-0.5">Download on the</span>
+                    <span className="text-[14px] font-semibold leading-none tracking-tight">App Store</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Subtitle Container for split-vertical */}
+          {currentLayout === 'split-vertical' && layoutConfig.subtitleContainerClass && (
+            <div className={layoutConfig.subtitleContainerClass}>
+              <TextareaAutosize
                 value={canvas.subtitle}
                 onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
                 className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
-                  isCompact ? 'text-sm h-14' : 'text-xl h-20'
+                  isCompact ? 'text-sm' : 'text-xl'
                 }`}
-                style={{ 
-                  color: canvas.textColor || '#ffffff', 
-                  textAlign: layoutConfig.textAlign 
+                style={{
+                  color: canvas.textColor || '#ffffff',
+                  textAlign: layoutConfig.textAlign
                 }}
                 placeholder="Enter Subtitle"
               />
@@ -584,6 +687,51 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
               )}
             </MinimalPhoneFrame>
             </div>
+            
+            {currentLayout === 'og-style-3' && (
+              <>
+                <div className="absolute top-12 left-16 group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 opacity-90 scale-95"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                  >
+                    {canvas.imageSrc ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <img src={canvas.imageSrc} alt="App screen" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
+                        <IoCloudUploadOutline className="w-12 h-12" />
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+                <div className="absolute top-24 left-32 group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-20 opacity-80 scale-90"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                  >
+                    {canvas.imageSrc ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <img src={canvas.imageSrc} alt="App screen" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
+                        <IoCloudUploadOutline className="w-12 h-12" />
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

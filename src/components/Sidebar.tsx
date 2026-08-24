@@ -11,7 +11,8 @@ import {
   IoColorPaletteOutline,
   IoTextOutline,
   IoCheckmark,
-  IoTrashOutline
+  IoTrashOutline,
+  IoSparklesOutline
 } from 'react-icons/io5';
 import { exportImages } from '@/utils/export';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -22,6 +23,7 @@ import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 import { ExportModal } from './ExportModal';
 
 export function Sidebar() {
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
   const { 
     globalSettings, 
     updateGlobalSettings, 
@@ -177,6 +179,145 @@ export function Sidebar() {
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 
+        {/* Templates */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Templates
+            </h2>
+          </div>
+          <div className="flex flex-col gap-2">
+            <select
+              value={selectedTemplateIndex}
+              onChange={(e) => setSelectedTemplateIndex(Number(e.target.value))}
+              className={`w-full py-2 px-3 rounded-xl border text-sm font-medium outline-none transition-colors ${
+                isDark 
+                  ? 'bg-zinc-900/60 border-zinc-800 text-gray-200 focus:border-zinc-700' 
+                  : 'bg-white border-gray-200 text-gray-800 focus:border-gray-300'
+              }`}
+            >
+              {TEMPLATES.map((t, idx) => (
+                <option key={t.name} value={idx}>{t.name}</option>
+              ))}
+            </select>
+            <button
+              onClick={() => {
+                const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                const template = TEMPLATES[selectedTemplateIndex];
+                if (template) {
+                  template.apply(loadTemplate, updateGlobalSettings);
+                }
+              }}
+              className={`w-full py-2.5 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                isDark
+                  ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
+                  : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+              }`}
+            >
+              Load Selected Template
+            </button>
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
+        {/* Niche Template Generator */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Auto-Generate by Niche
+            </h2>
+          </div>
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              id="niche-input"
+              placeholder="e.g. fitness, finance, dating..."
+              className={`w-full border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm transition-colors ${
+                isDark 
+                  ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
+                  : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
+              }`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const val = e.currentTarget.value;
+                  if (val) {
+                    import('@/config/niches').then(({ generateTemplateForNiche }) => {
+                      const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                      const { canvases, globalOverrides } = generateTemplateForNiche(val);
+                      loadTemplate(canvases);
+                      updateGlobalSettings(globalOverrides);
+                    });
+                  }
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                const inputEl = document.getElementById('niche-input') as HTMLInputElement;
+                if (inputEl && inputEl.value) {
+                  import('@/config/niches').then(({ generateTemplateForNiche }) => {
+                    const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                    const { canvases, globalOverrides } = generateTemplateForNiche(inputEl.value);
+                    loadTemplate(canvases);
+                    updateGlobalSettings(globalOverrides);
+                  });
+                }
+              }}
+              className={`w-full py-2 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] ${
+                isDark
+                  ? 'bg-zinc-800/80 border-zinc-700 text-white hover:bg-zinc-700'
+                  : 'bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800'
+              }`}
+            >
+              Generate Template
+            </button>
+
+            <div className="mt-4 border-t border-dashed pt-4 border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+                  isDark ? 'text-gray-500' : 'text-gray-400'
+                }`}>
+                  Smart ASO Copywriter
+                </h2>
+              </div>
+              <input
+                type="text"
+                id="aso-desc-input"
+                placeholder="Optional: Describe your app (e.g. meditation for sleep)"
+                className={`w-full mb-2 border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs transition-colors ${
+                  isDark 
+                    ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
+                    : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
+                }`}
+              />
+              <button
+                onClick={() => {
+                  const { canvases, loadTemplate } = useEditorStore.getState();
+                  const descInput = document.getElementById('aso-desc-input') as HTMLInputElement;
+                  import('@/config/aso').then(({ applyAsoCopy }) => {
+                    loadTemplate(applyAsoCopy(canvases, descInput?.value));
+                  });
+                }}
+                className={`w-full py-2 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                  isDark
+                    ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
+                    : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                }`}
+              >
+                <IoSparklesOutline className="w-4 h-4" />
+                Apply ASO Copy & Badges
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
         {/* Target Device Size */}
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -242,12 +383,12 @@ export function Sidebar() {
               Mockup Style
             </h2>
           </div>
-          <div className={`flex p-1 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
-            {['dark', 'light', 'glass'].map((style) => (
+          <div className={`flex flex-wrap gap-1 p-1 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
+            {['dark', 'light', 'glass', 'clay-dark', 'clay-light'].map((style) => (
               <button
                 key={style}
-                onClick={() => updateGlobalSettings({ mockupStyle: style as any })}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${
+                onClick={() => updateGlobalSettings({ mockupStyle: style as import('@/store/useEditorStore').MockupStyle })}
+                className={`flex-1 min-w-[30%] py-1.5 px-2 text-xs font-semibold rounded-lg capitalize transition-all ${
                   globalSettings.mockupStyle === style
                     ? isDark 
                       ? 'bg-zinc-800 text-zinc-100 shadow-sm' 
@@ -257,7 +398,7 @@ export function Sidebar() {
                       : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {style}
+                {style.replace('-', ' ')}
               </button>
             ))}
           </div>
@@ -415,8 +556,13 @@ export function Sidebar() {
         </button>
         
         <button
+          disabled={canvases.length === 0}
           onClick={() => setShowExportModal(true)}
-          className="w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold text-white bg-gradient-to-r from-zinc-500 to-zinc-700 hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 transition-all hover:scale-[1.02]"
+          className={`w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold text-white transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 ${
+            canvases.length === 0 
+              ? 'bg-zinc-400 opacity-50 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-zinc-500 to-zinc-700 hover:from-zinc-600 hover:to-zinc-800'
+          }`}
         >
           <IoDownloadOutline className="w-4 h-4 mr-2" />
           Export All ({canvases.length})

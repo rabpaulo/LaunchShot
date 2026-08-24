@@ -23,12 +23,18 @@ export type TargetSizeId =
   | 'samsung-s20'
   // General Android
   | 'android-tall'
-  | 'android-16-9';
+  | 'android-16-9'
+  // Tablets & IPads
+  | 'ipad-12.9'
+  | 'ipad-11'
+  | 'android-tablet-10'
+  // Headers & Banners
+  | 'play-feature-graphic';
 
 export interface TargetSizeConfig {
   id: TargetSizeId;
   name: string;
-  category: 'iPhone' | 'Samsung Galaxy' | 'Android';
+  category: 'iPhone' | 'Samsung Galaxy' | 'Android' | 'Tablet' | 'Header';
   width: number;
   height: number;
   logicalWidth: number;
@@ -273,6 +279,50 @@ export const TARGET_SIZES: Record<TargetSizeId, TargetSizeConfig> = {
     logicalWidth: 360,
     logicalHeight: 640,
     pixelRatio: 3,
+  },
+
+  // Tablets
+  'ipad-12.9': {
+    id: 'ipad-12.9',
+    name: 'iPad Pro 12.9" (2048x2732)',
+    category: 'Tablet',
+    width: 2048,
+    height: 2732,
+    logicalWidth: 1024,
+    logicalHeight: 1366,
+    pixelRatio: 2,
+  },
+  'ipad-11': {
+    id: 'ipad-11',
+    name: 'iPad Pro 11" (1668x2388)',
+    category: 'Tablet',
+    width: 1668,
+    height: 2388,
+    logicalWidth: 834,
+    logicalHeight: 1194,
+    pixelRatio: 2,
+  },
+  'android-tablet-10': {
+    id: 'android-tablet-10',
+    name: 'Android Tablet 10" (1600x2560)',
+    category: 'Tablet',
+    width: 1600,
+    height: 2560,
+    logicalWidth: 800,
+    logicalHeight: 1280,
+    pixelRatio: 2,
+  },
+
+  // Headers
+  'play-feature-graphic': {
+    id: 'play-feature-graphic',
+    name: 'Play Store Feature Graphic (1024x500)',
+    category: 'Header',
+    width: 1024,
+    height: 500,
+    logicalWidth: 1024,
+    logicalHeight: 500,
+    pixelRatio: 1, // Usually exported 1:1 for header graphics
   },
 };
 

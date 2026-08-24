@@ -14,7 +14,7 @@ export function ExportModal({ onClose }: ExportModalProps) {
   const { canvases, globalSettings } = useEditorStore();
   
   const [selectedPlatforms, setSelectedPlatforms] = useState<('ios' | 'android')[]>(['ios']);
-  const [activeDeviceTab, setActiveDeviceTab] = useState<'iPhone' | 'Samsung Galaxy' | 'Android'>('iPhone');
+  const [activeDeviceTab, setActiveDeviceTab] = useState<'iPhone' | 'Samsung Galaxy' | 'Android' | 'Tablet' | 'Header'>('iPhone');
   
   // By default, select the current target size
   const [selectedSizes, setSelectedSizes] = useState<TargetSizeId[]>([globalSettings.targetSize]);
@@ -50,11 +50,23 @@ export function ExportModal({ onClose }: ExportModalProps) {
     }, 500);
   };
 
-  const availableSizes = Object.values(TARGET_SIZES).filter(s => 
-    s.category === activeDeviceTab && 
-    ((selectedPlatforms.includes('ios') && s.id.startsWith('ios')) ||
-     (selectedPlatforms.includes('android') && !s.id.startsWith('ios')))
-  );
+  const availableSizes = Object.values(TARGET_SIZES).filter(s => {
+    if (s.category !== activeDeviceTab) return false;
+    
+    // For specific platforms, filter out incompatible sizes
+    if (activeDeviceTab === 'iPhone' || activeDeviceTab === 'Samsung Galaxy' || activeDeviceTab === 'Android') {
+      if (selectedPlatforms.includes('ios') && !selectedPlatforms.includes('android')) {
+        return s.id.startsWith('ios');
+      }
+      if (selectedPlatforms.includes('android') && !selectedPlatforms.includes('ios')) {
+        return !s.id.startsWith('ios');
+      }
+    }
+    
+    // For Tablet and Header, always show them regardless of ios/android toggle 
+    // (since they are universal or have specific names like ipad)
+    return true;
+  });
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -139,12 +151,12 @@ export function ExportModal({ onClose }: ExportModalProps) {
               <h3 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-zinc-500' : 'text-gray-400'}`}>
                 Devices
               </h3>
-              <div className="flex gap-2">
-                {['iPhone', 'Samsung Galaxy', 'Android'].map(tab => (
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {['iPhone', 'Samsung Galaxy', 'Android', 'Tablet', 'Header'].map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveDeviceTab(tab as any)}
-                    className={`px-6 py-2 rounded-lg font-semibold text-sm transition-all ${
+                    className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                       activeDeviceTab === tab
                         ? isDark
                           ? 'bg-zinc-800 text-white shadow-sm'
