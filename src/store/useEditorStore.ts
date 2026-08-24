@@ -20,7 +20,12 @@ export type LayoutType =
   // Social Graphics / OG Styles
   | 'og-style-1'
   | 'og-style-2'
-  | 'og-style-3';
+  | 'og-style-3'
+  | 'hero-3d-center'
+  | 'dynamic-overlap'
+  | 'og-style-3'
+  | 'hero-3d-center'
+  | 'dynamic-overlap'
 
 export type CanvasItem = {
   id: string;
