@@ -35,10 +35,8 @@ export function ExportModal({ onClose }: ExportModalProps) {
     setIsExporting(true);
     setProgress(10);
     
-    // For now, we only export the current one due to DOM rendering constraints.
-    // In a full implementation, we would render off-screen canvases for each size.
     try {
-      await exportImages(canvases);
+      await exportImages(canvases, selectedSizes);
       setProgress(100);
     } catch (err) {
       console.error(err);
