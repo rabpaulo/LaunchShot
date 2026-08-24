@@ -3,6 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Sidebar } from '@/components/Sidebar';
+import { ExportModal } from '@/components/ExportModal';
+import { IoDownloadOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -40,6 +42,7 @@ export default function Home() {
   } = useEditorStore();
 
   const [isMounted, setIsMounted] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -161,6 +164,8 @@ export default function Home() {
 
       {!isPreviewMode && <Sidebar />}
       
+      {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
+
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
         isDark ? 'bg-black' : 'bg-[#f8fafc]'
@@ -329,6 +334,19 @@ export default function Home() {
             >
               <IoExpandOutline className="w-3.5 h-3.5 mr-1.5" />
               Preview Mode
+            </button>
+            
+            <button
+              disabled={canvases.length === 0}
+              onClick={() => setShowExportModal(true)}
+              className={`ml-3 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-md ${
+                canvases.length === 0
+                  ? 'bg-zinc-400 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 border border-blue-500/50'
+              }`}
+            >
+              <IoDownloadOutline className="w-3.5 h-3.5 mr-1.5" />
+              Export
             </button>
           </div>
           </header>
