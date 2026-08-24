@@ -18,7 +18,10 @@ export function getContrastColor(hex: string): string {
   return yiq >= 128 ? '#000000' : '#ffffff';
 }
 
-export async function processUploadedFiles(files: File[]) {
+export async function processUploadedFiles(
+  files: File[],
+  onProgress?: (progress: number, current: number, total: number) => void
+) {
   if (!files || files.length === 0) return;
 
   const imageFiles = files.filter((f) => f.type.startsWith('image/'));
@@ -46,6 +49,9 @@ export async function processUploadedFiles(files: File[]) {
 
   // Add the remaining images
   for (let i = startIndex; i < imageFiles.length; i++) {
+    if (onProgress) {
+      onProgress(Math.round((i / imageFiles.length) * 100), i, imageFiles.length);
+    }
     const file = imageFiles[i];
     const url = URL.createObjectURL(file);
     try {
@@ -58,5 +64,8 @@ export async function processUploadedFiles(files: File[]) {
     } catch {
       addCanvas({ imageSrc: url });
     }
+  }
+  if (onProgress) {
+    onProgress(100, imageFiles.length, imageFiles.length);
   }
 }

@@ -79,6 +79,7 @@ export function Sidebar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
 
@@ -87,10 +88,16 @@ export function Sidebar() {
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setIsProcessing(true);
+    setUploadProgress(0);
     try {
-      await processUploadedFiles(Array.from(files));
+      await processUploadedFiles(Array.from(files), (progress) => {
+        setUploadProgress(progress);
+      });
     } finally {
-      setIsProcessing(false);
+      setTimeout(() => {
+        setIsProcessing(false);
+        setUploadProgress(0);
+      }, 500); // short delay for visual completion
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
