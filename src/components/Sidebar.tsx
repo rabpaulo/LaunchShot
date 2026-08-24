@@ -653,10 +653,10 @@ export function Sidebar() {
         <button
           disabled={canvases.length === 0}
           onClick={() => setShowExportModal(true)}
-          className={`w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold text-white transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 ${
+          className={`w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 ${
             canvases.length === 0 
               ? 'bg-zinc-400 opacity-50 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-zinc-500 to-zinc-700 hover:from-zinc-600 hover:to-zinc-800'
+              : (isDark ? 'bg-white text-zinc-900 hover:bg-gray-100' : 'bg-zinc-900 text-white hover:bg-zinc-800')
           }`}
         >
           <IoDownloadOutline className="w-4 h-4 mr-2" />

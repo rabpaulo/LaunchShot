@@ -342,7 +342,7 @@ export default function Home() {
               className={`ml-3 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-md ${
                 canvases.length === 0
                   ? 'bg-zinc-400 opacity-50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 border border-blue-500/50'
+                  : (isDark ? 'bg-white text-zinc-900 hover:bg-gray-100' : 'bg-zinc-900 text-white hover:bg-zinc-800')
               }`}
             >
               <IoDownloadOutline className="w-3.5 h-3.5 mr-1.5" />
