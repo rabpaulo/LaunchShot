@@ -563,8 +563,12 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
 
               {/* Badge Sticker */}
               {canvas.badge?.enabled && (
-                <div className="mb-1">
-                  <BadgeSticker badge={canvas.badge} textColor={canvas.textColor} />
+                <div className="mb-1 pointer-events-auto">
+                  <BadgeSticker 
+                    badge={canvas.badge} 
+                    textColor={canvas.textColor} 
+                    onChangeText={(newText) => updateCanvas(canvas.id, { badge: { ...canvas.badge!, text: newText } })}
+                  />
                 </div>
               )}
 

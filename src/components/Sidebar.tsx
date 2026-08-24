@@ -21,6 +21,7 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 
 import { ExportModal } from './ExportModal';
+import { TEMPLATES } from '@/config/templates';
 
 export function Sidebar() {
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);

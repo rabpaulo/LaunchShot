@@ -78,7 +78,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'basic-top',
                     backgroundColor: '#000000',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -88,7 +88,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'tilt-right',
                     backgroundColor: '#000000',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -98,7 +98,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'tilt-left',
                     backgroundColor: '#000000',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -108,7 +108,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'basic-bottom',
                     backgroundColor: '#000000',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   }
                 ]);
     }
@@ -125,7 +125,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: '3d-isometric-right',
                     backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)', // Midnight Violet
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -135,7 +135,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: '3d-isometric-left',
                     backgroundColor: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #334155 100%)', // Deep Obsidian
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -145,7 +145,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: '3d-isometric-right',
                     backgroundColor: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)', // Emerald Forest
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   }
                 ]);
     }
@@ -163,7 +163,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     backgroundColor: '#000000',
                     backgroundImageSrc: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=1080',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -174,7 +174,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     backgroundColor: '#000000',
                     backgroundImageSrc: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1080',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -185,7 +185,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     backgroundColor: '#000000',
                     backgroundImageSrc: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=1080',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   }
                 ]);
     }
@@ -202,7 +202,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'half-right',
                     backgroundColor: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -212,7 +212,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'half-left',
                     backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -222,7 +222,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'tilt-right',
                     backgroundColor: 'linear-gradient(135deg, #312e81 0%, #4c1d95 100%)',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -232,7 +232,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'tilt-left',
                     backgroundColor: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   },
                   {
                     id: crypto.randomUUID(),
@@ -242,7 +242,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     layout: 'basic-bottom',
                     backgroundColor: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
                     textColor: '#ffffff',
-                    fontFamily: globalSettings.fontFamily,
+                    fontFamily: 'inter',
                   }
                 ]);
     }
