@@ -317,6 +317,19 @@ export default function Home() {
                 <IoExpandOutline className="w-3.5 h-3.5" />
               </button>
             </div>
+
+            {/* Top Toolbar Preview Button */}
+            <button
+              onClick={togglePreviewMode}
+              className={`ml-2 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+                isDark
+                  ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700'
+                  : 'bg-black text-white hover:bg-zinc-800'
+              }`}
+            >
+              <IoExpandOutline className="w-3.5 h-3.5 mr-1.5" />
+              Preview Mode
+            </button>
           </div>
           </header>
         )}
