@@ -335,28 +335,54 @@ export default function Home() {
         )}
 
         {isPreviewMode && (
-          <div className="absolute top-6 right-6 z-50">
+          <>
+            <div className="absolute top-6 right-6 z-[100]">
+              <button
+                onClick={togglePreviewMode}
+                className={`px-4 py-2 rounded-xl font-bold text-sm shadow-xl flex items-center gap-2 transition-all ${
+                  isDark 
+                    ? 'bg-zinc-800 text-white hover:bg-zinc-700' 
+                    : 'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                Exit Preview
+              </button>
+            </div>
+            
+            {/* Slideshow Nav */}
             <button
-              onClick={togglePreviewMode}
-              className={`px-4 py-2 rounded-xl font-bold text-sm shadow-xl flex items-center gap-2 transition-all ${
-                isDark 
-                  ? 'bg-zinc-800 text-white hover:bg-zinc-700' 
-                  : 'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50'
+              onClick={() => scrollByAmount(globalSettings.viewMode === 'vertical' ? -window.innerHeight : -window.innerWidth)}
+              className={`absolute z-[100] p-4 rounded-full bg-black/40 text-white hover:bg-black/80 transition-colors backdrop-blur-md ${
+                globalSettings.viewMode === 'vertical'
+                  ? 'top-24 left-1/2 -translate-x-1/2'
+                  : 'left-6 top-1/2 -translate-y-1/2'
               }`}
             >
-              Exit Preview
+              {globalSettings.viewMode === 'vertical' ? <IoChevronUp className="w-8 h-8" /> : <IoChevronBack className="w-8 h-8" />}
             </button>
-          </div>
+            <button
+              onClick={() => scrollByAmount(globalSettings.viewMode === 'vertical' ? window.innerHeight : window.innerWidth)}
+              className={`absolute z-[100] p-4 rounded-full bg-black/40 text-white hover:bg-black/80 transition-colors backdrop-blur-md ${
+                globalSettings.viewMode === 'vertical'
+                  ? 'bottom-6 left-1/2 -translate-x-1/2'
+                  : 'right-6 top-1/2 -translate-y-1/2'
+              }`}
+            >
+              {globalSettings.viewMode === 'vertical' ? <IoChevronDown className="w-8 h-8" /> : <IoChevronForward className="w-8 h-8" />}
+            </button>
+          </>
         )}
 
         {/* Scrollable Canvases Container */}
         <div 
           ref={scrollContainerRef}
           onWheel={handleWheel}
-          className={`flex-1 overflow-x-auto overflow-y-auto flex pt-12 pb-32 px-12 gap-12 scroll-smooth ${
+          className={`flex-1 overflow-x-auto overflow-y-auto flex scroll-smooth ${
             globalSettings.viewMode === 'vertical' ? 'flex-col items-center' : 'items-start'
           } ${
-            isPreviewMode ? 'items-center justify-start pt-0 pb-0 gap-0' : ''
+            isPreviewMode 
+              ? `items-center justify-start pt-0 pb-0 gap-0 snap-mandatory ${globalSettings.viewMode === 'vertical' ? 'snap-y' : 'snap-x'}` 
+              : 'pt-12 pb-32 px-12 gap-12'
           }`}
         >
           {canvases.map((canvas, index) => (

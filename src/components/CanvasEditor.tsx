@@ -311,7 +311,11 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
   return (
     <div 
       id={`card-${canvas.id}`}
-      className="flex flex-col items-center flex-shrink-0 group relative transition-transform duration-200"
+      className={`flex flex-col flex-shrink-0 group relative transition-transform duration-200 ${
+        isPreviewMode 
+          ? 'w-screen h-screen items-center justify-center snap-center' 
+          : 'items-center'
+      }`}
     >
       {/* Top Control Bar */}
       {!isPreviewMode && (
