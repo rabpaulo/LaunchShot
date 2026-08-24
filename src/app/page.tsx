@@ -44,6 +44,48 @@ export default function Home() {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    const handleWindowDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.types && Array.from(e.dataTransfer.types).includes('Files')) {
+        setIsDraggingGlobal(true);
+      }
+    };
+
+    const handleWindowDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      if (!e.relatedTarget || (e.relatedTarget as HTMLElement).nodeName === 'HTML') {
+        setIsDraggingGlobal(false);
+      }
+    };
+
+    const handleWindowDrop = async (e: DragEvent) => {
+      e.preventDefault();
+      setIsDraggingGlobal(false);
+      if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+        await processUploadedFiles(Array.from(e.dataTransfer.files));
+      }
+    };
+
+    // Global fail-safe for mouse leave
+    const handleMouseLeave = () => {
+      setIsDraggingGlobal(false);
+    };
+
+    window.addEventListener('dragover', handleWindowDragOver);
+    window.addEventListener('dragleave', handleWindowDragLeave);
+    window.addEventListener('drop', handleWindowDrop);
+    document.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      window.removeEventListener('dragover', handleWindowDragOver);
+      window.removeEventListener('dragleave', handleWindowDragLeave);
+      window.removeEventListener('drop', handleWindowDrop);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [setIsDraggingGlobal]);
+
+
   const handleWheel = (e: React.WheelEvent) => {
     if (scrollContainerRef.current) {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
@@ -65,29 +107,7 @@ export default function Home() {
     }
   };
 
-  const handleGlobalDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
-      setIsDraggingGlobal(true);
-    }
-  };
 
-  const handleGlobalDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-    setIsDraggingGlobal(false);
-  };
-
-  const handleGlobalDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingGlobal(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      await processUploadedFiles(Array.from(e.dataTransfer.files));
-    }
-  };
 
   if (!isMounted) {
     return (
@@ -105,9 +125,9 @@ export default function Home() {
       className={`flex h-screen w-full overflow-hidden font-sans relative select-none ${
         isDark ? 'bg-black text-gray-100' : 'bg-[#f8fafc] text-gray-900'
       }`}
-      onDragOver={handleGlobalDragOver}
-      onDragLeave={handleGlobalDragLeave}
-      onDrop={handleGlobalDrop}
+
+
+
     >
       {/* Global Drag & Drop Overlay */}
       {isDraggingGlobal && (
