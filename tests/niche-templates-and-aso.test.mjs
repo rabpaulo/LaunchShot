@@ -35,20 +35,27 @@ test('all 30+ niches in NICHE_TEMPLATES are fully populated with 5 authentic sli
   }
 });
 
-test('NICHE_CATEGORIES_LIST items map to valid niches', () => {
+test('NICHE_CATEGORIES_LIST items map to valid niches and contain no emojis', () => {
   assert.ok(NICHE_CATEGORIES_LIST.length >= 30);
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{2B55}]/u;
+
   for (const cat of NICHE_CATEGORIES_LIST) {
     assert.ok(cat.id, 'Category missing id');
     assert.ok(cat.name, 'Category missing name');
-    assert.ok(cat.icon, 'Category missing icon');
     assert.ok(cat.query, 'Category missing query');
+    assert.ok(!emojiRegex.test(cat.name), `Category ${cat.name} must not contain emojis`);
     
     const result = generateTemplateForNiche(cat.query);
     assert.ok(result.canvases.length === 5, `Category ${cat.name} should generate 5 canvases`);
     assert.ok(result.globalOverrides.mockupStyle, `Category ${cat.name} missing mockupStyle override`);
     assert.ok(result.globalOverrides.fontFamily, `Category ${cat.name} missing fontFamily override`);
   }
+
+  for (const tone of ASO_TONE_OPTIONS) {
+    assert.ok(!emojiRegex.test(tone.name), `Tone ${tone.name} must not contain emojis`);
+  }
 });
+
 
 test('generateTemplateForNiche fuzzy and keyword matching works', () => {
   const aiResult = generateTemplateForNiche('ChatGPT prompt helper');

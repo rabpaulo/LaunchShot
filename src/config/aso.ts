@@ -19,13 +19,14 @@ export interface AsoToneOption {
 }
 
 export const ASO_TONE_OPTIONS: AsoToneOption[] = [
-  { id: 'high-converting', name: '⚡ High Converting (Hook & Power)', description: 'Punchy, action-driven, high-converting value props' },
-  { id: 'apple-minimalist', name: '🍎 Apple Minimalist (Short & Sleek)', description: '2-4 word poetic headlines with refined clarity' },
-  { id: 'feature-tech', name: '🛠️ Feature & Tech Utility', description: 'Clear capabilities, speed, specs, and offline reliability' },
-  { id: 'social-proof', name: '🏆 Social Proof & Accolades', description: 'Ratings, design awards, and community milestones' },
-  { id: 'problem-solution', name: '💡 Problem to Transformation', description: 'Highlight user pain points then deliver instant relief' },
-  { id: 'playful-vibrant', name: '✨ Playful & Vibrant', description: 'Fun, engaging, conversational, and energetic' },
+  { id: 'high-converting', name: 'High Converting (Hook & Power)', description: 'Punchy, action-driven, high-converting value props' },
+  { id: 'apple-minimalist', name: 'Apple Minimalist (Short & Sleek)', description: '2-4 word poetic headlines with refined clarity' },
+  { id: 'feature-tech', name: 'Feature & Tech Utility', description: 'Clear capabilities, speed, specs, and offline reliability' },
+  { id: 'social-proof', name: 'Social Proof & Accolades', description: 'Ratings, design awards, and community milestones' },
+  { id: 'problem-solution', name: 'Problem to Transformation', description: 'Highlight user pain points then deliver instant relief' },
+  { id: 'playful-vibrant', name: 'Playful & Vibrant', description: 'Fun, engaging, conversational, and energetic' },
 ];
+
 
 export const TONE_FORMULAS: Record<AsoTone, {
   hook: (kw1: string, kw2: string) => { title: string; subtitle: string };

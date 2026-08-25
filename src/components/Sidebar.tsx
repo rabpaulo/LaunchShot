@@ -340,16 +340,16 @@ export function Sidebar() {
                     updateGlobalSettings(globalOverrides);
                     toast.success(`Loaded ${matchedNicheName} template!`);
                   }}
-                  className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${
+                  className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-all ${
                     isDark 
                       ? 'bg-zinc-900 border-gray-800 text-gray-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-white' 
                       : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-900'
                   }`}
                   title={`Generate ${cat.name} Template`}
                 >
-                  <span>{cat.icon}</span>
-                  <span>{cat.name}</span>
+                  {cat.name}
                 </button>
+
               ))}
             </div>
           </div>

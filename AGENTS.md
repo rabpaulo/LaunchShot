@@ -1,5 +1,7 @@
 # Always commit after any code changes
+# Never use emojis in the UI, templates, copy, or buttons
 <!-- BEGIN:nextjs-agent-rules -->
+
 
 # This is NOT the Next.js you know
 
