@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TargetSizeId, DEFAULT_SIZE } from '@/config/sizes';
+import { type TargetSizeId, DEFAULT_SIZE } from '@/config/sizes';
 import { DEFAULT_FONT } from '@/config/fonts';
-import { BadgeConfig } from '@/config/badges';
+import type { BadgeConfig } from '@/config/badges';
+
+
+
+
 
 export type LayoutType = 
   | 'basic-top' 
@@ -24,12 +28,7 @@ export type LayoutType =
   | 'hero-3d-center'
   | 'dynamic-overlap'
   | 'banner-stack-right'
-  | 'banner-triple-bottom'
-  | 'og-style-3'
-  | 'hero-3d-center'
-  | 'dynamic-overlap'
-  | 'banner-stack-right'
-  | 'banner-triple-bottom'
+  | 'banner-triple-bottom';
 
 export type CanvasItem = {
   id: string;

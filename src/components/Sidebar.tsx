@@ -26,11 +26,16 @@ import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 import { ExportModal } from './ExportModal';
 import { CustomDropdown } from './ui/CustomDropdown';
 import { TEMPLATES } from '@/config/templates';
+import { NICHE_CATEGORIES_LIST, generateTemplateForNiche } from '@/config/niches';
+import { ASO_TONE_OPTIONS, AsoTone, applyAsoCopy } from '@/config/aso';
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(340);
   const [isResizing, setIsResizing] = useState(false);
+  const [selectedAsoTone, setSelectedAsoTone] = useState<AsoTone>('high-converting');
+  const [nicheQuery, setNicheQuery] = useState('');
+  const [asoDescription, setAsoDescription] = useState('');
 
   const startResizing = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,6 +72,7 @@ export function Sidebar() {
     };
   }, [isResizing, resize, stopResizing]);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
+
   const { 
     globalSettings, 
     updateGlobalSettings, 
@@ -305,58 +311,94 @@ export function Sidebar() {
 
         {/* Niche Template Generator */}
         <section>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
               isDark ? 'text-gray-500' : 'text-gray-400'
             }`}>
               Auto-Generate by Niche
             </h2>
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+              isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-600'
+            }`}>
+              30+ Categories
+            </span>
           </div>
+
+          {/* Quick Niche Chips */}
+          <div className="mb-3">
+            <div className="text-[11px] font-medium text-gray-500 mb-1.5 flex items-center justify-between">
+              <span>Popular Categories:</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-700">
+              {NICHE_CATEGORIES_LIST.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                    const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(cat.query);
+                    loadTemplate(canvases);
+                    updateGlobalSettings(globalOverrides);
+                    toast.success(`Loaded ${matchedNicheName} template!`);
+                  }}
+                  className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${
+                    isDark 
+                      ? 'bg-zinc-900 border-gray-800 text-gray-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-white' 
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-900'
+                  }`}
+                  title={`Generate ${cat.name} Template`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Search Input */}
           <div className="flex flex-col gap-2">
             <input
               type="text"
               id="niche-input"
-              placeholder="e.g. fitness, finance, dating..."
-              className={`w-full border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm transition-colors ${
+              value={nicheQuery}
+              onChange={(e) => setNicheQuery(e.target.value)}
+              placeholder="Or type custom niche (e.g. crypto, baby, vpn)..."
+              className={`w-full border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-xs transition-colors ${
                 isDark 
                   ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
                   : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
               }`}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const val = e.currentTarget.value;
-                  if (val) {
-                    import('@/config/niches').then(({ generateTemplateForNiche }) => {
-                      const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
-                      const { canvases, globalOverrides } = generateTemplateForNiche(val);
-                      loadTemplate(canvases);
-                      updateGlobalSettings(globalOverrides);
-                    });
-                  }
+                if (e.key === 'Enter' && nicheQuery.trim()) {
+                  const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                  const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(nicheQuery);
+                  loadTemplate(canvases);
+                  updateGlobalSettings(globalOverrides);
+                  toast.success(`Loaded ${matchedNicheName} template!`);
                 }
               }}
             />
             <button
               onClick={() => {
-                const inputEl = document.getElementById('niche-input') as HTMLInputElement;
-                if (inputEl && inputEl.value) {
-                  import('@/config/niches').then(({ generateTemplateForNiche }) => {
-                    const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
-                    const { canvases, globalOverrides } = generateTemplateForNiche(inputEl.value);
-                    loadTemplate(canvases);
-                    updateGlobalSettings(globalOverrides);
-                  });
+                if (nicheQuery.trim()) {
+                  const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                  const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(nicheQuery);
+                  loadTemplate(canvases);
+                  updateGlobalSettings(globalOverrides);
+                  toast.success(`Loaded ${matchedNicheName} template!`);
+                } else {
+                  toast.error("Please enter a niche or click a category above!");
                 }
               }}
-              className={`w-full py-2 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] ${
+              className={`w-full py-2 px-3 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] ${
                 isDark
                   ? 'bg-zinc-800/80 border-zinc-700 text-white hover:bg-zinc-700'
                   : 'bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800'
               }`}
             >
-              Generate Template
+              Generate from Search
             </button>
 
+            {/* Smart ASO Copywriter */}
             <div className="mt-4 border-t border-dashed pt-4 border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center justify-between mb-2">
                 <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
@@ -365,36 +407,68 @@ export function Sidebar() {
                   Smart ASO Copywriter
                 </h2>
               </div>
+
+              {/* Tone of Voice Selector */}
+              <div className="mb-2">
+                <label className={`block text-[11px] font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Copywriting Persona & Tone:
+                </label>
+                <CustomDropdown
+                  value={selectedAsoTone}
+                  onChange={(val) => setSelectedAsoTone(val as AsoTone)}
+                  options={ASO_TONE_OPTIONS.map(tone => ({ label: tone.name, value: tone.id }))}
+                  isDark={isDark}
+                />
+              </div>
+
               <input
                 type="text"
                 id="aso-desc-input"
-                placeholder="Optional: Describe your app (e.g. meditation for sleep)"
+                value={asoDescription}
+                onChange={(e) => setAsoDescription(e.target.value)}
+                placeholder="Optional: App description (e.g. sleep tracker for insomnia)"
                 className={`w-full mb-2 border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs transition-colors ${
                   isDark 
                     ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
                     : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
                 }`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const { canvases, loadTemplate } = useEditorStore.getState();
+                    if (canvases.length === 0) {
+                      toast.error("Add or load screenshots first!");
+                      return;
+                    }
+                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone);
+                    loadTemplate(updated);
+                    toast.success("Applied ASO copy & badges!");
+                  }
+                }}
               />
               <button
                 onClick={() => {
                   const { canvases, loadTemplate } = useEditorStore.getState();
-                  const descInput = document.getElementById('aso-desc-input') as HTMLInputElement;
-                  import('@/config/aso').then(({ applyAsoCopy }) => {
-                    loadTemplate(applyAsoCopy(canvases, descInput?.value));
-                  });
+                  if (canvases.length === 0) {
+                    toast.error("Add or load screenshots first!");
+                    return;
+                  }
+                  const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone);
+                  loadTemplate(updated);
+                  toast.success("Applied ASO copy & badges!");
                 }}
-                className={`w-full py-2 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
                   isDark
                     ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
                     : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
                 }`}
               >
-                <IoSparklesOutline className="w-4 h-4" />
+                <IoSparklesOutline className="w-4 h-4 text-blue-400" />
                 Apply ASO Copy & Badges
               </button>
             </div>
           </div>
         </section>
+
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 

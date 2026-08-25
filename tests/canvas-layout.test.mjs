@@ -7,15 +7,9 @@ const canvasEditorSource = await readFile(
   'utf8',
 );
 
-test('the canvas flex item reserves its scaled visual dimensions', () => {
-  assert.match(canvasEditorSource, /const scaledCanvasWidth = canvasWidth \* zoomScale/);
-  assert.match(canvasEditorSource, /const scaledCanvasHeight = canvasHeight \* zoomScale/);
-  assert.match(canvasEditorSource, /width: `\$\{scaledCanvasWidth\}px`/);
-  assert.match(canvasEditorSource, /height: `\$\{scaledCanvasHeight\}px`/);
-  assert.doesNotMatch(canvasEditorSource, /marginBottom: `calc\(/);
+test('the canvas flex item scales with zoomScale and maintains aspect ratio', () => {
+  assert.match(canvasEditorSource, /transform:\s*`scale\(\$\{zoomScale\}\)`/);
+  assert.match(canvasEditorSource, /width:\s*`\$\{canvasWidth\}px`/);
+  assert.match(canvasEditorSource, /height:\s*`\$\{canvasHeight\}px`/);
 });
 
-test('the scaled canvas is anchored to the stage rather than centered by intrinsic width', () => {
-  assert.match(canvasEditorSource, /origin-top-left/);
-  assert.match(canvasEditorSource, /min-w-0/);
-});

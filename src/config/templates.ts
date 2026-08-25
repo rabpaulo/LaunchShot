@@ -1,4 +1,6 @@
-import { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
+import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
+
+
 
 export interface TemplateDefinition {
   name: string;
@@ -611,4 +613,536 @@ export const TEMPLATES: TemplateDefinition[] = [
                 ]);
     }
   },
+  {
+    name: `AI Sparkle & Copilot (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Supercharge Your Intelligence',
+          subtitle: 'Your personal AI companion for writing, research, and coding.',
+          layout: 'hero-3d-center',
+          backgroundColor: 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          badge: { enabled: true, text: '#1 AI Tool of 2024', style: 'pill-glass', icon: 'sparkle' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Instant Answers with Live Sources',
+          subtitle: 'Deep synthesis across web knowledge in under two seconds.',
+          layout: 'dynamic-overlap',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: '100% On-Device Privacy',
+          subtitle: 'Your prompts and personal data never train public AI models.',
+          layout: 'half-left',
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #4338ca 0%, #1e1b4b 80%, #000000 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          badge: { enabled: true, text: '100% Private & Encrypted', style: 'pill-glass', icon: 'shield' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Experience Next-Gen AI Today',
+          subtitle: 'Join over 10M+ thinkers unlocking superhuman productivity.',
+          layout: 'basic-bottom',
+          backgroundColor: '#090d16',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Bento Matrix Modern (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'light', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Organize Life & Work',
+          subtitle: 'The unified modular workspace for high achievers.',
+          layout: 'split-vertical',
+          backgroundColor: '#111827',
+          textColor: '#ffffff',
+          fontFamily: 'plus-jakarta',
+          badge: { enabled: true, text: 'Editors\' Choice', style: 'pill-glass', icon: 'star' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Capture at Lightspeed',
+          subtitle: 'Natural language task entry with smart priority filters.',
+          layout: 'half-right',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          fontFamily: 'plus-jakarta',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Never Miss a Beat',
+          subtitle: 'Kanban boards, interactive calendars, and timeline views.',
+          layout: 'half-left',
+          backgroundColor: '#111827',
+          textColor: '#ffffff',
+          fontFamily: 'plus-jakarta',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Syncs Everywhere',
+          subtitle: 'Instant offline support across phone, tablet, and desktop.',
+          layout: 'split-vertical',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          fontFamily: 'plus-jakarta',
+          badge: { enabled: true, text: 'Loved by 1M+ Users', style: 'pill-solid', icon: 'heart' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Fintech Dark Mode Pro (5 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Money Management, Simplified',
+          subtitle: 'Spend, save, and invest with complete clarity in one place.',
+          layout: 'banner-stack-right',
+          backgroundColor: '#0a2216',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Real-Time Expense Tracking',
+          subtitle: 'Automatic categorization across all your connected banks.',
+          layout: 'half-right',
+          backgroundColor: '#090d16',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Grow Wealth on Autopilot',
+          subtitle: 'Invest in stocks, ETFs, and crypto with zero commission fees.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#064e3b',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Bank-Grade 256-bit Security',
+          subtitle: 'Biometric locks, instant card freeze, and end-to-end encryption.',
+          layout: 'split-vertical',
+          backgroundColor: '#111827',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'Bank-Grade 256-bit', style: 'pill-solid', icon: 'shield' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Take Control Today',
+          subtitle: 'Join over 5 million people mastering financial freedom.',
+          layout: 'basic-bottom',
+          backgroundColor: '#022c22',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'App of the Day', style: 'pill-solid', icon: 'trophy' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Glassmorphism Frosted Horizon (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Elegance in Motion',
+          subtitle: 'A beautifully fluid experience designed for modern aesthetics.',
+          layout: 'dynamic-overlap',
+          backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-glass', icon: 'trophy' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Focus on What Matters',
+          subtitle: 'Zero visual friction with frosted translucent layers.',
+          layout: 'half-right',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Effortless Navigation',
+          subtitle: 'Intuitive gestures and natural interactive ergonomics.',
+          layout: 'tilt-left',
+          backgroundColor: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Start Your Journey',
+          subtitle: 'Download now to elevate your daily routine.',
+          layout: 'basic-bottom',
+          backgroundColor: 'radial-gradient(circle at 50% 0%, #334155 0%, #0f172a 60%, #000000 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Cyberpunk Neon Glow (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'clay-dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Dominate the Leaderboards',
+          subtitle: 'Live match analytics, champion meta builds, and pro guides.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          badge: { enabled: true, text: '#1 Gaming Companion', style: 'pill-solid', icon: 'flame' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Real-Time Voice Overlay',
+          subtitle: 'Ultra-low latency audio chat engineered for competitive play.',
+          layout: '3d-isometric-left',
+          backgroundColor: '#09090b',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'AI Replay Breakdown',
+          subtitle: 'Pinpoint mechanical mistakes and climb the ranks faster.',
+          layout: 'dynamic-overlap',
+          backgroundColor: '#18181b',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Level Up Your Game',
+          subtitle: 'Join over 20 million passionate gamers worldwide.',
+          layout: 'basic-bottom',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          badge: { enabled: true, text: 'Best of 2024', style: 'pill-solid', icon: 'trophy' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Minimalist Studio Monochrome (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Pure Aesthetic. Zero Clutter.',
+          subtitle: 'A clean studio showcase that lets your interface shine.',
+          layout: 'basic-top',
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'star' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Precision in Every Pixel',
+          subtitle: 'High contrast visual hierarchy for maximum retention.',
+          layout: 'half-right',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Seamless Micro-Interactions',
+          subtitle: 'Engineered for smooth responsiveness and delight.',
+          layout: 'half-left',
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Download Free Today',
+          subtitle: 'Join thousands enjoying a distraction-free experience.',
+          layout: 'basic-bottom',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'trophy' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Sunset Velvet Story (5 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Begin Your Journey',
+          subtitle: 'Swipe to see how we transform your daily workflow.',
+          layout: 'half-right',
+          backgroundColor: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'App of the Day', style: 'pill-glass', icon: 'trophy' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connect Instantly',
+          subtitle: 'With friends, colleagues, and collaborators worldwide.',
+          layout: 'half-left',
+          backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Share Your World',
+          subtitle: 'Capture and broadcast vibrant memories in seconds.',
+          layout: 'tilt-right',
+          backgroundColor: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Stay 100% Private',
+          subtitle: 'Enterprise-grade encryption protecting all your interactions.',
+          layout: 'tilt-left',
+          backgroundColor: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: '100% Private & On-Device', style: 'pill-glass', icon: 'shield' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Join Millions Today',
+          subtitle: 'Download now and claim your welcome perks.',
+          layout: 'basic-bottom',
+          backgroundColor: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+        }
+      ]);
+    }
+  },
+  {
+    name: `Warm Editorial Magazine (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Timeless Stories. Curated Daily.',
+          subtitle: 'Thoughtful long-form journalism and visual essays.',
+          layout: 'basic-top',
+          backgroundColor: '#f5f5f4',
+          textColor: '#1c1917',
+          fontFamily: 'playfair',
+          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Immersive Editorial Design',
+          subtitle: 'Typography crafted for calm, unhurried reading.',
+          layout: 'half-right',
+          backgroundColor: '#1c1917',
+          textColor: '#f5f5f4',
+          fontFamily: 'playfair',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Audio Narratives on the Go',
+          subtitle: 'Listen to award-winning stories during your commute.',
+          layout: 'split-vertical',
+          backgroundColor: '#f5f5f4',
+          textColor: '#1c1917',
+          fontFamily: 'playfair',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Read Deeper Every Day',
+          subtitle: 'Join over 2 million thoughtful readers worldwide.',
+          layout: 'basic-bottom',
+          backgroundColor: '#1c1917',
+          textColor: '#f5f5f4',
+          fontFamily: 'playfair',
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'star' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `SaaS Cloud Enterprise (4 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Run Your Enterprise from Anywhere',
+          subtitle: 'Real-time pipeline analytics, team tasks, and client billing.',
+          layout: 'basic-top',
+          backgroundColor: '#0f172a',
+          textColor: '#ffffff',
+          fontFamily: 'plus-jakarta',
+          badge: { enabled: true, text: 'Trusted by 10k+ Companies', style: 'pill-glass', icon: 'shield' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Live Revenue & Growth Dashboards',
+          subtitle: 'Visualize ARR, customer churn, and pipeline velocity.',
+          layout: 'half-right',
+          backgroundColor: '#1e293b',
+          textColor: '#ffffff',
+          fontFamily: 'plus-jakarta',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Seamless Integrations',
+          subtitle: 'Direct two-way sync with Slack, Salesforce, GitHub, and Stripe.',
+          layout: 'split-vertical',
+          backgroundColor: '#334155',
+          textColor: '#ffffff',
+          fontFamily: 'plus-jakarta',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Start Your Free 14-Day Trial',
+          subtitle: 'No credit card required. Onboard your whole team in 5 minutes.',
+          layout: 'basic-bottom',
+          backgroundColor: '#0f172a',
+          textColor: '#ffffff',
+          fontFamily: 'plus-jakarta',
+          badge: { enabled: true, text: 'SOC2 & HIPAA Compliant', style: 'pill-solid', icon: 'shield' }
+        }
+      ]);
+    }
+  },
+  {
+    name: `Duotone Punch (5 Screens)`,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Bold Ideas. High Energy.',
+          subtitle: 'Make an unmistakable statement in the App Store.',
+          layout: 'tilt-right',
+          backgroundColor: '#fef08a',
+          textColor: '#1e3a8a',
+          fontFamily: 'poppins',
+          badge: { enabled: true, text: '#1 Product of the Day', style: 'pill-solid', icon: 'flame' }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Vibrant Interactions',
+          subtitle: 'Every touchpoint feels responsive, fluid, and alive.',
+          layout: 'tilt-left',
+          backgroundColor: '#fbcfe8',
+          textColor: '#831843',
+          fontFamily: 'poppins',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Speed That Blows You Away',
+          subtitle: 'Engineered for sub-100ms response times globally.',
+          layout: 'tilt-right',
+          backgroundColor: '#a7f3d0',
+          textColor: '#064e3b',
+          fontFamily: 'poppins',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Community Driven',
+          subtitle: 'Share your creations and get recognized instantly.',
+          layout: 'tilt-left',
+          backgroundColor: '#fed7aa',
+          textColor: '#7c2d12',
+          fontFamily: 'poppins',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Get Started for Free',
+          subtitle: 'Join the next wave of creative thinkers.',
+          layout: 'basic-bottom',
+          backgroundColor: '#bae6fd',
+          textColor: '#0c4a6e',
+          fontFamily: 'poppins',
+        }
+      ]);
+    }
+  }
 ];
+

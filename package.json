@@ -6,8 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --import ./tests/register.mjs --test tests/*.test.mjs"
   },
+
+
+
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "fast-average-color": "^9.5.2",

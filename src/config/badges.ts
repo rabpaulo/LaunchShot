@@ -16,7 +16,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       enabled: true,
       icon: 'star',
       text: '4.9 App Store',
-      subtext: '30k+ ratings',
+      subtext: '50k+ reviews',
       style: 'pill-glass',
     },
   },
@@ -25,7 +25,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
     config: {
       enabled: true,
       icon: 'star',
-      text: '"Game changer"',
+      text: '"Essential App"',
       subtext: 'Featured by Apple',
       style: 'pill-glass',
     },
@@ -35,8 +35,18 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
     config: {
       enabled: true,
       icon: 'trophy',
+      text: 'Apple Design Award',
+      subtext: 'Winner',
+      style: 'pill-solid',
+    },
+  },
+  {
+    label: 'App of the Day',
+    config: {
+      enabled: true,
+      icon: 'trophy',
       text: 'App of the Day',
-      subtext: 'Apple Design Award Nominee',
+      subtext: 'App Store',
       style: 'pill-solid',
     },
   },
@@ -47,7 +57,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       enabled: true,
       icon: 'star',
       text: '4.9 Google Play',
-      subtext: '30k+ ratings',
+      subtext: '100k+ ratings',
       style: 'pill-glass',
     },
   },
@@ -57,7 +67,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       enabled: true,
       icon: 'star',
       text: 'Editors\' Choice',
-      subtext: 'Google Play Store',
+      subtext: 'Google Play',
       style: 'pill-glass',
     },
   },
@@ -66,12 +76,12 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
     config: {
       enabled: true,
       icon: 'trophy',
-      text: 'Best of 2023',
-      subtext: 'Google Play Award',
+      text: 'Best of 2024',
+      subtext: 'Google Play Winner',
       style: 'pill-solid',
     },
   },
-  // Platform Agnostic
+  // Social Proof & Community
   {
     label: '#1 Product Hunt',
     config: {
@@ -83,13 +93,45 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
     },
   },
   {
+    label: 'Community Milestone',
+    config: {
+      enabled: true,
+      icon: 'heart',
+      text: 'Loved by 1M+ Users',
+      subtext: 'Worldwide',
+      style: 'pill-glass',
+    },
+  },
+  {
+    label: 'AI Innovation Award',
+    config: {
+      enabled: true,
+      icon: 'sparkle',
+      text: '#1 AI Tool of 2024',
+      subtext: 'Top Rated',
+      style: 'pill-glass',
+    },
+  },
+  // Security & Privacy
+  {
     label: 'Privacy & Security',
     config: {
       enabled: true,
       icon: 'shield',
       text: '100% Private & On-Device',
-      subtext: 'No Data Collected',
+      subtext: 'Zero Data Logged',
       style: 'pill-glass',
     },
   },
+  {
+    label: 'HIPAA & Bank Grade',
+    config: {
+      enabled: true,
+      icon: 'shield',
+      text: 'Bank-Grade 256-bit',
+      subtext: 'End-to-End Encrypted',
+      style: 'pill-solid',
+    },
+  },
 ];
+
