@@ -45,6 +45,16 @@ export type CanvasItem = {
   appIconSrc?: string;
   gradientText?: boolean;
   imageFit?: 'cover' | 'contain';
+  imageCrop?: { x: number; y: number };
+  imageZoom?: number;
+  imageRotation?: number;
+  imageFilters?: {
+    brightness: number;
+    contrast: number;
+    saturation: number;
+    blur: number;
+    grayscale: number;
+  };
 };
 
 export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';

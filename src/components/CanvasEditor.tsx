@@ -4,6 +4,9 @@ import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CanvasItem, LayoutType, useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
+import { CanvasImage } from './CanvasImage';
+import { ImageEditorModal } from './ImageEditorModal';
+import { IoOptionsOutline } from 'react-icons/io5';
 import { MinimalPhoneFrame } from './MinimalPhoneFrame';
 import { BadgeSticker } from './BadgeSticker';
 import {
@@ -76,6 +79,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
 } = useEditorStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
+  const [isEditingImage, setIsEditingImage] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
   const isAndroid = globalSettings.targetSize.includes('samsung') || globalSettings.targetSize.includes('android') || globalSettings.targetSize.includes('play');
@@ -716,11 +720,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
               >
                 {canvas.imageSrc ? (
                 <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
-                  <img
-                    src={canvas.imageSrc}
-                    alt="App Screenshot"
-                    className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
-                  />
+                  <CanvasImage canvas={canvas} />
                   <div 
                     className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
                   >
@@ -730,6 +730,13 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                     >
                       <IoCloudUploadOutline className="w-4 h-4" />
                       Change Image
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setIsEditingImage(true); }}
+                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                    >
+                      <IoOptionsOutline className="w-4 h-4" />
+                      Edit & Filter
                     </button>
                     <button
                       onClick={(e) => { 
@@ -767,7 +774,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                        <CanvasImage canvas={canvases[index + 1]?.imageSrc ? canvases[index + 1] : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -787,7 +794,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                        <CanvasImage canvas={canvases[index + 2]?.imageSrc ? canvases[index + 2] : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -812,7 +819,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                        <CanvasImage canvas={canvases[index + 1]?.imageSrc ? canvases[index + 1] : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -832,7 +839,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                        <CanvasImage canvas={canvases[index + 2]?.imageSrc ? canvases[index + 2] : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -857,7 +864,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvas.imageSrc} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                        <CanvasImage canvas={canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -877,7 +884,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <img src={canvas.imageSrc} alt="App screen" className={`w-full h-full ${canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`} />
+                        <CanvasImage canvas={canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -899,6 +906,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
         accept="image/*"
         className="hidden"
       />
+      {isEditingImage && <ImageEditorModal canvas={canvas} onClose={() => setIsEditingImage(false)} />}
     </div>
   );
 }
