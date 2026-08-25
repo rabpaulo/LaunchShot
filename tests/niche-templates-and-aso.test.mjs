@@ -102,7 +102,7 @@ test('TEMPLATES catalog contains >= 20 presets that apply successfully', () => {
 
   for (const template of TEMPLATES) {
     let loadedCanvases = null;
-    let globalUpdates = null;
+    let globalUpdates = null; // eslint-disable-line @typescript-eslint/no-unused-vars
 
     template.apply(
       (canvases) => { loadedCanvases = canvases; },

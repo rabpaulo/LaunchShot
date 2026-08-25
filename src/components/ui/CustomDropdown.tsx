@@ -11,7 +11,7 @@ export interface DropdownOption {
 interface CustomDropdownProps {
   value: string | number;
   options: DropdownOption[];
-  onChange: (value: any) => void;
+  onChange: (value: string | number) => void;
   isDark?: boolean;
   placeholder?: string;
   className?: string;

@@ -16,7 +16,7 @@ export const exportImages = async (canvases: CanvasItem[], selectedSizes?: strin
     const sizeId = sizesToExport[sIdx];
     
     // 1. Update the store to the new size
-    store.updateGlobalSettings({ targetSize: sizeId as any });
+    store.updateGlobalSettings({ targetSize: sizeId as import('@/config/sizes').TargetSizeId });
     
     // 2. Wait for DOM to re-render
     await new Promise((resolve) => setTimeout(resolve, 800)); // wait for layout to settle

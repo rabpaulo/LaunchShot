@@ -50,6 +50,7 @@ export default function Home() {
   const isDark = globalSettings.theme !== 'light';
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
@@ -152,7 +153,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl font-bold mb-3 tracking-tight text-white">Drop Screenshots</h2>
             <p className="text-sm text-gray-300 mb-6 font-medium px-4">
-              We'll automatically extract colors, apply dynamic mockups, and generate your showcase.
+              We&apos;ll automatically extract colors, apply dynamic mockups, and generate your showcase.
             </p>
             <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 bg-zinc-950/80 px-4 py-2 rounded-full border border-zinc-500/30">
               <IoSparklesOutline className="w-4 h-4" />

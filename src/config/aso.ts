@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { CanvasItem } from '@/store/useEditorStore';
 import { BADGE_PRESETS } from '@/config/badges';
 import { extractKeywords } from '@/utils/keywordExtractor';
@@ -38,14 +39,14 @@ export const TONE_FORMULAS: Record<AsoTone, {
   'high-converting': {
     hook: (kw1, kw2) => ({
       title: kw1 ? `The Ultimate ${kw1} App` : 'Experience the Ultimate App',
-      subtitle: kw2 ? `Master your ${kw2} and elevate your daily workflow effortlessly.` : 'Designed from the ground up for maximum daily impact.'
+      subtitle: kw1 ? `Master your ${kw2} and elevate your daily workflow effortlessly.` : 'Designed from the ground up for maximum daily impact.'
     }),
     feature1: (kw1, kw2) => ({
       title: kw1 ? `Supercharge Your ${kw1}` : 'Supercharge Your Workflow',
       subtitle: `Unlock powerful automation and intelligent insights in seconds.`
     }),
     feature2: (kw1, kw2) => ({
-      title: kw2 ? `Track & Optimize ${kw2}` : 'Deep Real-Time Analytics',
+      title: kw1 ? `Track & Optimize ${kw2}` : 'Deep Real-Time Analytics',
       subtitle: 'Visualize your progress with beautiful, high-clarity metrics.'
     }),
     trust: (kw1) => ({
@@ -68,7 +69,7 @@ export const TONE_FORMULAS: Record<AsoTone, {
       subtitle: 'Every interaction designed for natural, fluid delight.'
     }),
     feature2: (kw1, kw2) => ({
-      title: kw2 ? `Clarity for ${kw2}.` : 'Pure Focus.',
+      title: kw1 ? `Clarity for ${kw2}.` : 'Pure Focus.',
       subtitle: 'High-contrast hierarchy that puts your data first.'
     }),
     trust: () => ({
@@ -84,14 +85,14 @@ export const TONE_FORMULAS: Record<AsoTone, {
   'feature-tech': {
     hook: (kw1, kw2) => ({
       title: kw1 ? `Pro-Grade ${kw1} Engine` : 'Built for Power Users',
-      subtitle: kw2 ? `Advanced tools engineered specifically for modern ${kw2} workflows.` : 'Lightning fast performance with deep customization.'
+      subtitle: kw1 ? `Advanced tools engineered specifically for modern ${kw2} workflows.` : 'Lightning fast performance with deep customization.'
     }),
     feature1: (kw1) => ({
       title: kw1 ? `Automate Your ${kw1}` : 'Automate Everything',
       subtitle: 'Sub-100ms response times with smart keyboard shortcuts and widgets.'
     }),
     feature2: (kw1, kw2) => ({
-      title: kw2 ? `Multi-Format ${kw2} Export` : 'Seamless Cloud Sync',
+      title: kw1 ? `Multi-Format ${kw2} Export` : 'Seamless Cloud Sync',
       subtitle: 'Instant two-way sync across phone, tablet, and desktop.'
     }),
     trust: () => ({
@@ -114,7 +115,7 @@ export const TONE_FORMULAS: Record<AsoTone, {
       subtitle: 'Featured by Apple as App of the Day and Editor\'s Choice globally.'
     }),
     feature2: (kw1, kw2) => ({
-      title: kw2 ? `Join 500k+ Mastering ${kw2}` : 'Join a Global Community',
+      title: kw1 ? `Join 500k+ Mastering ${kw2}` : 'Join a Global Community',
       subtitle: 'Connect with passionate thinkers, share progress, and grow together.'
     }),
     trust: () => ({
@@ -130,14 +131,14 @@ export const TONE_FORMULAS: Record<AsoTone, {
   'problem-solution': {
     hook: (kw1, kw2) => ({
       title: kw1 ? `Tired of Complex ${kw1}?` : 'Stop Struggling with Chaos',
-      subtitle: kw2 ? `Finally, a simple way to master your ${kw2} without the headache.` : 'The clear, frustration-free solution you have been waiting for.'
+      subtitle: kw1 ? `Finally, a simple way to master your ${kw2} without the headache.` : 'The clear, frustration-free solution you have been waiting for.'
     }),
     feature1: (kw1) => ({
       title: kw1 ? `Eliminate ${kw1} Overwhelm` : 'Save Hours Every Week',
       subtitle: 'Cut out repetitive manual work with intelligent automated guidance.'
     }),
     feature2: (kw1, kw2) => ({
-      title: kw2 ? `Never Miss a ${kw2} Detail` : 'Total Peace of Mind',
+      title: kw1 ? `Never Miss a ${kw2} Detail` : 'Total Peace of Mind',
       subtitle: 'Smart notifications and safety checks ensure you never slip up.'
     }),
     trust: () => ({
@@ -160,7 +161,7 @@ export const TONE_FORMULAS: Record<AsoTone, {
       subtitle: 'Playful animations and delightful sounds make every action a breeze.'
     }),
     feature2: (kw1, kw2) => ({
-      title: kw2 ? `Show Off Your ${kw2}` : 'Celebrate Every Win!',
+      title: kw1 ? `Show Off Your ${kw2}` : 'Celebrate Every Win!',
       subtitle: 'Unlock cool achievements, custom avatar skins, and streak badges.'
     }),
     trust: () => ({

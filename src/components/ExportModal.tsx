@@ -124,12 +124,12 @@ export function ExportModal({ onClose }: ExportModalProps) {
                   <button
                     key={platform}
                     onClick={() => setSelectedPlatforms(prev => 
-                      prev.includes(platform as any) 
+                      prev.includes(platform as "ios" | "android") 
                         ? prev.filter(p => p !== platform) 
-                        : [...prev, platform as any]
+                        : [...prev, platform as "ios" | "android"]
                     )}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 font-bold flex items-center justify-center gap-2 transition-all ${
-                      selectedPlatforms.includes(platform as any)
+                      selectedPlatforms.includes(platform as "ios" | "android")
                         ? isDark
                           ? 'border-zinc-500 bg-zinc-800 text-white'
                           : 'border-black bg-gray-50 text-black'
@@ -153,7 +153,7 @@ export function ExportModal({ onClose }: ExportModalProps) {
                 {['iPhone', 'Samsung Galaxy', 'Android', 'Tablet', 'Header'].map(tab => (
                   <button
                     key={tab}
-                    onClick={() => setActiveDeviceTab(tab as any)}
+                    onClick={() => setActiveDeviceTab(tab as 'iPhone' | 'Samsung Galaxy' | 'Android' | 'Tablet' | 'Header')}
                     className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                       activeDeviceTab === tab
                         ? isDark

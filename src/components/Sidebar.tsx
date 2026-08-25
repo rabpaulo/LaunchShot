@@ -9,15 +9,13 @@ import {
   IoCloudUploadOutline,
   IoPhonePortraitOutline,
   IoImageOutline,
-  IoColorPaletteOutline,
-  IoTextOutline,
+  
   IoCheckmark,
   IoTrashOutline,
   IoSparklesOutline,
   IoChevronBack,
   IoChevronForward
 } from 'react-icons/io5';
-import { exportImages } from '@/utils/export';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
@@ -635,7 +633,7 @@ export function Sidebar() {
 
           <CustomDropdown
             value={globalSettings.fontFamily || 'plus-jakarta'}
-            onChange={(val) => handleFontChange(val)}
+            onChange={(val) => handleFontChange(String(val))}
             options={FONT_OPTIONS.map(font => ({ 
               label: font.name, 
               value: font.id, 

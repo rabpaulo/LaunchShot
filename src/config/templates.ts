@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
 
 
@@ -13,8 +14,8 @@ export interface TemplateDefinition {
 export const TEMPLATES: TemplateDefinition[] = [
   {
     name: 'Banner Stacked Right',
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -32,8 +33,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: 'Banner Triple Bottom',
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -50,8 +51,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: 'Hero 3D Showcase',
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -79,8 +80,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: 'Dynamic Overlap',
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -109,7 +110,7 @@ export const TEMPLATES: TemplateDefinition[] = [
 
   {
     name: `NeonCard Template`,
-    apply: (loadTemplate, updateGlobalSettings) => {
+    apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -166,7 +167,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Basic Template (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
+    apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -213,7 +214,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `3D Showcase (3 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
+    apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -250,7 +251,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Lifestyle Showcase (3 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
+    apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -290,7 +291,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Continuous Story (5 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
+    apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -347,8 +348,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Social Graphic - Style 1`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'play-feature-graphic' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'play-feature-graphic' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -367,8 +368,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Social Graphic - Style 2`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'play-feature-graphic' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'play-feature-graphic' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -386,8 +387,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Social Graphic - Style 3`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'play-feature-graphic' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'play-feature-graphic' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -405,8 +406,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Dark Mode Elegance (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -453,8 +454,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Playful & Vibrant (5 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'clay-light' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -511,8 +512,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `App Preview Banner (1 Screen)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'light', targetSize: 'play-feature-graphic' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'play-feature-graphic' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -529,8 +530,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Split Screen Contrast (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'glass' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -577,8 +578,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Minimalist White (3 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'glass' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass' });
       loadTemplate([
                   {
                     id: crypto.randomUUID(),
@@ -615,8 +616,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `AI Sparkle & Copilot (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -666,8 +667,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Bento Matrix Modern (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'light', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -716,8 +717,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Fintech Dark Mode Pro (5 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -777,8 +778,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Glassmorphism Frosted Horizon (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -827,8 +828,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Cyberpunk Neon Glow (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'clay-dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -877,8 +878,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Minimalist Studio Monochrome (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -927,8 +928,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Sunset Velvet Story (5 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -987,8 +988,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Warm Editorial Magazine (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -1037,8 +1038,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `SaaS Cloud Enterprise (4 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
@@ -1087,8 +1088,8 @@ export const TEMPLATES: TemplateDefinition[] = [
   },
   {
     name: `Duotone Punch (5 Screens)`,
-    apply: (loadTemplate, updateGlobalSettings) => {
-      updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'ios-6.5' });
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'ios-6.5' });
       loadTemplate([
         {
           id: crypto.randomUUID(),
