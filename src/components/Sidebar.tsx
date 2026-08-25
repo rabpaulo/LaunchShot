@@ -33,9 +33,11 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(340);
   const [isResizing, setIsResizing] = useState(false);
+  const [selectedNicheCategory, setSelectedNicheCategory] = useState<string>('ai');
   const [selectedAsoTone, setSelectedAsoTone] = useState<AsoTone>('high-converting');
   const [nicheQuery, setNicheQuery] = useState('');
   const [asoDescription, setAsoDescription] = useState('');
+
 
   const startResizing = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -324,79 +326,84 @@ export function Sidebar() {
             </span>
           </div>
 
-          {/* Quick Niche Chips */}
-          <div className="mb-3">
-            <div className="text-[11px] font-medium text-gray-500 mb-1.5 flex items-center justify-between">
-              <span>Popular Categories:</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-700">
-              {NICHE_CATEGORIES_LIST.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
-                    const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(cat.query);
-                    loadTemplate(canvases);
-                    updateGlobalSettings(globalOverrides);
-                    toast.success(`Loaded ${matchedNicheName} template!`);
-                  }}
-                  className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-all ${
-                    isDark 
-                      ? 'bg-zinc-900 border-gray-800 text-gray-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-white' 
-                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-900'
-                  }`}
-                  title={`Generate ${cat.name} Template`}
-                >
-                  {cat.name}
-                </button>
-
-              ))}
-            </div>
-          </div>
-
-          {/* Custom Search Input */}
           <div className="flex flex-col gap-2">
-            <input
-              type="text"
-              id="niche-input"
-              value={nicheQuery}
-              onChange={(e) => setNicheQuery(e.target.value)}
-              placeholder="Or type custom niche (e.g. crypto, baby, vpn)..."
-              className={`w-full border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-xs transition-colors ${
-                isDark 
-                  ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
-                  : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
-              }`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && nicheQuery.trim()) {
-                  const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
-                  const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(nicheQuery);
-                  loadTemplate(canvases);
-                  updateGlobalSettings(globalOverrides);
-                  toast.success(`Loaded ${matchedNicheName} template!`);
-                }
-              }}
-            />
+            {/* Category Dropdown */}
+            <div className="space-y-1">
+              <label className={`block text-[11px] font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Niche Category:
+              </label>
+              <CustomDropdown
+                value={selectedNicheCategory}
+                onChange={(val) => setSelectedNicheCategory(String(val))}
+                options={NICHE_CATEGORIES_LIST.map((cat) => ({ label: cat.name, value: cat.id }))}
+                isDark={isDark}
+              />
+            </div>
+
             <button
               onClick={() => {
-                if (nicheQuery.trim()) {
-                  const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
-                  const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(nicheQuery);
-                  loadTemplate(canvases);
-                  updateGlobalSettings(globalOverrides);
-                  toast.success(`Loaded ${matchedNicheName} template!`);
-                } else {
-                  toast.error("Please enter a niche or click a category above!");
-                }
+                const cat = NICHE_CATEGORIES_LIST.find(c => c.id === selectedNicheCategory);
+                const query = cat ? cat.query : selectedNicheCategory;
+                const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(query);
+                loadTemplate(canvases);
+                updateGlobalSettings(globalOverrides);
+                toast.success(`Loaded ${matchedNicheName} template!`);
               }}
-              className={`w-full py-2 px-3 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] ${
+              className={`w-full py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] ${
                 isDark
                   ? 'bg-zinc-800/80 border-zinc-700 text-white hover:bg-zinc-700'
                   : 'bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800'
               }`}
             >
-              Generate from Search
+              Generate Niche Template
             </button>
+
+            {/* Custom Search Input */}
+            <div className="mt-2 pt-2 border-t border-zinc-200 dark:border-zinc-800/60 flex flex-col gap-1.5">
+              <label className={`block text-[11px] font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Or Custom Keywords:
+              </label>
+              <input
+                type="text"
+                id="niche-input"
+                value={nicheQuery}
+                onChange={(e) => setNicheQuery(e.target.value)}
+                placeholder="e.g. crypto, baby, vpn, fasting..."
+                className={`w-full border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-xs transition-colors ${
+                  isDark 
+                    ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
+                    : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
+                }`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && nicheQuery.trim()) {
+                    const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                    const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(nicheQuery);
+                    loadTemplate(canvases);
+                    updateGlobalSettings(globalOverrides);
+                    toast.success(`Loaded ${matchedNicheName} template!`);
+                  }
+                }}
+              />
+              {nicheQuery.trim() && (
+                <button
+                  onClick={() => {
+                    const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                    const { canvases, globalOverrides, matchedNicheName } = generateTemplateForNiche(nicheQuery);
+                    loadTemplate(canvases);
+                    updateGlobalSettings(globalOverrides);
+                    toast.success(`Loaded ${matchedNicheName} template!`);
+                  }}
+                  className={`w-full py-1.5 px-3 rounded-lg border text-xs font-medium transition-all ${
+                    isDark
+                      ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                      : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
+                  }`}
+                >
+                  Generate from Search
+                </button>
+              )}
+            </div>
 
             {/* Smart ASO Copywriter */}
             <div className="mt-4 border-t border-dashed pt-4 border-zinc-200 dark:border-zinc-800">
@@ -468,6 +475,7 @@ export function Sidebar() {
             </div>
           </div>
         </section>
+
 
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
