@@ -16,16 +16,19 @@ export function VideoCreatorModal({ onClose }: VideoCreatorModalProps) {
   const [selectedSize, setSelectedSize] = useState<TargetSizeId>(globalSettings.targetSize || 'ios-6.5');
   const [isExporting, setIsExporting] = useState(false);
   const [progressMessage, setProgressMessage] = useState('');
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const isDark = globalSettings.theme !== 'light';
 
   const handleExport = async () => {
     setIsExporting(true);
     setProgressMessage('Starting...');
+    setProgressPercent(0);
     
     try {
-      const { blob, extension } = await generateVideo(canvases, selectedSize, (msg) => {
+      const { blob, extension } = await generateVideo(canvases, selectedSize, (msg, percent) => {
         setProgressMessage(msg);
+        setProgressPercent(percent);
       });
       saveAs(blob, `showcase-video.${extension}`);
     } catch (err) {
@@ -69,14 +72,19 @@ export function VideoCreatorModal({ onClose }: VideoCreatorModalProps) {
         {/* Content */}
         {isExporting ? (
           <div className="p-12 flex flex-col items-center justify-center space-y-6">
-            <div className="w-12 h-12 border-4 border-zinc-200 border-t-zinc-900 rounded-full animate-spin"></div>
             <div className="text-center">
               <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Creating Video...
+                Creating Video... {progressPercent}%
               </h3>
               <p className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
                 {progressMessage}
               </p>
+            </div>
+            <div className="w-full max-w-md h-2 bg-zinc-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-zinc-900 transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
             </div>
           </div>
         ) : (

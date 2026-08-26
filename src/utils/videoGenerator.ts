@@ -5,13 +5,13 @@ import { TARGET_SIZES } from '@/config/sizes';
 export async function generateVideo(
   canvases: CanvasItem[],
   targetSizeId: string,
-  onProgress: (msg: string) => void
+  onProgress: (msg: string, percent: number) => void
 ): Promise<{ blob: Blob, extension: string }> {
   const sizeConfig = TARGET_SIZES[targetSizeId as keyof typeof TARGET_SIZES] || TARGET_SIZES['ios-6.5'];
   const width = sizeConfig.width;
   const height = sizeConfig.height;
   
-  onProgress('Preparing screenshots...');
+  onProgress('Preparing screenshots...', 0);
   
   // Render each DOM node to an HTMLCanvasElement
   const renderedFrames: HTMLCanvasElement[] = [];
@@ -26,6 +26,10 @@ export async function generateVideo(
         pixelRatio: sizeConfig.pixelRatio,
       });
       renderedFrames.push(frameCanvas);
+      
+      // Update progress for rendering phase (0-50%)
+      const renderPercent = Math.round(((i + 1) / canvases.length) * 50);
+      onProgress(`Rendering screenshot ${i + 1}/${canvases.length}...`, renderPercent);
     } catch (err) {
       console.error('Failed to render canvas to image', err);
     }
@@ -35,7 +39,7 @@ export async function generateVideo(
     throw new Error('No frames could be rendered.');
   }
 
-  onProgress('Encoding video...');
+  onProgress('Encoding video...', 50);
 
   // Create the main recording canvas
   const canvas = document.createElement('canvas');
@@ -117,6 +121,15 @@ export async function generateVideo(
 
       frameInSlide++;
       
+      // Update encoding progress (50% to 100%)
+      const totalOverallFrames = renderedFrames.length * totalFramesPerSlide;
+      const currentOverallFrame = (currentSlide * totalFramesPerSlide) + frameInSlide;
+      const encodeProgress = 50 + Math.round((currentOverallFrame / totalOverallFrames) * 50);
+      // Throttle progress updates to avoid overwhelming React (e.g., every 5 frames)
+      if (currentOverallFrame % 5 === 0) {
+        onProgress(`Encoding frame ${currentOverallFrame}/${totalOverallFrames}...`, encodeProgress);
+      }
+
       if (frameInSlide >= totalFramesPerSlide) {
         frameInSlide = 0;
         currentSlide++;
@@ -124,6 +137,7 @@ export async function generateVideo(
 
       if (currentSlide >= renderedFrames.length) {
         // Animation complete
+        onProgress('Finalizing video...', 100);
         recorder.stop();
         return;
       }
