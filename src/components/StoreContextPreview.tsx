@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES } from '@/config/sizes';
 import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose } from 'react-icons/io5';
+import { CanvasEditor } from './CanvasEditor';
 
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const { canvases, globalSettings } = useEditorStore();
@@ -103,16 +104,13 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                   {canvases.map((canvas, i) => (
                     <div 
                       key={canvas.id} 
-                      className="snap-center rounded-2xl overflow-hidden border flex-shrink-0 relative bg-zinc-100 shadow-sm"
+                      className="snap-center overflow-hidden flex-shrink-0 relative"
                       style={{ 
                         width: '240px', 
                         aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
                       }}
                     >
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-xs text-gray-400 p-4 text-center">
-                        <span className="font-bold mb-2">Slide {i + 1}</span>
-                        <span className="text-[10px] opacity-70">Export high-res images to view final result</span>
-                      </div>
+                      <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={240} />
                     </div>
                   ))}
                 </div>
@@ -178,16 +176,13 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                  {canvases.map((canvas, i) => (
                    <div 
                      key={canvas.id} 
-                     className="snap-center rounded-xl overflow-hidden border flex-shrink-0 relative bg-zinc-100 shadow-sm"
+                     className="snap-center overflow-hidden flex-shrink-0 relative"
                      style={{ 
                        width: '180px', 
                        aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
                      }}
                    >
-                     <div className="absolute inset-0 flex flex-col items-center justify-center text-xs text-gray-400 p-4 text-center">
-                       <span className="font-bold mb-1">Screenshot {i + 1}</span>
-                       <span className="text-[10px] opacity-70">Preview</span>
-                     </div>
+                     <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={180} />
                    </div>
                  ))}
                </div>

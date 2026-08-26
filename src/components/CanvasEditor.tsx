@@ -36,6 +36,7 @@ interface CanvasEditorProps {
   index: number;
   total: number;
   isPreviewMode?: boolean;
+  targetWidth?: number;
 }
 
 const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
@@ -65,7 +66,7 @@ function getContrastColor(hex: string) {
   return yiq >= 128 ? '#000000' : '#ffffff';
 }
 
-export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: CanvasEditorProps) {
+export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth }: CanvasEditorProps) {
   const { 
     globalSettings, 
     canvases,
@@ -129,7 +130,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
   const sizeConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
   const canvasWidth = sizeConfig.logicalWidth;
   const canvasHeight = sizeConfig.logicalHeight;
-  const zoomScale = globalSettings.zoomScale || 0.65;
+  const zoomScale = targetWidth ? (targetWidth / canvasWidth) : (globalSettings.zoomScale || 0.65);
   
   const currentLayout = canvas.layout || 'basic-top';
   const isCompact = canvasHeight < 750;
@@ -333,11 +334,13 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
       className={`flex flex-col flex-shrink-0 group relative transition-transform duration-200 ${
         isPreviewMode 
           ? 'w-screen h-screen items-center justify-center snap-center' 
-          : 'items-center'
+          : targetWidth
+            ? 'items-center pointer-events-none snap-center'
+            : 'items-center'
       }`}
     >
       {/* Top Control Bar */}
-      {!isPreviewMode && (
+      {!isPreviewMode && !targetWidth && (
         <div 
           onWheel={(e) => e.stopPropagation()}
         className={`w-full mb-4 flex items-center justify-between px-4 py-2.5 rounded-2xl shadow-sm border relative z-50 transition-colors ${
@@ -585,8 +588,8 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
         style={{ 
           transform: `scale(${zoomScale})`,
           marginBottom: `calc(${canvasHeight}px * (${zoomScale} - 1))`,
-          marginLeft: isPreviewMode ? `calc(${canvasWidth}px * (${zoomScale} - 1) / 2)` : undefined,
-          marginRight: isPreviewMode ? `calc(${canvasWidth}px * (${zoomScale} - 1) / 2)` : undefined,
+          marginLeft: (isPreviewMode || targetWidth) ? `calc(${canvasWidth}px * (${zoomScale} - 1) / 2)` : undefined,
+          marginRight: (isPreviewMode || targetWidth) ? `calc(${canvasWidth}px * (${zoomScale} - 1) / 2)` : undefined,
         }}
       >
         <div
