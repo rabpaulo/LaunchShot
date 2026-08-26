@@ -14,8 +14,7 @@ import {
   IoTrashOutline,
   IoSparklesOutline,
   IoChevronBack,
-  IoChevronForward,
-  IoFilmOutline
+  IoChevronForward
 } from 'react-icons/io5';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
@@ -23,7 +22,6 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 
 import { ExportModal } from './ExportModal';
-import { VideoCreatorModal } from './VideoCreatorModal';
 import { CustomDropdown } from './ui/CustomDropdown';
 import { TEMPLATES } from '@/config/templates';
 import { NICHE_CATEGORIES_LIST, generateTemplateForNiche } from '@/config/niches';
@@ -91,7 +89,6 @@ export function Sidebar() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
 
@@ -782,37 +779,21 @@ export function Sidebar() {
           Enter Preview Mode
         </button>
         
-        <div className="flex gap-2">
-          <button
-            disabled={canvases.length === 0}
-            onClick={() => setShowVideoModal(true)}
-            className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl shadow-md text-xs font-extrabold transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-              canvases.length === 0 
-                ? 'bg-zinc-400 opacity-50 cursor-not-allowed' 
-                : (isDark ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-indigo-500 text-white hover:bg-indigo-600')
-            }`}
-          >
-            <IoFilmOutline className="w-4 h-4 mr-2" />
-            Video
-          </button>
-          
-          <button
-            disabled={canvases.length === 0}
-            onClick={() => setShowExportModal(true)}
-            className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 ${
-              canvases.length === 0 
-                ? 'bg-zinc-400 opacity-50 cursor-not-allowed' 
-                : (isDark ? 'bg-white text-zinc-900 hover:bg-gray-100' : 'bg-zinc-900 text-white hover:bg-zinc-800')
-            }`}
-          >
-            <IoDownloadOutline className="w-4 h-4 mr-2" />
-            Export ({canvases.length})
-          </button>
-        </div>
+        <button
+          disabled={canvases.length === 0}
+          onClick={() => setShowExportModal(true)}
+          className={`w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 ${
+            canvases.length === 0 
+              ? 'bg-zinc-400 opacity-50 cursor-not-allowed' 
+              : (isDark ? 'bg-white text-zinc-900 hover:bg-gray-100' : 'bg-zinc-900 text-white hover:bg-zinc-800')
+          }`}
+        >
+          <IoDownloadOutline className="w-4 h-4 mr-2" />
+          Export All ({canvases.length})
+        </button>
       </div>
       </div>
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
-      {showVideoModal && <VideoCreatorModal onClose={() => setShowVideoModal(false)} />}
       
       {/* Invisible overlay while resizing to capture global mouse events */}
       {isResizing && (
