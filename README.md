@@ -18,6 +18,11 @@
 - **Showcase Layout Templates:**
   - Includes a wide variety of templates covering Basic layouts, Tilt angles, Half bleeds, 3D Isometrics, Split-verticals, and custom Social Graphics templates.
   - **Multi-Phone Composites:** Advanced banner templates (e.g., "Banner Stacked Right", "Banner Triple Bottom") that automatically composite multiple sequential screenshots onto a single beautiful canvas for feature graphics and social media headers.
+- **App Store & Play Store Context Preview:** 
+  - One-click context mode overlays your currently active canvases inside a realistic UI mockup of an Apple App Store or Google Play Store search listing.
+  - Test exactly how your screenshots look to users alongside your app icon, star rating, and title.
+- **JSON Localization & Translations:**
+  - Instantly upload a `.json` file containing translated strings to automatically map and translate all canvas titles and subtitles without re-creating layouts manually.
 - **Smart ASO Copywriter & Niche Generator:** 
   - Automatically extract keywords from your app's description and inject them into proven App Store Optimization formulas.
   - One-click Niche template generator applies specialized colors, copy, and layouts based on your app's category (Fitness, Finance, Dating, Food, etc.).
@@ -96,7 +101,8 @@
 │   ├── components/
 │   │   ├── CanvasEditor.tsx   # Individual screenshot card & layout renderer
 │   │   ├── MinimalPhoneFrame.tsx # Responsive, flat CSS device bezel
-│   │   └── Sidebar.tsx        # Device settings, templates, & bulk upload panel
+│   │   ├── Sidebar.tsx        # Device settings, templates, & bulk upload panel
+│   │   └── StoreContextPreview.tsx # App Store & Google Play UI context preview
 │   ├── config/
 │   │   ├── aso.ts             # App Store Optimization copy formulas
 │   │   ├── badges.ts          # App Store badge configurations

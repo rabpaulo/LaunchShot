@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Sidebar } from '@/components/Sidebar';
 import { ExportModal } from '@/components/ExportModal';
+import { StoreContextPreview } from '@/components/StoreContextPreview';
 import { IoDownloadOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
@@ -24,7 +25,8 @@ import {
   IoListOutline,
   IoAlbumsOutline,
   IoChevronUp,
-  IoChevronDown
+  IoChevronDown,
+  IoStorefrontOutline
 } from 'react-icons/io5';
 
 export default function Home() {
@@ -43,6 +45,7 @@ export default function Home() {
 
   const [isMounted, setIsMounted] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showStorePreview, setShowStorePreview] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -166,6 +169,8 @@ export default function Home() {
       {!isPreviewMode && <Sidebar />}
       
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
+      
+      {showStorePreview && <StoreContextPreview onClose={() => setShowStorePreview(false)} />}
 
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
@@ -179,7 +184,7 @@ export default function Home() {
               : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
           }`}>
           {/* Quick Jump Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[65%] scrollbar-none items-center h-full">
+          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[55%] scrollbar-none items-center h-full">
             <IoGridOutline className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             
             <div className={`flex items-center p-1 rounded-lg ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-gray-100 border border-gray-200/50'}`}>
@@ -324,23 +329,35 @@ export default function Home() {
               </button>
             </div>
 
+            <button
+              onClick={() => setShowStorePreview(true)}
+              className={`ml-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+                isDark
+                  ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700'
+                  : 'bg-white text-zinc-800 border border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <IoStorefrontOutline className="w-3.5 h-3.5 mr-1.5" />
+              Context
+            </button>
+
             {/* Top Toolbar Preview Button */}
             <button
               onClick={togglePreviewMode}
-              className={`ml-2 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+              className={`ml-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
                 isDark
                   ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700'
                   : 'bg-black text-white hover:bg-zinc-800'
               }`}
             >
               <IoExpandOutline className="w-3.5 h-3.5 mr-1.5" />
-              Preview Mode
+              Preview
             </button>
             
             <button
               disabled={canvases.length === 0}
               onClick={() => setShowExportModal(true)}
-              className={`ml-3 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-md ${
+              className={`ml-1 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-md ${
                 canvases.length === 0
                   ? 'bg-zinc-400 opacity-50 cursor-not-allowed'
                   : (isDark ? 'bg-white text-zinc-900 hover:bg-gray-100' : 'bg-zinc-900 text-white hover:bg-zinc-800')

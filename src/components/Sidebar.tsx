@@ -9,12 +9,12 @@ import {
   IoCloudUploadOutline,
   IoPhonePortraitOutline,
   IoImageOutline,
-  
   IoCheckmark,
   IoTrashOutline,
   IoSparklesOutline,
   IoChevronBack,
-  IoChevronForward
+  IoChevronForward,
+  IoGlobeOutline
 } from 'react-icons/io5';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
@@ -526,6 +526,68 @@ export function Sidebar() {
         </section>
 
 
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
+        {/* Translations */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              Translations
+            </h2>
+          </div>
+          
+          <input
+            type="file"
+            id="translation-upload"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                try {
+                  const text = await file.text();
+                  const data = JSON.parse(text);
+                  const { canvases, updateCanvas } = useEditorStore.getState();
+                  
+                  if (Array.isArray(data)) {
+                    data.forEach((item, index) => {
+                      if (canvases[index]) {
+                        updateCanvas(canvases[index].id, {
+                          title: item.title || canvases[index].title,
+                          subtitle: item.subtitle || canvases[index].subtitle,
+                        });
+                      }
+                    });
+                    toast.success("Translations applied!");
+                  } else {
+                    toast.error("Invalid JSON format. Expected an array.");
+                  }
+                } catch (err) {
+                  toast.error("Failed to parse JSON file.");
+                }
+              }
+              if (e.target) e.target.value = '';
+            }}
+            accept=".json"
+            className="hidden"
+          />
+
+          <button
+            onClick={() => document.getElementById('translation-upload')?.click()}
+            className={`w-full py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
+              isDark
+                ? 'bg-zinc-800/80 border-zinc-700 text-white hover:bg-zinc-700'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
+            }`}
+          >
+            <IoGlobeOutline className="w-4 h-4" />
+            Upload JSON Translations
+          </button>
+          <p className={`mt-2 text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            Format: [{`{"title":"...", "subtitle":"..."}`}]
+          </p>
+        </section>
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 
