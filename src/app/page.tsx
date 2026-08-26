@@ -4,7 +4,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Sidebar } from '@/components/Sidebar';
 import { ExportModal } from '@/components/ExportModal';
-import { IoDownloadOutline } from 'react-icons/io5';
+import { VideoCreatorModal } from '@/components/VideoCreatorModal';
+import { IoDownloadOutline, IoFilmOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -43,6 +44,7 @@ export default function Home() {
 
   const [isMounted, setIsMounted] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -166,6 +168,7 @@ export default function Home() {
       {!isPreviewMode && <Sidebar />}
       
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
+      {showVideoModal && <VideoCreatorModal onClose={() => setShowVideoModal(false)} />}
 
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
@@ -335,6 +338,19 @@ export default function Home() {
             >
               <IoExpandOutline className="w-3.5 h-3.5 mr-1.5" />
               Preview Mode
+            </button>
+            
+            <button
+              disabled={canvases.length === 0}
+              onClick={() => setShowVideoModal(true)}
+              className={`ml-2 px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-md ${
+                canvases.length === 0
+                  ? 'bg-zinc-400 opacity-50 cursor-not-allowed'
+                  : (isDark ? 'bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200')
+              }`}
+            >
+              <IoFilmOutline className="w-3.5 h-3.5 mr-1.5" />
+              Video
             </button>
             
             <button
