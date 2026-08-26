@@ -37,10 +37,10 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex-1 overflow-y-auto flex justify-center py-12">
-        <div className="w-[420px] bg-white dark:bg-black border dark:border-zinc-800 rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100 dark:border-zinc-900" style={{ height: '850px' }}>
+        <div className="w-[420px] bg-white border rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100" style={{ height: '850px' }}>
           
           {storeType === 'app-store' && (
-            <div className="h-full flex flex-col font-sans">
+            <div className="h-full flex flex-col font-sans text-black">
               {/* Fake Status Bar */}
               <div className="h-14 w-full flex justify-between items-center px-8 text-xs font-bold pt-4">
                 <span>9:41</span>
@@ -62,7 +62,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
 
               <div className="flex-1 overflow-y-auto px-5 py-2">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-28 h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm border dark:border-zinc-800">
+                  <div className="w-28 h-28 bg-gray-200 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm border">
                     {canvases[0]?.appIconSrc && (
                       <img src={canvases[0].appIconSrc} alt="App Icon" className="w-full h-full object-cover" />
                     )}
@@ -79,13 +79,13 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                     <div className="font-bold text-[22px] text-gray-500">4.9</div>
                     <div className="flex items-center text-gray-400 justify-center text-[10px]"><IoStar/><IoStar/><IoStar/><IoStar/><IoStar/></div>
                   </div>
-                  <div className="w-px h-10 bg-gray-200 dark:bg-zinc-800" />
+                  <div className="w-px h-10 bg-gray-200" />
                   <div className="text-center">
                     <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">AGE</div>
                     <div className="font-bold text-[22px] text-gray-500">4+</div>
                     <div className="text-gray-400 text-[10px]">Years Old</div>
                   </div>
-                  <div className="w-px h-10 bg-gray-200 dark:bg-zinc-800" />
+                  <div className="w-px h-10 bg-gray-200" />
                   <div className="text-center">
                     <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">CHART</div>
                     <div className="font-bold text-[22px] text-gray-500">#1</div>
@@ -103,7 +103,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                   {canvases.map((canvas, i) => (
                     <div 
                       key={canvas.id} 
-                      className="snap-center rounded-2xl overflow-hidden border dark:border-zinc-800 flex-shrink-0 relative bg-zinc-100 dark:bg-zinc-900 shadow-sm"
+                      className="snap-center rounded-2xl overflow-hidden border flex-shrink-0 relative bg-zinc-100 shadow-sm"
                       style={{ 
                         width: '240px', 
                         aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
@@ -121,7 +121,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
           )}
 
           {storeType === 'play-store' && (
-             <div className="h-full flex flex-col">
+             <div className="h-full flex flex-col text-black">
              {/* Fake Status Bar */}
              <div className="h-10 w-full flex justify-between items-center px-6 text-xs font-medium pt-2 opacity-70">
                <span>9:41</span>
@@ -132,7 +132,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
              </div>
              
              {/* App Header */}
-             <div className="px-4 py-2 flex items-center gap-4 border-b dark:border-zinc-800 pb-3">
+             <div className="px-4 py-2 flex items-center gap-4 border-b pb-3">
                <IoChevronBack className="w-6 h-6" />
                <div className="flex-1" />
                <IoSearchOutline className="w-5 h-5" />
@@ -140,31 +140,31 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
 
              <div className="flex-1 overflow-y-auto px-5 py-4">
                <div className="flex items-center gap-5 mb-6">
-                 <div className="w-20 h-20 bg-gray-200 dark:bg-zinc-800 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border dark:border-zinc-800">
+                 <div className="w-20 h-20 bg-gray-200 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border">
                    {canvases[0]?.appIconSrc && (
                      <img src={canvases[0].appIconSrc} alt="App Icon" className="w-full h-full object-cover" />
                    )}
                  </div>
                  <div className="flex-1">
                    <h2 className="font-medium text-2xl leading-tight mb-1">Your App Name</h2>
-                   <p className="text-emerald-700 dark:text-emerald-400 text-sm font-medium mb-1">Your Company Inc.</p>
+                   <p className="text-emerald-700 text-sm font-medium mb-1">Your Company Inc.</p>
                    <p className="text-gray-500 text-[11px]">Contains ads • In-app purchases</p>
                  </div>
                </div>
 
                <div className="flex justify-between items-center mb-6 px-2">
                   <div className="text-center">
-                    <div className="font-bold text-sm flex items-center justify-center gap-1">4.9 <IoStar className="w-3 h-3 text-gray-700 dark:text-gray-300"/></div>
+                    <div className="font-bold text-sm flex items-center justify-center gap-1">4.9 <IoStar className="w-3 h-3 text-gray-700"/></div>
                     <div className="text-[10px] text-gray-500 mt-1">30K reviews</div>
                   </div>
-                  <div className="w-px h-8 bg-gray-200 dark:bg-zinc-800" />
+                  <div className="w-px h-8 bg-gray-200" />
                   <div className="text-center">
                     <div className="font-bold text-sm">1M+</div>
                     <div className="text-[10px] text-gray-500 mt-1">Downloads</div>
                   </div>
-                  <div className="w-px h-8 bg-gray-200 dark:bg-zinc-800" />
+                  <div className="w-px h-8 bg-gray-200" />
                   <div className="text-center flex flex-col items-center">
-                    <div className="w-4 h-4 bg-gray-300 dark:bg-zinc-700 rounded-sm mb-1 text-[8px] flex items-center justify-center font-bold">E</div>
+                    <div className="w-4 h-4 bg-gray-300 rounded-sm mb-1 text-[8px] flex items-center justify-center font-bold">E</div>
                     <div className="text-[10px] text-gray-500 mt-1">Everyone</div>
                   </div>
                </div>
@@ -178,7 +178,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                  {canvases.map((canvas, i) => (
                    <div 
                      key={canvas.id} 
-                     className="snap-center rounded-xl overflow-hidden border dark:border-zinc-800 flex-shrink-0 relative bg-zinc-100 dark:bg-zinc-900 shadow-sm"
+                     className="snap-center rounded-xl overflow-hidden border flex-shrink-0 relative bg-zinc-100 shadow-sm"
                      style={{ 
                        width: '180px', 
                        aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
