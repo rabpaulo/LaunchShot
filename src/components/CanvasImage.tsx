@@ -29,6 +29,7 @@ export function CanvasImage({ canvas, className = '' }: CanvasImageProps) {
         crop={crop}
         zoom={zoom}
         rotation={rotation}
+        showGrid={false}
         onCropChange={() => {}}
         onZoomChange={() => {}}
         style={{
