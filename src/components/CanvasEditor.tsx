@@ -607,12 +607,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false }: Ca
           {/* Responsive Text & Badge Section */}
           {currentLayout !== 'device-only' && (
             <div className={layoutConfig.textContainerClass}>
-              {/* App Icon (OG Styles) */}
-              {canvas.appIconSrc && (
-                <div className="w-20 h-20 rounded-[18px] bg-white shadow-xl flex items-center justify-center overflow-hidden mb-2 border border-black/5">
-                  <img src={canvas.appIconSrc} alt="App Icon" className="w-full h-full object-cover" />
-                </div>
-              )}
+              {/* App Icon removed per user request */}
 
               {/* Badge Sticker */}
               {canvas.badge?.enabled && (
