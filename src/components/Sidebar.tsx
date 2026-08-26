@@ -592,11 +592,15 @@ export function Sidebar() {
               Phone Settings
             </h2>
           </div>
-          <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-colors ${
-            isDark 
-              ? 'bg-gray-800/40 border-gray-700/60 hover:bg-gray-800/80' 
-              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-          }`}>
+          <button 
+            type="button"
+            onClick={() => updateGlobalSettings({ showNotch: !globalSettings.showNotch })}
+            className={`w-full flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-colors ${
+              isDark 
+                ? 'bg-gray-800/40 border-gray-700/60 hover:bg-gray-800/80' 
+                : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+            }`}
+          >
             <span className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
               Show Camera Hole
             </span>
@@ -607,13 +611,7 @@ export function Sidebar() {
                 globalSettings.showNotch ? 'translate-x-5' : 'translate-x-1'
               }`} />
             </div>
-            <input 
-              type="checkbox" 
-              className="sr-only"
-              checked={globalSettings.showNotch}
-              onChange={(e) => updateGlobalSettings({ showNotch: e.target.checked })}
-            />
-          </label>
+          </button>
         </section>
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
