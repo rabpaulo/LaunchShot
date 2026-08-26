@@ -43,8 +43,8 @@ export async function generateVideo(
 
   // Create the main recording canvas
   const canvas = document.createElement('canvas');
-  canvas.width = width * sizeConfig.pixelRatio;
-  canvas.height = height * sizeConfig.pixelRatio;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2d context');
 
@@ -59,7 +59,10 @@ export async function generateVideo(
     mimeType = 'video/webm'; // fallback
   }
   
-  const recorder = new MediaRecorder(stream, { mimeType });
+  const recorder = new MediaRecorder(stream, { 
+    mimeType,
+    videoBitsPerSecond: 8000000 // 8 Mbps for good quality on mobile resolutions
+  });
   const chunks: Blob[] = [];
   recorder.ondataavailable = (e) => chunks.push(e.data);
 
