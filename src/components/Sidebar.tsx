@@ -272,6 +272,62 @@ export function Sidebar() {
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 
+        {/* App Icon Upload Zone */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              App Icon
+            </h2>
+          </div>
+          
+          <input
+            type="file"
+            id="app-icon-upload"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const url = URL.createObjectURL(file);
+                useEditorStore.getState().applyAppIconToAll(url);
+                toast.success("App Icon added!");
+              }
+            }}
+            accept="image/*"
+            className="hidden"
+          />
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => document.getElementById('app-icon-upload')?.click()}
+              className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                isDark
+                  ? 'bg-zinc-800/80 border-zinc-700 text-white hover:bg-zinc-700'
+                  : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
+              }`}
+            >
+              <IoImageOutline className="w-4 h-4" />
+              Upload App Icon
+            </button>
+            <button
+              onClick={() => {
+                useEditorStore.getState().removeAppIconFromAll();
+                toast.success("App Icon removed!");
+              }}
+              className={`p-2.5 rounded-xl border transition-all hover:scale-[1.02] ${
+                isDark
+                  ? 'bg-zinc-800/80 border-zinc-700 text-red-400 hover:bg-red-950/50 hover:border-red-900/50'
+                  : 'bg-zinc-50 border-zinc-200 text-red-500 hover:bg-red-50 hover:border-red-200'
+              }`}
+              title="Remove App Icon"
+            >
+              <IoTrashOutline className="w-4 h-4" />
+            </button>
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
         {/* Templates */}
         <section>
           <div className="flex items-center justify-between mb-3">

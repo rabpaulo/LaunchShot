@@ -85,6 +85,8 @@ interface EditorState {
   applyFontToAll: (fontFamily: string) => void;
   applyLayoutToAll: (layout: LayoutType) => void;
   applyContentToAll: (title: string, subtitle: string) => void;
+  applyAppIconToAll: (appIconSrc: string) => void;
+  removeAppIconFromAll: () => void;
   clearAllCanvases: () => void;
   loadTemplate: (canvases: CanvasItem[]) => void;
   isPreviewMode: boolean;
@@ -244,6 +246,20 @@ export const useEditorStore = create<EditorState>()(
             ...c,
             title,
             subtitle,
+          })),
+        })),
+      applyAppIconToAll: (appIconSrc) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            appIconSrc,
+          })),
+        })),
+      removeAppIconFromAll: () =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            appIconSrc: undefined,
           })),
         })),
       clearAllCanvases: () =>
