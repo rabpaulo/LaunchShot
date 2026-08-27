@@ -2,31 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { TARGET_SIZES } from '@/config/sizes';
+import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
 import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose, IoPhonePortraitOutline, IoTabletPortraitOutline } from 'react-icons/io5';
 import { CanvasEditor } from './CanvasEditor';
 
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const { canvases, globalSettings, updateGlobalSettings } = useEditorStore();
   const [storeType, setStoreType] = useState<'app-store' | 'play-store'>('app-store');
-  const [previewDevice, setPreviewDevice] = useState<'phone-sm' | 'phone-lg' | 'tablet' | 'samsung-base' | 'samsung-ultra'>('phone-lg');
+  const [previewDevice, setPreviewDevice] = useState<TargetSizeId>(globalSettings.targetSize);
   const [scale, setScale] = useState(1);
 
   const isDark = globalSettings.theme !== 'light';
   const sizeConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
   
-  const deviceStyles = {
-    'phone-sm': { screenW: 375, screenH: 667, name: 'iPhone SE' },
-    'phone-lg': { screenW: 430, screenH: 932, name: 'iPhone 15 Pro Max' },
-    'samsung-base': { screenW: 360, screenH: 780, name: 'Galaxy Base' },
-    'samsung-ultra': { screenW: 480, screenH: 1040, name: 'Galaxy Ultra' },
-    'tablet': { screenW: 834, screenH: 1194, name: 'iPad Pro 11"' },
-  };
-  const activeDevice = deviceStyles[previewDevice];
+  const activeDevice = TARGET_SIZES[previewDevice] || TARGET_SIZES['ios-6.5'];
   
   // Add 16px to account for the border-8 bezel (8px on each side)
-  const wrapperW = activeDevice.screenW + 16;
-  const wrapperH = activeDevice.screenH + 16;
+  const wrapperW = activeDevice.logicalWidth + 16;
+  const wrapperH = activeDevice.logicalHeight + 16;
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,44 +54,29 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         
-        <div className="flex bg-zinc-200 dark:bg-zinc-900 rounded-lg p-1">
-          <button 
-            onClick={() => setPreviewDevice('phone-sm')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'phone-sm' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-            title="Small Phone (iPhone SE)"
+        <div className="flex items-center">
+          <select 
+            value={previewDevice}
+            onChange={(e) => setPreviewDevice(e.target.value as TargetSizeId)}
+            className="bg-zinc-200 dark:bg-zinc-900 border-none rounded-lg text-sm px-4 py-2 text-gray-900 dark:text-white outline-none cursor-pointer font-medium focus:ring-2 focus:ring-blue-500"
           >
-            <IoPhonePortraitOutline className="w-3.5 h-3.5" /> Small
-          </button>
-          <button 
-            onClick={() => setPreviewDevice('phone-lg')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'phone-lg' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-            title="Large Phone (iPhone Pro Max)"
-          >
-            <IoPhonePortraitOutline className="w-4 h-4" /> Large
-          </button>
-          <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
-          <button 
-            onClick={() => setPreviewDevice('samsung-base')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'samsung-base' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-            title="Samsung Galaxy (Base)"
-          >
-            <IoPhonePortraitOutline className="w-3.5 h-3.5" /> Galaxy
-          </button>
-          <button 
-            onClick={() => setPreviewDevice('samsung-ultra')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'samsung-ultra' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-            title="Samsung Galaxy Ultra"
-          >
-            <IoPhonePortraitOutline className="w-4 h-4" /> Galaxy Ultra
-          </button>
-          <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
-          <button 
-            onClick={() => setPreviewDevice('tablet')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'tablet' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-            title="Tablet (iPad)"
-          >
-            <IoTabletPortraitOutline className="w-4 h-4" /> Tablet
-          </button>
+            {Object.entries(
+              Object.values(TARGET_SIZES).reduce((acc, size) => {
+                const cat = size.category;
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(size);
+                return acc;
+              }, {} as Record<string, typeof TARGET_SIZES[keyof typeof TARGET_SIZES][]>)
+            ).map(([category, sizes]) => (
+              <optgroup key={category} label={category}>
+                {sizes.map(size => (
+                  <option key={size.id} value={size.id}>
+                    {size.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
         </div>
       </div>
 
