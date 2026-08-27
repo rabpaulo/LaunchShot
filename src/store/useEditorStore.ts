@@ -68,6 +68,8 @@ export type GlobalSettings = {
   showNotch: boolean;
   imageFit: 'cover' | 'contain';
   viewMode: 'horizontal' | 'vertical';
+  appName?: string;
+  companyName?: string;
 };
 
 interface EditorState {
@@ -104,6 +106,8 @@ const defaultGlobalSettings: GlobalSettings = {
   showNotch: true,
   imageFit: 'cover',
   viewMode: 'horizontal',
+  appName: 'Your App Name',
+  companyName: 'Your Company Inc.',
 };
 
 const LAYOUTS: LayoutType[] = [

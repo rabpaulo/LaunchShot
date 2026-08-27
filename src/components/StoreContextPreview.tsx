@@ -7,7 +7,7 @@ import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaysto
 import { CanvasEditor } from './CanvasEditor';
 
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
-  const { canvases, globalSettings } = useEditorStore();
+  const { canvases, globalSettings, updateGlobalSettings } = useEditorStore();
   const [storeType, setStoreType] = useState<'app-store' | 'play-store'>('app-store');
   const [previewDevice, setPreviewDevice] = useState<'phone-sm' | 'phone-lg' | 'tablet'>('phone-lg');
 
@@ -104,8 +104,18 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
                   <div className="flex-1 pt-1">
-                    <h2 className="font-bold text-[22px] leading-tight mb-1">Your App Name</h2>
-                    <p className="text-gray-500 text-[15px] mb-1">The best app ever</p>
+                    <input 
+                      value={globalSettings.appName}
+                      onChange={(e) => updateGlobalSettings({ appName: e.target.value })}
+                      className="font-bold text-[22px] leading-tight mb-1 bg-transparent border-none outline-none p-0 focus:ring-0 w-full placeholder-gray-400"
+                      placeholder="App Name"
+                    />
+                    <input 
+                      value={globalSettings.companyName}
+                      onChange={(e) => updateGlobalSettings({ companyName: e.target.value })}
+                      className="text-gray-500 text-[15px] mb-1 bg-transparent border-none outline-none p-0 focus:ring-0 w-full placeholder-gray-300"
+                      placeholder="Subtitle / Company"
+                    />
                   </div>
                 </div>
 
@@ -179,9 +189,19 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                    )}
                  </div>
                  <div className="flex-1">
-                   <h2 className="font-medium text-2xl leading-tight mb-1">Your App Name</h2>
-                   <p className="text-emerald-700 text-sm font-medium mb-1">Your Company Inc.</p>
-                   <p className="text-gray-500 text-[11px]">Contains ads • In-app purchases</p>
+                    <input 
+                      value={globalSettings.appName}
+                      onChange={(e) => updateGlobalSettings({ appName: e.target.value })}
+                      className="font-medium text-2xl leading-tight mb-1 bg-transparent border-none outline-none p-0 focus:ring-0 w-full placeholder-gray-400"
+                      placeholder="App Name"
+                    />
+                    <input 
+                      value={globalSettings.companyName}
+                      onChange={(e) => updateGlobalSettings({ companyName: e.target.value })}
+                      className="text-emerald-700 text-sm font-medium mb-1 bg-transparent border-none outline-none p-0 focus:ring-0 w-full placeholder-emerald-300"
+                      placeholder="Company Name"
+                    />
+                    <p className="text-gray-500 text-[11px]">Contains ads • In-app purchases</p>
                  </div>
                </div>
 
