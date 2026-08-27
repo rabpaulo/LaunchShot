@@ -31,6 +31,8 @@ import {
   IoColorPaletteOutline
 } from 'react-icons/io5';
 
+import { useShallow } from 'zustand/react/shallow';
+
 export default function Home() {
   const { 
     canvases, 
@@ -43,7 +45,18 @@ export default function Home() {
     isDraggingGlobal,
     setIsDraggingGlobal,
     updateGlobalSettings
-  } = useEditorStore();
+  } = useEditorStore(useShallow((state) => ({
+    canvases: state.canvases,
+    addCanvas: state.addCanvas,
+    globalSettings: state.globalSettings,
+    setZoomScale: state.setZoomScale,
+    toggleTheme: state.toggleTheme,
+    isPreviewMode: state.isPreviewMode,
+    togglePreviewMode: state.togglePreviewMode,
+    isDraggingGlobal: state.isDraggingGlobal,
+    setIsDraggingGlobal: state.setIsDraggingGlobal,
+    updateGlobalSettings: state.updateGlobalSettings
+  })));
 
   const [isMounted, setIsMounted] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -445,6 +458,8 @@ export default function Home() {
               index={index} 
               total={canvases.length} 
               isPreviewMode={isPreviewMode}
+              nextCanvas={canvases[index + 1]}
+              nextNextCanvas={canvases[index + 2]}
             />
           ))}
           

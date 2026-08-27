@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { useShallow } from 'zustand/react/shallow';
 import { useEditorStore } from '@/store/useEditorStore';
 import {
   IoAddCircleOutline,
@@ -82,7 +83,16 @@ export function Sidebar() {
     applyFontToAll,
     clearAllCanvases,
     setIsDraggingGlobal
-  } = useEditorStore();
+  } = useEditorStore(useShallow((state) => ({
+    globalSettings: state.globalSettings,
+    updateGlobalSettings: state.updateGlobalSettings,
+    addCanvas: state.addCanvas,
+    canvases: state.canvases,
+    applyBackgroundToAll: state.applyBackgroundToAll,
+    applyFontToAll: state.applyFontToAll,
+    clearAllCanvases: state.clearAllCanvases,
+    setIsDraggingGlobal: state.setIsDraggingGlobal
+  })));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);

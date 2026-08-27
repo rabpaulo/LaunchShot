@@ -29,6 +29,8 @@ import { TARGET_SIZES } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BADGE_PRESETS, BadgeConfig } from '@/config/badges';
 
+import { useShallow } from 'zustand/react/shallow';
+
 const fac = new FastAverageColor();
 
 interface CanvasEditorProps {
@@ -37,6 +39,8 @@ interface CanvasEditorProps {
   total: number;
   isPreviewMode?: boolean;
   targetWidth?: number;
+  nextCanvas?: CanvasItem;
+  nextNextCanvas?: CanvasItem;
 }
 
 const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
@@ -69,10 +73,9 @@ function getContrastColor(hex: string) {
   return yiq >= 128 ? '#000000' : '#ffffff';
 }
 
-export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth }: CanvasEditorProps) {
+export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth, nextCanvas, nextNextCanvas }: CanvasEditorProps) {
   const { 
     globalSettings, 
-    canvases,
     updateCanvas, 
     removeCanvas, 
     moveCanvas, 
@@ -80,7 +83,16 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
     applyLayoutToAll,
     applyContentToAll,
     setIsDraggingGlobal
-} = useEditorStore();
+  } = useEditorStore(useShallow((state) => ({
+    globalSettings: state.globalSettings,
+    updateCanvas: state.updateCanvas,
+    removeCanvas: state.removeCanvas,
+    moveCanvas: state.moveCanvas,
+    duplicateCanvas: state.duplicateCanvas,
+    applyLayoutToAll: state.applyLayoutToAll,
+    applyContentToAll: state.applyContentToAll,
+    setIsDraggingGlobal: state.setIsDraggingGlobal
+  })));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
@@ -801,9 +813,9 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                   >
-                    {canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined ? (
+                    {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvases[index + 1]?.imageSrc ? canvases[index + 1] : canvas} />
+                        <CanvasImage canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -821,9 +833,9 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                   >
-                    {canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined ? (
+                    {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvases[index + 2]?.imageSrc ? canvases[index + 2] : canvas} />
+                        <CanvasImage canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -846,9 +858,9 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                   >
-                    {canvases[index + 1]?.imageSrc || canvas.imageSrc || undefined ? (
+                    {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvases[index + 1]?.imageSrc ? canvases[index + 1] : canvas} />
+                        <CanvasImage canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -866,9 +878,9 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                   >
-                    {canvases[index + 2]?.imageSrc || canvas.imageSrc || undefined ? (
+                    {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvases[index + 2]?.imageSrc ? canvases[index + 2] : canvas} />
+                        <CanvasImage canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -938,4 +950,4 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
       {isEditingImage && <ImageEditorModal canvas={canvas} onClose={() => setIsEditingImage(false)} />}
     </div>
   );
-}
+});
