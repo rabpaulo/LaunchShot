@@ -3,15 +3,23 @@
 import React, { useState } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES } from '@/config/sizes';
-import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose } from 'react-icons/io5';
+import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose, IoPhonePortraitOutline, IoTabletPortraitOutline } from 'react-icons/io5';
 import { CanvasEditor } from './CanvasEditor';
 
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const { canvases, globalSettings } = useEditorStore();
   const [storeType, setStoreType] = useState<'app-store' | 'play-store'>('app-store');
+  const [previewDevice, setPreviewDevice] = useState<'phone-sm' | 'phone-lg' | 'tablet'>('phone-lg');
 
   const isDark = globalSettings.theme !== 'light';
   const sizeConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
+  
+  const deviceStyles = {
+    'phone-sm': { width: 375, height: 667 },
+    'phone-lg': { width: 428, height: 926 },
+    'tablet': { width: 768, height: 1024 },
+  };
+  const activeDevice = deviceStyles[previewDevice];
   
   return (
     <div className={`fixed inset-0 z-[200] flex flex-col ${isDark ? 'bg-black text-white' : 'bg-[#f8fafc] text-gray-900'}`}>
@@ -34,12 +42,38 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
             <IoLogoGooglePlaystore className="w-4 h-4" /> Google Play
           </button>
         </div>
-        <div className="w-32" /> {/* Spacer */}
+        
+        <div className="flex bg-zinc-200 dark:bg-zinc-900 rounded-lg p-1">
+          <button 
+            onClick={() => setPreviewDevice('phone-sm')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'phone-sm' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Small Phone (iPhone SE)"
+          >
+            <IoPhonePortraitOutline className="w-3.5 h-3.5" /> Small
+          </button>
+          <button 
+            onClick={() => setPreviewDevice('phone-lg')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'phone-lg' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Large Phone (iPhone Pro Max)"
+          >
+            <IoPhonePortraitOutline className="w-4 h-4" /> Large
+          </button>
+          <button 
+            onClick={() => setPreviewDevice('tablet')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'tablet' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Tablet (iPad)"
+          >
+            <IoTabletPortraitOutline className="w-4 h-4" /> Tablet
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto flex justify-center py-12">
-        <div className="resize overflow-hidden min-w-[320px] max-w-[90vw] min-h-[400px] max-h-[90vh] pb-4 pr-4" style={{ width: '440px', height: '866px' }}>
-          <div className="w-full h-full bg-white border rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100">
+        <div 
+          className="transition-all duration-300 relative" 
+          style={{ width: `${activeDevice.width}px`, height: `${activeDevice.height}px` }}
+        >
+          <div className="w-full h-full bg-white border rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100 flex flex-col">
           
           {storeType === 'app-store' && (
             <div className="h-full flex flex-col font-sans text-black">
