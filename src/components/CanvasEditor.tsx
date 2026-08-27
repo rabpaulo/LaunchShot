@@ -322,13 +322,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           phoneWrapperClass: "absolute bottom-[-10%] z-30 scale-100",
           textAlign: "center" as const,
         };
-      case 'dynamic-overlap':
-        return {
-          containerClass: "relative flex items-center justify-center overflow-hidden",
-          textContainerClass: "w-[75%] p-10 bg-black/40 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl text-center z-20 flex flex-col justify-center items-center gap-6",
-          phoneWrapperClass: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 scale-[1.3] opacity-80 blur-[2px] -rotate-6",
-          textAlign: "center" as const,
-        };
       case 'device-only':
         return {
           containerClass: "flex items-center justify-center",

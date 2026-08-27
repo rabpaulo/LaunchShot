@@ -29,7 +29,6 @@ export type LayoutType =
   | 'og-style-2'
   | 'og-style-3'
   | 'hero-3d-center'
-  | 'dynamic-overlap'
   | 'banner-stack-right'
   | 'banner-triple-bottom';
 

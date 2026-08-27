@@ -78,7 +78,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       ],
       mockupStyle: 'glass',
     },
-    layouts: ['hero-3d-center', 'half-right', 'dynamic-overlap', 'tilt-left', 'basic-bottom'],
+    layouts: ['hero-3d-center', 'half-right', 'basic-top', 'tilt-left', 'basic-bottom'],
     copy: [
       {
         title: 'Supercharge Your Intelligence',
@@ -150,7 +150,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       colors: ['#000000', '#111111', 'linear-gradient(135deg, #18181b 0%, #09090b 100%)', '#1c1917', '#0f172a'],
       mockupStyle: 'clay-dark',
     },
-    layouts: ['dynamic-overlap', 'tilt-right', 'tilt-left', 'half-left', 'basic-bottom'],
+    layouts: ['basic-top', 'tilt-right', 'tilt-left', 'half-left', 'basic-bottom'],
     copy: [
       {
         title: 'Crush Your Fitness Goals',
@@ -300,7 +300,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       colors: ['#090d16', '#1e1b4b', '#312e81', '#0f172a', '#18181b'],
       mockupStyle: 'clay-dark',
     },
-    layouts: ['dynamic-overlap', 'tilt-right', 'half-left', '3d-isometric-right', 'basic-bottom'],
+    layouts: ['basic-top', 'tilt-right', 'half-left', '3d-isometric-right', 'basic-bottom'],
     copy: [
       {
         title: 'Build Habits That Stick',
@@ -502,7 +502,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       ],
       mockupStyle: 'dark',
     },
-    layouts: ['basic-top', 'half-right', '3d-isometric-right', 'dynamic-overlap', 'basic-bottom'],
+    layouts: ['basic-top', 'half-right', '3d-isometric-right', 'basic-top', 'basic-bottom'],
     copy: [
       {
         title: 'Connect with Your People',
@@ -580,7 +580,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       colors: ['#121212', '#18181b', 'linear-gradient(135deg, #18181b 0%, #27272a 100%)', '#09090b', '#000000'],
       mockupStyle: 'dark',
     },
-    layouts: ['dynamic-overlap', 'half-right', '3d-isometric-left', 'tilt-right', 'basic-bottom'],
+    layouts: ['basic-top', 'half-right', '3d-isometric-left', 'tilt-right', 'basic-bottom'],
     copy: [
       {
         title: 'Soundtrack Your Life',
@@ -658,7 +658,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       colors: ['#000000', '#09090b', '#18181b', '#1e1b4b', '#000000'],
       mockupStyle: 'clay-dark',
     },
-    layouts: ['3d-isometric-right', '3d-isometric-left', 'dynamic-overlap', 'half-right', 'basic-bottom'],
+    layouts: ['3d-isometric-right', '3d-isometric-left', 'basic-top', 'half-right', 'basic-bottom'],
     copy: [
       {
         title: 'Dominate the Leaderboards',
@@ -980,7 +980,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       colors: ['#0284c7', '#0369a1', '#075985', '#0f172a', '#0c4a6e'],
       mockupStyle: 'glass',
     },
-    layouts: ['dynamic-overlap', 'half-right', '3d-isometric-right', 'tilt-left', 'basic-bottom'],
+    layouts: ['basic-top', 'half-right', '3d-isometric-right', 'tilt-left', 'basic-bottom'],
     copy: [
       {
         title: 'Hyperlocal Weather Radar',
@@ -1016,7 +1016,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
       colors: ['#000000', 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)', '#18181b', '#312e81', '#090d16'],
       mockupStyle: 'dark',
     },
-    layouts: ['dynamic-overlap', 'half-right', 'tilt-right', 'split-vertical', 'basic-bottom'],
+    layouts: ['basic-top', 'half-right', 'tilt-right', 'split-vertical', 'basic-bottom'],
     copy: [
       {
         title: 'Never Miss an Epic Night',
