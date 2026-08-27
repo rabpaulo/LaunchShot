@@ -9,7 +9,7 @@ import { CanvasEditor } from './CanvasEditor';
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const { canvases, globalSettings, updateGlobalSettings } = useEditorStore();
   const [storeType, setStoreType] = useState<'app-store' | 'play-store'>('app-store');
-  const [previewDevice, setPreviewDevice] = useState<'phone-sm' | 'phone-lg' | 'tablet'>('phone-lg');
+  const [previewDevice, setPreviewDevice] = useState<'phone-sm' | 'phone-lg' | 'tablet' | 'samsung-base' | 'samsung-ultra'>('phone-lg');
   const [scale, setScale] = useState(1);
 
   const isDark = globalSettings.theme !== 'light';
@@ -18,6 +18,8 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const deviceStyles = {
     'phone-sm': { screenW: 375, screenH: 667, name: 'iPhone SE' },
     'phone-lg': { screenW: 430, screenH: 932, name: 'iPhone 15 Pro Max' },
+    'samsung-base': { screenW: 360, screenH: 780, name: 'Galaxy Base' },
+    'samsung-ultra': { screenW: 480, screenH: 1040, name: 'Galaxy Ultra' },
     'tablet': { screenW: 834, screenH: 1194, name: 'iPad Pro 11"' },
   };
   const activeDevice = deviceStyles[previewDevice];
@@ -74,6 +76,22 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
           >
             <IoPhonePortraitOutline className="w-4 h-4" /> Large
           </button>
+          <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
+          <button 
+            onClick={() => setPreviewDevice('samsung-base')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'samsung-base' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Samsung Galaxy (Base)"
+          >
+            <IoPhonePortraitOutline className="w-3.5 h-3.5" /> Galaxy
+          </button>
+          <button 
+            onClick={() => setPreviewDevice('samsung-ultra')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'samsung-ultra' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Samsung Galaxy Ultra"
+          >
+            <IoPhonePortraitOutline className="w-4 h-4" /> Galaxy Ultra
+          </button>
+          <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
           <button 
             onClick={() => setPreviewDevice('tablet')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${previewDevice === 'tablet' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
