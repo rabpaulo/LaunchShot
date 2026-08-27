@@ -424,7 +424,7 @@ export const TEMPLATES: TemplateDefinition[] = [
                     textColor: '#000000',
                     fontFamily: 'inter',
                     showAppStoreBadge: true,
-                    appIconSrc: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=200&fit=crop'
+                    appIconSrc: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=200&h=200&fit=crop'
                   }
                 ]);
     }

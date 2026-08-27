@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { IoClose, IoColorPaletteOutline, IoCheckmarkCircle } from 'react-icons/io5';
+import { IoClose, IoColorPaletteOutline } from 'react-icons/io5';
 import { TEMPLATES, TemplateDefinition } from '@/config/templates';
 import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
 import { CanvasEditor } from './CanvasEditor';
@@ -13,8 +13,52 @@ interface TemplatePreviewProps {
   onSelect: () => void;
 }
 
+const getTemplateImage = (name: string) => {
+  const nameLower = name.toLowerCase();
+  
+  if (nameLower.includes('fitness') || nameLower.includes('health') || nameLower.includes('stacked') || nameLower.includes('triple')) {
+    // Fitness/Health
+    return 'https://images.unsplash.com/photo-1526506456079-6617a216db8a?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('fintech') || nameLower.includes('neoncard')) {
+    // Finance
+    return 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('productivity') || nameLower.includes('bento') || nameLower.includes('hero 3d')) {
+    // Productivity
+    return 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('social') || nameLower.includes('lifestyle') || nameLower.includes('story') || nameLower.includes('aesthetic')) {
+    // Social / Lifestyle
+    return 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('ai') || nameLower.includes('copilot') || nameLower.includes('cyberpunk') || nameLower.includes('duotone')) {
+    // AI / Tech / Cyberpunk
+    return 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('saas') || nameLower.includes('cloud') || nameLower.includes('overlap')) {
+    // Dashboards / SaaS
+    return 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('minimalist') || nameLower.includes('white') || nameLower.includes('basic')) {
+    // Minimal
+    return 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('playful') || nameLower.includes('glassmorphism') || nameLower.includes('sunset')) {
+    // Colorful
+    return 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=300&h=600&fit=crop';
+  }
+  if (nameLower.includes('dark') || nameLower.includes('contrast')) {
+    // Dark mode
+    return 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=300&h=600&fit=crop';
+  }
+
+  // Default / Generic
+  return 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=300&h=600&fit=crop';
+};
+
 function TemplatePreview({ template, isDark, onSelect }: TemplatePreviewProps) {
-  const { canvases, settings } = useMemo(() => {
+  const { canvases } = useMemo(() => {
     let mockCanvases: CanvasItem[] = [];
     let mockSettings: Partial<GlobalSettings> = {};
     template.apply(
@@ -52,7 +96,7 @@ function TemplatePreview({ template, isDark, onSelect }: TemplatePreviewProps) {
           {canvases.slice(0, 4).map((canvas, i) => (
             <div key={canvas.id} className="relative">
               <CanvasEditor 
-                canvas={{...canvas, imageSrc: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=600&fit=crop'}} 
+                canvas={{...canvas, imageSrc: getTemplateImage(template.name)}} 
                 index={i} 
                 total={canvases.length} 
                 targetWidth={120} 
