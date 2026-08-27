@@ -72,7 +72,7 @@ export function Sidebar() {
       window.removeEventListener('mouseup', stopResizing);
     };
   }, [isResizing, resize, stopResizing]);
-  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
+  
 
   const { 
     globalSettings, 
@@ -82,7 +82,9 @@ export function Sidebar() {
     applyBackgroundToAll,
     applyFontToAll,
     clearAllCanvases,
-    setIsDraggingGlobal
+    setIsDraggingGlobal,
+    activeTemplateIndex,
+    setActiveTemplateIndex
   } = useEditorStore(useShallow((state) => ({
     globalSettings: state.globalSettings,
     updateGlobalSettings: state.updateGlobalSettings,
@@ -91,7 +93,9 @@ export function Sidebar() {
     applyBackgroundToAll: state.applyBackgroundToAll,
     applyFontToAll: state.applyFontToAll,
     clearAllCanvases: state.clearAllCanvases,
-    setIsDraggingGlobal: state.setIsDraggingGlobal
+    setIsDraggingGlobal: state.setIsDraggingGlobal,
+    activeTemplateIndex: state.activeTemplateIndex,
+    setActiveTemplateIndex: state.setActiveTemplateIndex
   })));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -344,15 +348,15 @@ export function Sidebar() {
           </div>
           <div className="flex flex-col gap-2">
             <CustomDropdown
-              value={selectedTemplateIndex}
-              onChange={(val) => setSelectedTemplateIndex(Number(val))}
+              value={activeTemplateIndex}
+              onChange={(val) => setActiveTemplateIndex(Number(val))}
               options={TEMPLATES.map((t, idx) => ({ label: t.name, value: idx }))}
               isDark={isDark}
             />
             <button
               onClick={() => {
                 const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
-                const template = TEMPLATES[selectedTemplateIndex];
+                const template = TEMPLATES[activeTemplateIndex];
                 if (template) {
                   template.apply(loadTemplate, updateGlobalSettings);
                 }

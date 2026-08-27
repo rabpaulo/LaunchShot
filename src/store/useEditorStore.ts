@@ -98,6 +98,8 @@ interface EditorState {
   togglePreviewMode: () => void;
   isDraggingGlobal: boolean;
   setIsDraggingGlobal: (val: boolean) => void;
+  activeTemplateIndex: number;
+  setActiveTemplateIndex: (idx: number) => void;
 }
 
 const defaultGlobalSettings: GlobalSettings = {
@@ -313,6 +315,8 @@ export const useEditorStore = create<EditorState>()(
       togglePreviewMode: () => set((state) => ({ isPreviewMode: !state.isPreviewMode })),
       isDraggingGlobal: false,
       setIsDraggingGlobal: (val) => set({ isDraggingGlobal: val }),
+      activeTemplateIndex: 0,
+      setActiveTemplateIndex: (idx) => set({ activeTemplateIndex: idx }),
     }),
     {
       name: 'screenshot-editor-storage',

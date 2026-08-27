@@ -41,13 +41,25 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
         </button>
         <div className="flex bg-zinc-200 dark:bg-zinc-900 rounded-lg p-1">
           <button 
-            onClick={() => setStoreType('app-store')}
+            onClick={() => {
+              setStoreType('app-store');
+              if (previewDevice.includes('android') || previewDevice.includes('samsung') || previewDevice.includes('play')) {
+                setPreviewDevice('ios-6.5');
+                updateGlobalSettings({ targetSize: 'ios-6.5' });
+              }
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${storeType === 'app-store' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
           >
             <IoLogoApple className="w-4 h-4" /> App Store
           </button>
           <button 
-            onClick={() => setStoreType('play-store')}
+            onClick={() => {
+              setStoreType('play-store');
+              if (!previewDevice.includes('android') && !previewDevice.includes('samsung') && !previewDevice.includes('play')) {
+                setPreviewDevice('android-tall');
+                updateGlobalSettings({ targetSize: 'android-tall' });
+              }
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${storeType === 'play-store' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
           >
             <IoLogoGooglePlaystore className="w-4 h-4" /> Google Play
@@ -57,7 +69,11 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
         <div className="flex items-center">
           <select 
             value={previewDevice}
-            onChange={(e) => setPreviewDevice(e.target.value as TargetSizeId)}
+            onChange={(e) => {
+              const newSize = e.target.value as TargetSizeId;
+              setPreviewDevice(newSize);
+              updateGlobalSettings({ targetSize: newSize });
+            }}
             className="bg-zinc-200 dark:bg-zinc-900 border-none rounded-lg text-sm px-4 py-2 text-gray-900 dark:text-white outline-none cursor-pointer font-medium focus:ring-2 focus:ring-blue-500"
           >
             {Object.entries(

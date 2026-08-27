@@ -115,7 +115,7 @@ function TemplatePreview({ template, isDark, onSelect }: TemplatePreviewProps) {
 }
 
 export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
-  const { loadTemplate, updateGlobalSettings, globalSettings } = useEditorStore();
+  const { loadTemplate, updateGlobalSettings, globalSettings, setActiveTemplateIndex } = useEditorStore();
   const isDark = globalSettings.theme !== 'light';
 
   return (
@@ -154,13 +154,14 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
         {/* Grid Body */}
         <div className="flex-1 overflow-y-auto p-8 bg-inherit">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {TEMPLATES.map((template) => (
+            {TEMPLATES.map((template, index) => (
               <TemplatePreview 
                 key={template.name} 
                 template={template} 
                 isDark={isDark}
                 onSelect={() => {
                   template.apply(loadTemplate, updateGlobalSettings);
+                  setActiveTemplateIndex(index);
                   toast.success(`Applied ${template.name} template!`);
                   onClose();
                 }}
