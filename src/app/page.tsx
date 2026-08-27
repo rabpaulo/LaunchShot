@@ -6,7 +6,8 @@ import { Sidebar } from '@/components/Sidebar';
 import { ExportModal } from '@/components/ExportModal';
 import { StoreContextPreview } from '@/components/StoreContextPreview';
 import { TemplateGalleryModal } from '@/components/TemplateGalleryModal';
-import { IoDownloadOutline } from 'react-icons/io5';
+import { TranslationModal } from '@/components/TranslationModal';
+import { IoDownloadOutline, IoGlobeOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -62,6 +63,7 @@ export default function Home() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showStorePreview, setShowStorePreview] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [showTranslationModal, setShowTranslationModal] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -189,6 +191,8 @@ export default function Home() {
       {showStorePreview && <StoreContextPreview onClose={() => setShowStorePreview(false)} />}
       
       {showGalleryModal && <TemplateGalleryModal onClose={() => setShowGalleryModal(false)} />}
+      
+      {showTranslationModal && <TranslationModal onClose={() => setShowTranslationModal(false)} />}
 
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
@@ -369,6 +373,19 @@ export default function Home() {
             >
               <IoStorefrontOutline className="w-3.5 h-3.5 mr-1.5" />
               Context
+            </button>
+
+            <button
+              onClick={() => setShowTranslationModal(true)}
+              className={`ml-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+                isDark
+                  ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700'
+                  : 'bg-white text-zinc-800 border border-gray-200 hover:bg-gray-50'
+              }`}
+              title="Manage screenshot translations and localization"
+            >
+              <IoGlobeOutline className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
+              Translations ({(globalSettings.activeLanguage || 'en').toUpperCase()})
             </button>
 
             {/* Top Toolbar Preview Button */}

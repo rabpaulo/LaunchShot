@@ -23,10 +23,17 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 
 import { ExportModal } from './ExportModal';
+import { TranslationModal } from './TranslationModal';
 import { CustomDropdown } from './ui/CustomDropdown';
 import { TEMPLATES } from '@/config/templates';
 import { NICHE_CATEGORIES_LIST, generateTemplateForNiche } from '@/config/niches';
 import { ASO_TONE_OPTIONS, AsoTone, applyAsoCopy } from '@/config/aso';
+import { SUPPORTED_LANGUAGES, getLanguageName } from '@/config/languages';
+import {
+  exportSingleLanguageJson,
+  parseUploadedTranslationJson,
+  batchTranslateCanvases
+} from '@/utils/translator';
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -103,6 +110,8 @@ export function Sidebar() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showTranslationModal, setShowTranslationModal] = useState(false);
+  const [isQuickTranslating, setIsQuickTranslating] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
 
@@ -549,58 +558,143 @@ export function Sidebar() {
             <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
               isDark ? 'text-gray-500' : 'text-gray-400'
             }`}>
-              Translations
+              Translations & Localization
             </h2>
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
+              isDark ? 'bg-zinc-800 text-blue-400' : 'bg-blue-50 text-blue-700'
+            }`}>
+              {(globalSettings.activeLanguage || 'en').toUpperCase()}
+            </span>
           </div>
-          
-          <input
-            type="file"
-            id="translation-upload"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                try {
-                  const text = await file.text();
-                  const data = JSON.parse(text);
-                  const { canvases, updateCanvas } = useEditorStore.getState();
-                  
-                  if (Array.isArray(data)) {
-                    data.forEach((item, index) => {
-                      if (canvases[index]) {
-                        updateCanvas(canvases[index].id, {
-                          title: item.title || canvases[index].title,
-                          subtitle: item.subtitle || canvases[index].subtitle,
-                        });
-                      }
-                    });
-                    toast.success("Translations applied!");
-                  } else {
-                    toast.error("Invalid JSON format. Expected an array.");
-                  }
-                } catch (err) {
-                  toast.error("Failed to parse JSON file.");
-                }
-              }
-              if (e.target) e.target.value = '';
-            }}
-            accept=".json"
-            className="hidden"
-          />
 
-          <button
-            onClick={() => document.getElementById('translation-upload')?.click()}
-            className={`w-full py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
-              isDark
-                ? 'bg-zinc-800/80 border-zinc-700 text-white hover:bg-zinc-700'
-                : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
-            }`}
-          >
-            <IoGlobeOutline className="w-4 h-4" />
-            Upload JSON Translations
-          </button>
-          <p className={`mt-2 text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-            Format: [{`{"title":"...", "subtitle":"..."}`}]
-          </p>
+          <div className="space-y-2.5">
+            {/* Active Language Dropdown */}
+            <div>
+              <label className={`block text-[11px] font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Active Canvas Language:
+              </label>
+              <CustomDropdown
+                value={globalSettings.activeLanguage || 'en'}
+                onChange={(val) => {
+                  const langCode = String(val);
+                  const { setActiveLanguage } = useEditorStore.getState();
+                  setActiveLanguage(langCode);
+                  toast.success(`Switched canvas to ${getLanguageName(langCode)}`);
+                }}
+                options={SUPPORTED_LANGUAGES.map(l => ({ label: `${l.name} (${l.nativeName})`, value: l.code }))}
+                isDark={isDark}
+              />
+            </div>
+
+            {/* Manage & Translate Copy Button */}
+            <button
+              onClick={() => setShowTranslationModal(true)}
+              className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 shadow-sm ${
+                isDark
+                  ? 'bg-blue-600/20 border-blue-500/40 text-blue-200 hover:bg-blue-600/30'
+                  : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+              }`}
+            >
+              <IoGlobeOutline className="w-4 h-4 text-blue-400" />
+              Manage All Translations
+            </button>
+
+            {/* Quick Auto-Translate to Active Language */}
+            {globalSettings.activeLanguage && globalSettings.activeLanguage !== 'en' && (
+              <button
+                disabled={isQuickTranslating || canvases.length === 0}
+                onClick={async () => {
+                  if (canvases.length === 0) return;
+                  setIsQuickTranslating(true);
+                  try {
+                    const targetLang = globalSettings.activeLanguage || 'es';
+                    const results = await batchTranslateCanvases(canvases, targetLang);
+                    const { applyTranslationsForLanguage } = useEditorStore.getState();
+                    applyTranslationsForLanguage(targetLang, results);
+                    toast.success(`Auto-translated to ${getLanguageName(targetLang)}!`);
+                  } catch {
+                    toast.error('Translation failed.');
+                  } finally {
+                    setIsQuickTranslating(false);
+                  }
+                }}
+                className={`w-full py-2 px-3 rounded-xl border text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
+                  isDark
+                    ? 'bg-zinc-800/80 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                    : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
+                } disabled:opacity-50`}
+              >
+                <IoSparklesOutline className="w-3.5 h-3.5 text-blue-400" />
+                {isQuickTranslating ? 'Translating...' : `Auto-Translate to ${(globalSettings.activeLanguage || '').toUpperCase()}`}
+              </button>
+            )}
+
+            {/* JSON Import & Export Quick Actions */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <input
+                type="file"
+                id="translation-upload"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      const text = await file.text();
+                      const result = parseUploadedTranslationJson(text);
+                      const { canvases, updateCanvas, applyAllTranslations } = useEditorStore.getState();
+                      
+                      if (result.type === 'single') {
+                        result.data.forEach((item, index: number) => {
+                          if (canvases[index]) {
+                            updateCanvas(canvases[index].id, {
+                              title: item.title || canvases[index].title,
+                              subtitle: item.subtitle || canvases[index].subtitle,
+                            });
+                          }
+                        });
+                        toast.success("Translations applied!");
+                      } else if (result.type === 'multi') {
+                        applyAllTranslations(result.data);
+                        toast.success("Multi-language translations applied!");
+                      }
+                    } catch (err: unknown) {
+                      toast.error(err instanceof Error ? err.message : "Failed to parse JSON file.");
+                    }
+                  }
+                  if (e.target) e.target.value = '';
+                }}
+                accept=".json"
+                className="hidden"
+              />
+
+              <button
+                onClick={() => document.getElementById('translation-upload')?.click()}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                  isDark
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                    : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                }`}
+              >
+                <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                Import JSON
+              </button>
+
+              <button
+                onClick={() => {
+                  const currentLang = globalSettings.activeLanguage || 'en';
+                  exportSingleLanguageJson(canvases, currentLang, globalSettings.appName || 'app');
+                  toast.success(`Exported ${currentLang.toUpperCase()} JSON!`);
+                }}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                  isDark
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                    : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                }`}
+              >
+                <IoDownloadOutline className="w-3.5 h-3.5" />
+                Export JSON
+              </button>
+            </div>
+          </div>
         </section>
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
@@ -870,6 +964,7 @@ export function Sidebar() {
       </div>
       </div>
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
+      {showTranslationModal && <TranslationModal onClose={() => setShowTranslationModal(false)} />}
       
       {/* Invisible overlay while resizing to capture global mouse events */}
       {isResizing && (

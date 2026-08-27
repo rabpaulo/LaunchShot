@@ -21,8 +21,11 @@
 - **App Store & Play Store Context Preview:** 
   - One-click context mode overlays your currently active canvases inside a realistic UI mockup of an Apple App Store or Google Play Store search listing.
   - Test exactly how your screenshots look to users alongside your app icon, star rating, and title.
-- **JSON Localization & Translations:**
-  - Instantly upload a `.json` file containing translated strings to automatically map and translate all canvas titles and subtitles without re-creating layouts manually.
+- **Multi-Language Translations & International Localization:**
+  - Dedicated **Translation Manager** to edit, manage, and preview screenshot copy across 20+ App Store & Google Play languages (Spanish, Portuguese, French, German, Japanese, Chinese, Korean, and more).
+  - **One-Click Auto-Translation:** Instantly translate individual slides or all canvases across all supported languages with smart dictionary matching and automated translation.
+  - **Multi-Language Batch ZIP Export:** Export high-res screenshots for multiple languages simultaneously, packaged neatly into localized folders.
+  - **JSON Localization Import & Export:** Download translation templates, export per-language or multi-language JSON files, or import translations effortlessly.
 - **Smart ASO Copywriter & Niche Generator:** 
   - Automatically extract keywords from your app's description and inject them into proven App Store Optimization formulas.
   - One-click Niche template generator applies specialized colors, copy, and layouts based on your app's category (Fitness, Finance, Dating, Food, etc.).

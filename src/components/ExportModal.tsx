@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { IoClose, IoDownloadOutline } from 'react-icons/io5';
+import { IoClose, IoDownloadOutline, IoGlobeOutline } from 'react-icons/io5';
 import { TargetSizeId, TARGET_SIZES } from '@/config/sizes';
 import { useEditorStore } from '@/store/useEditorStore';
 import { exportImages } from '@/utils/export';
+import { SUPPORTED_LANGUAGES } from '@/config/languages';
 
 interface ExportModalProps {
   onClose: () => void;
@@ -19,6 +20,9 @@ export function ExportModal({ onClose }: ExportModalProps) {
   // By default, select the current target size
   const [selectedSizes, setSelectedSizes] = useState<TargetSizeId[]>([globalSettings.targetSize]);
   
+  // By default, select current active language
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([globalSettings.activeLanguage || 'en']);
+
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -30,14 +34,34 @@ export function ExportModal({ onClose }: ExportModalProps) {
     );
   };
 
+  const toggleLanguage = (code: string) => {
+    setSelectedLanguages(prev => {
+      if (prev.includes(code)) {
+        if (prev.length === 1) return prev; // Keep at least one
+        return prev.filter(c => c !== code);
+      } else {
+        return [...prev, code];
+      }
+    });
+  };
+
+  const selectAllLanguages = () => {
+    setSelectedLanguages(SUPPORTED_LANGUAGES.map(l => l.code));
+  };
+
+  const selectCurrentLanguageOnly = () => {
+    setSelectedLanguages([globalSettings.activeLanguage || 'en']);
+  };
+
   const handleExport = async () => {
-    if (selectedSizes.length === 0) return;
+    if (selectedSizes.length === 0 || selectedLanguages.length === 0) return;
     setIsExporting(true);
-    setProgress(10);
+    setProgress(5);
     
     try {
-      await exportImages(canvases, selectedSizes);
-      setProgress(100);
+      await exportImages(canvases, selectedSizes, selectedLanguages, (pct) => {
+        setProgress(pct);
+      });
     } catch (err) {
       console.error(err);
     }
@@ -45,7 +69,7 @@ export function ExportModal({ onClose }: ExportModalProps) {
     setTimeout(() => {
       setIsExporting(false);
       onClose();
-    }, 500);
+    }, 600);
   };
 
   const availableSizes = Object.values(TARGET_SIZES).filter(s => {
@@ -61,10 +85,10 @@ export function ExportModal({ onClose }: ExportModalProps) {
       }
     }
     
-    // For Tablet and Header, always show them regardless of ios/android toggle 
-    // (since they are universal or have specific names like ipad)
     return true;
   });
+
+  const totalCombinations = selectedSizes.length * selectedLanguages.length;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -80,7 +104,7 @@ export function ExportModal({ onClose }: ExportModalProps) {
               Export screenshots
             </h2>
             <p className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
-              Choose your export options
+              Choose devices, platforms, and localized languages for high-resolution PNG export
             </p>
           </div>
           <button 
@@ -99,21 +123,21 @@ export function ExportModal({ onClose }: ExportModalProps) {
             <div className="w-12 h-12 border-4 border-zinc-200 border-t-zinc-900 rounded-full animate-spin"></div>
             <div className="text-center">
               <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Exporting... {progress}%
+                Exporting screenshots... {progress}%
               </h3>
               <p className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
-                Please wait while we render your screenshots. This may take a few moments.
+                Rendering {totalCombinations} combination{totalCombinations === 1 ? '' : 's'} across {selectedLanguages.length} language{selectedLanguages.length === 1 ? '' : 's'}.
               </p>
             </div>
-            <div className="w-full max-w-md h-2 bg-zinc-100 rounded-full overflow-hidden">
+            <div className="w-full max-w-md h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-zinc-900 transition-all duration-300"
+                className="h-full bg-blue-600 transition-all duration-300"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
           </div>
         ) : (
-          <div className="p-6 space-y-8 overflow-y-auto max-h-[70vh]">
+          <div className="p-6 space-y-7 overflow-y-auto max-h-[70vh]">
             {/* Platforms */}
             <div>
               <h3 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-zinc-500' : 'text-gray-400'}`}>
@@ -141,6 +165,59 @@ export function ExportModal({ onClose }: ExportModalProps) {
                     {platform === 'ios' ? 'iOS' : 'Android'}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Languages to Export */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <IoGlobeOutline className="w-4 h-4 text-blue-500" />
+                  <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-zinc-500' : 'text-gray-400'}`}>
+                    Languages & Localization ({selectedLanguages.length} selected)
+                  </h3>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={selectCurrentLanguageOnly}
+                    className={`text-[11px] font-semibold underline ${isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+                  >
+                    Current Only
+                  </button>
+                  <span className={isDark ? 'text-zinc-700' : 'text-zinc-300'}>|</span>
+                  <button
+                    onClick={selectAllLanguages}
+                    className={`text-[11px] font-semibold underline ${isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-black'}`}
+                  >
+                    All Languages
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1 scrollbar-hide">
+                {SUPPORTED_LANGUAGES.map(lang => {
+                  const isSelected = selectedLanguages.includes(lang.code);
+                  return (
+                    <button
+                      key={lang.code}
+                      onClick={() => toggleLanguage(lang.code)}
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                        isSelected
+                          ? isDark
+                            ? 'bg-blue-600 border-blue-500 text-white'
+                            : 'bg-blue-600 border-blue-600 text-white'
+                          : isDark
+                            ? 'bg-zinc-800/80 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                            : 'bg-zinc-100 border-zinc-200 text-zinc-600 hover:border-zinc-300'
+                      }`}
+                    >
+                      <span>{lang.name}</span>
+                      <span className={`text-[10px] font-mono opacity-80 uppercase`}>
+                        {lang.code}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -213,7 +290,7 @@ export function ExportModal({ onClose }: ExportModalProps) {
             isDark ? 'border-zinc-800 bg-zinc-900/50' : 'border-gray-200 bg-gray-50'
           }`}>
             <div className={`text-sm font-semibold ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>
-              Total combinations: <span className={isDark ? 'text-white' : 'text-black'}>{selectedSizes.length}</span>
+              Total combinations: <span className={isDark ? 'text-white' : 'text-black'}>{totalCombinations} ({selectedSizes.length} sizes × {selectedLanguages.length} languages)</span>
             </div>
             <div className="flex gap-3">
               <button
@@ -228,13 +305,13 @@ export function ExportModal({ onClose }: ExportModalProps) {
               </button>
               <button
                 onClick={handleExport}
-                disabled={selectedSizes.length === 0}
+                disabled={selectedSizes.length === 0 || selectedLanguages.length === 0}
                 className={`px-6 py-2.5 rounded-xl font-bold text-white transition-all flex items-center gap-2 ${
                   isDark ? 'bg-zinc-100 text-zinc-900 hover:bg-white' : 'bg-zinc-900 text-white hover:bg-black'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <IoDownloadOutline className="w-5 h-5" />
-                Continue
+                Export ZIP
               </button>
             </div>
           </div>

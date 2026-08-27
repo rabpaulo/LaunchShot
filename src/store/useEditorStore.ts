@@ -3,10 +3,7 @@ import { persist } from 'zustand/middleware';
 import { type TargetSizeId, DEFAULT_SIZE } from '@/config/sizes';
 import { DEFAULT_FONT } from '@/config/fonts';
 import type { BadgeConfig } from '@/config/badges';
-
-
-
-
+import { DEFAULT_LANGUAGE } from '@/config/languages';
 
 export type LayoutType = 
   | 'basic-top' 
@@ -58,6 +55,7 @@ export type CanvasItem = {
     blur: number;
     grayscale: number;
   };
+  translations?: Record<string, { title: string; subtitle: string }>;
 };
 
 export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';
@@ -73,6 +71,7 @@ export type GlobalSettings = {
   viewMode: 'horizontal' | 'vertical';
   appName?: string;
   companyName?: string;
+  activeLanguage?: string;
 };
 
 interface EditorState {
@@ -100,6 +99,10 @@ interface EditorState {
   setIsDraggingGlobal: (val: boolean) => void;
   activeTemplateIndex: number;
   setActiveTemplateIndex: (idx: number) => void;
+  setActiveLanguage: (lang: string) => void;
+  updateCanvasTranslation: (id: string, lang: string, data: { title: string; subtitle: string }) => void;
+  applyTranslationsForLanguage: (lang: string, items: Array<{ title?: string; subtitle?: string }>) => void;
+  applyAllTranslations: (translationsMap: Record<string, Array<{ title: string; subtitle: string }>>) => void;
 }
 
 const defaultGlobalSettings: GlobalSettings = {
@@ -113,6 +116,7 @@ const defaultGlobalSettings: GlobalSettings = {
   viewMode: 'horizontal',
   appName: 'Your App Name',
   companyName: 'Your Company Inc.',
+  activeLanguage: DEFAULT_LANGUAGE,
 };
 
 const LAYOUTS: LayoutType[] = [
@@ -153,6 +157,12 @@ export const useEditorStore = create<EditorState>()(
             subtext: '30k+ ratings',
             style: 'pill-glass',
           },
+          translations: {
+            en: {
+              title: 'Amazing Features',
+              subtitle: 'Discover what makes our app great',
+            },
+          },
         },
       ],
       globalSettings: defaultGlobalSettings,
@@ -160,6 +170,9 @@ export const useEditorStore = create<EditorState>()(
         set((state) => {
           const lastLayout = state.canvases.length > 0 ? state.canvases[state.canvases.length - 1].layout : 'basic-top';
           const nextLayoutIndex = (LAYOUTS.indexOf(lastLayout) + 1) % LAYOUTS.length;
+          const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+          const newTitle = initialData?.title ?? 'New Feature';
+          const newSubtitle = initialData?.subtitle ?? 'Describe it here';
           
           return {
             canvases: [
@@ -167,23 +180,46 @@ export const useEditorStore = create<EditorState>()(
               {
                 id: crypto.randomUUID(),
                 imageSrc: null,
-                title: 'New Feature',
-                subtitle: 'Describe it here',
+                title: newTitle,
+                subtitle: newSubtitle,
                 layout: LAYOUTS[nextLayoutIndex],
                 backgroundColor: '#000000',
                 textColor: '#ffffff',
                 fontFamily: state.globalSettings.fontFamily,
+                translations: {
+                  [currentLang]: {
+                    title: newTitle,
+                    subtitle: newSubtitle,
+                  },
+                },
                 ...initialData,
               },
             ],
           };
         }),
       updateCanvas: (id, updates) =>
-        set((state) => ({
-          canvases: state.canvases.map((c) =>
-            c.id === id ? { ...c, ...updates } : c
-          ),
-        })),
+        set((state) => {
+          const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+          return {
+            canvases: state.canvases.map((c) => {
+              if (c.id !== id) return c;
+              
+              const updated = { ...c, ...updates };
+              
+              // If title or subtitle changed, keep translations in sync for the active language
+              if (updates.title !== undefined || updates.subtitle !== undefined) {
+                const currentTranslations = updated.translations ? { ...updated.translations } : {};
+                currentTranslations[currentLang] = {
+                  title: updated.title,
+                  subtitle: updated.subtitle,
+                };
+                updated.translations = currentTranslations;
+              }
+              
+              return updated;
+            }),
+          };
+        }),
       removeCanvas: (id) =>
         set((state) => ({
           canvases: state.canvases.filter((c) => c.id !== id),
@@ -209,6 +245,7 @@ export const useEditorStore = create<EditorState>()(
           const duplicate: CanvasItem = {
             ...original,
             id: crypto.randomUUID(),
+            translations: original.translations ? { ...original.translations } : undefined,
           };
           const newCanvases = [...state.canvases];
           newCanvases.splice(index + 1, 0, duplicate);
@@ -253,13 +290,20 @@ export const useEditorStore = create<EditorState>()(
           })),
         })),
       applyContentToAll: (title, subtitle) =>
-        set((state) => ({
-          canvases: state.canvases.map((c) => ({
-            ...c,
-            title,
-            subtitle,
-          })),
-        })),
+        set((state) => {
+          const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+          return {
+            canvases: state.canvases.map((c) => ({
+              ...c,
+              title,
+              subtitle,
+              translations: {
+                ...(c.translations || {}),
+                [currentLang]: { title, subtitle },
+              },
+            })),
+          };
+        }),
       applyAppIconToAll: (appIconSrc) =>
         set((state) => ({
           canvases: state.canvases.map((c) => ({
@@ -317,6 +361,122 @@ export const useEditorStore = create<EditorState>()(
       setIsDraggingGlobal: (val) => set({ isDraggingGlobal: val }),
       activeTemplateIndex: 0,
       setActiveTemplateIndex: (idx) => set({ activeTemplateIndex: idx }),
+
+      setActiveLanguage: (newLang) =>
+        set((state) => {
+          const oldLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+          if (oldLang === newLang) return state;
+
+          const updatedCanvases = state.canvases.map((c) => {
+            const currentTranslations = c.translations ? { ...c.translations } : {};
+            
+            // Save current title and subtitle into oldLang translation
+            currentTranslations[oldLang] = {
+              title: c.title,
+              subtitle: c.subtitle,
+            };
+
+            // Retrieve newLang translation if available
+            const targetTrans = currentTranslations[newLang];
+            const nextTitle = targetTrans ? targetTrans.title : c.title;
+            const nextSubtitle = targetTrans ? targetTrans.subtitle : c.subtitle;
+
+            return {
+              ...c,
+              title: nextTitle,
+              subtitle: nextSubtitle,
+              translations: currentTranslations,
+            };
+          });
+
+          return {
+            globalSettings: { ...state.globalSettings, activeLanguage: newLang },
+            canvases: updatedCanvases,
+          };
+        }),
+
+      updateCanvasTranslation: (id, lang, data) =>
+        set((state) => {
+          const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+          return {
+            canvases: state.canvases.map((c) => {
+              if (c.id !== id) return c;
+              const translations = { ...(c.translations || {}), [lang]: data };
+              
+              // If we are updating the active language, also update canvas.title and canvas.subtitle
+              if (lang === currentLang) {
+                return {
+                  ...c,
+                  title: data.title,
+                  subtitle: data.subtitle,
+                  translations,
+                };
+              }
+
+              return {
+                ...c,
+                translations,
+              };
+            }),
+          };
+        }),
+
+      applyTranslationsForLanguage: (lang, items) =>
+        set((state) => {
+          const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+          const isCurrent = lang === currentLang;
+
+          return {
+            canvases: state.canvases.map((c, idx) => {
+              const item = items[idx];
+              if (!item) return c;
+
+              const title = item.title !== undefined ? item.title : c.title;
+              const subtitle = item.subtitle !== undefined ? item.subtitle : c.subtitle;
+
+              const translations = {
+                ...(c.translations || {}),
+                [lang]: { title, subtitle },
+              };
+
+              return {
+                ...c,
+                title: isCurrent ? title : c.title,
+                subtitle: isCurrent ? subtitle : c.subtitle,
+                translations,
+              };
+            }),
+          };
+        }),
+
+      applyAllTranslations: (translationsMap) =>
+        set((state) => {
+          const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+
+          return {
+            canvases: state.canvases.map((c, idx) => {
+              const updatedTranslations = { ...(c.translations || {}) };
+
+              for (const [lang, items] of Object.entries(translationsMap)) {
+                if (items[idx]) {
+                  updatedTranslations[lang] = {
+                    title: items[idx].title || '',
+                    subtitle: items[idx].subtitle || '',
+                  };
+                }
+              }
+
+              const currentTrans = updatedTranslations[currentLang];
+
+              return {
+                ...c,
+                title: currentTrans ? currentTrans.title : c.title,
+                subtitle: currentTrans ? currentTrans.subtitle : c.subtitle,
+                translations: updatedTranslations,
+              };
+            }),
+          };
+        }),
     }),
     {
       name: 'screenshot-editor-storage',
