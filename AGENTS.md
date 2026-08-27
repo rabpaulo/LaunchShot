@@ -1,4 +1,5 @@
 # Always commit after any code changes
+# After any feature chage, implemmentation or deletion, push to main
 # Never use emojis in the UI, templates, copy, or buttons
 <!-- BEGIN:nextjs-agent-rules -->
 

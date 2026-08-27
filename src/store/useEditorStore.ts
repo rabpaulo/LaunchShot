@@ -16,11 +16,14 @@ export type LayoutType =
   | 'tilt-left' 
   | 'tilt-right-complement'
   | 'tilt-left-complement'
+  | 'tilt-bottom-right'
+  | 'tilt-bottom-left'
   | 'half-right' 
   | 'half-left' 
   | '3d-isometric-right'
   | '3d-isometric-left'
   | 'device-only'
+  | 'hero-center'
   // Social Graphics / OG Styles
   | 'og-style-1'
   | 'og-style-2'
@@ -39,6 +42,7 @@ export type CanvasItem = {
   backgroundColor: string;
   backgroundImageSrc?: string;
   textColor: string;
+  subtitleColor?: string;
   fontFamily?: string;
   badge?: BadgeConfig;
   showAppStoreBadge?: boolean;
@@ -116,13 +120,16 @@ const LAYOUTS: LayoutType[] = [
   'tilt-right-complement',
   'tilt-left', 
   'tilt-left-complement',
+  'tilt-bottom-right',
+  'tilt-bottom-left',
   'half-right', 
   'half-left', 
   'basic-bottom', 
   'split-vertical',
   '3d-isometric-right',
   '3d-isometric-left',
-  'device-only'
+  'device-only',
+  'hero-center'
 ];
 
 export const useEditorStore = create<EditorState>()(
@@ -294,6 +301,7 @@ export const useEditorStore = create<EditorState>()(
                   layout: lastTemplateCanvas ? lastTemplateCanvas.layout : userCanvas.layout,
                   backgroundColor: lastTemplateCanvas ? lastTemplateCanvas.backgroundColor : userCanvas.backgroundColor,
                   textColor: lastTemplateCanvas ? lastTemplateCanvas.textColor : userCanvas.textColor,
+                  subtitleColor: lastTemplateCanvas ? lastTemplateCanvas.subtitleColor : userCanvas.subtitleColor,
                   fontFamily: lastTemplateCanvas ? lastTemplateCanvas.fontFamily : userCanvas.fontFamily,
                 });
               }

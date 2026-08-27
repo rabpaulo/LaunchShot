@@ -46,9 +46,12 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'tilt-right-complement', label: 'Tilt Right Complement (Angle left)' },
   { value: 'tilt-left', label: 'Tilt Left (Dynamic Angle)' },
   { value: 'tilt-left-complement', label: 'Tilt Left Complement (Angle right)' },
+  { value: 'tilt-bottom-right', label: 'Tilt Bottom Right (Dynamic Angle)' },
+  { value: 'tilt-bottom-left', label: 'Tilt Bottom Left (Dynamic Angle)' },
   { value: 'half-right', label: 'Half Right (Bleed Right)' },
   { value: 'half-left', label: 'Half Left (Bleed Left)' },
   { value: 'device-only', label: 'Device Only (Clean Mockup)' },
+  { value: 'hero-center', label: 'Hero Center (Large Scale)' },
 ];
 
 function getContrastColor(hex: string) {
@@ -215,6 +218,20 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
           phoneWrapperClass: "absolute -bottom-8 -right-[152px] -rotate-12 origin-bottom-right z-10",
           textAlign: "left" as const,
         };
+      case 'tilt-bottom-right':
+        return {
+          containerClass: "relative",
+          textContainerClass: `absolute bottom-0 left-0 w-[80%] pb-12 px-8 text-left z-20 flex flex-col items-start gap-0`,
+          phoneWrapperClass: "absolute -top-8 -right-8 rotate-12 origin-top-right z-10",
+          textAlign: "left" as const,
+        };
+      case 'tilt-bottom-left':
+        return {
+          containerClass: "relative",
+          textContainerClass: `absolute bottom-0 right-0 w-[80%] pb-12 px-8 text-right z-20 flex flex-col items-end gap-0`,
+          phoneWrapperClass: "absolute -top-8 -left-8 -rotate-12 origin-top-left z-10",
+          textAlign: "right" as const,
+        };
       case 'half-right':
         return {
           containerClass: "relative flex items-center",
@@ -305,6 +322,13 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
           containerClass: "flex items-center justify-center",
           textContainerClass: "hidden",
           phoneWrapperClass: "flex items-center justify-center z-10",
+          textAlign: "center" as const,
+        };
+      case 'hero-center':
+        return {
+          containerClass: "flex flex-col items-center justify-start overflow-hidden pt-12 relative",
+          textContainerClass: "w-[90%] text-center z-20 flex flex-col justify-center items-center gap-0 pt-4",
+          phoneWrapperClass: "absolute bottom-[-15%] z-10 scale-[1.3]",
           textAlign: "center" as const,
         };
       default:
@@ -446,6 +470,13 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
               onChange={(e) => updateCanvas(canvas.id, { textColor: e.target.value })}
               className="w-5 h-5 rounded-md border-0 cursor-pointer p-0 shadow-sm"
               title="Change Text Color"
+            />
+            <input
+              type="color"
+              value={canvas.subtitleColor || canvas.textColor || '#ffffff'}
+              onChange={(e) => updateCanvas(canvas.id, { subtitleColor: e.target.value })}
+              className="w-5 h-5 rounded-md border-0 cursor-pointer p-0 shadow-sm"
+              title="Change Subtitle Color"
             />
           </div>
 
@@ -651,7 +682,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
                     isCompact ? 'text-sm' : 'text-xl'
                   }`}
                   style={{
-                    color: canvas.textColor || '#ffffff',
+                    color: canvas.subtitleColor || canvas.textColor || '#ffffff',
                     textAlign: layoutConfig.textAlign
                   }}
                   placeholder="Enter Subtitle"
@@ -693,7 +724,7 @@ export function CanvasEditor({ canvas, index, total, isPreviewMode = false, targ
                   isCompact ? 'text-sm' : 'text-xl'
                 }`}
                 style={{
-                  color: canvas.textColor || '#ffffff',
+                  color: canvas.subtitleColor || canvas.textColor || '#ffffff',
                   textAlign: layoutConfig.textAlign
                 }}
                 placeholder="Enter Subtitle"

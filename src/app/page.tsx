@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Sidebar } from '@/components/Sidebar';
 import { ExportModal } from '@/components/ExportModal';
 import { StoreContextPreview } from '@/components/StoreContextPreview';
+import { TemplateGalleryModal } from '@/components/TemplateGalleryModal';
 import { IoDownloadOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
@@ -26,7 +27,8 @@ import {
   IoAlbumsOutline,
   IoChevronUp,
   IoChevronDown,
-  IoStorefrontOutline
+  IoStorefrontOutline,
+  IoColorPaletteOutline
 } from 'react-icons/io5';
 
 export default function Home() {
@@ -46,6 +48,7 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showStorePreview, setShowStorePreview] = useState(false);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -171,6 +174,8 @@ export default function Home() {
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
       
       {showStorePreview && <StoreContextPreview onClose={() => setShowStorePreview(false)} />}
+      
+      {showGalleryModal && <TemplateGalleryModal onClose={() => setShowGalleryModal(false)} />}
 
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
@@ -184,7 +189,7 @@ export default function Home() {
               : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
           }`}>
           {/* Quick Jump Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[55%] scrollbar-none items-center h-full">
+          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[55%] scrollbar-none h-full">
             <IoGridOutline className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             
             <div className={`flex items-center p-1 rounded-lg ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-gray-100 border border-gray-200/50'}`}>
@@ -328,6 +333,18 @@ export default function Home() {
                 <IoExpandOutline className="w-3.5 h-3.5" />
               </button>
             </div>
+            
+            <button
+              onClick={() => setShowGalleryModal(true)}
+              className={`ml-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+                isDark
+                  ? 'bg-blue-900/40 text-blue-100 border border-blue-500/50 hover:bg-blue-800/50'
+                  : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
+              }`}
+            >
+              <IoColorPaletteOutline className="w-3.5 h-3.5 mr-1.5" />
+              Templates
+            </button>
 
             <button
               onClick={() => setShowStorePreview(true)}

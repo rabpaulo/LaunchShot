@@ -13,6 +13,69 @@ export interface TemplateDefinition {
 
 export const TEMPLATES: TemplateDefinition[] = [
   {
+    name: 'Aesthetic Modern (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Save places',
+          subtitle: 'worth remembering',
+          layout: 'tilt-right',
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #fdf2f8 0%, #ffffff 60%)', // subtle pink
+          textColor: '#000000',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Find whats good',
+          subtitle: 'around you',
+          layout: 'basic-top',
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #eff6ff 0%, #ffffff 60%)', // subtle blue
+          textColor: '#000000',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Spend less time',
+          subtitle: 'searching',
+          layout: 'hero-center',
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #fefce8 0%, #ffffff 60%)', // subtle yellow/beige
+          textColor: '#000000',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Curate your',
+          subtitle: 'world into lists',
+          layout: 'basic-bottom',
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #fdf2f8 0%, #ffffff 60%)', // subtle pink
+          textColor: '#000000',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'And more',
+          subtitle: 'exploring',
+          layout: 'tilt-bottom-right',
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #f8fafc 0%, #ffffff 60%)', // subtle grey/white
+          textColor: '#000000',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+        }
+      ]);
+    }
+  },
+  {
     name: 'Banner Stacked Right',
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
