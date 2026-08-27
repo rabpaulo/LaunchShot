@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES } from '@/config/sizes';
 import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose, IoPhonePortraitOutline, IoTabletPortraitOutline } from 'react-icons/io5';
@@ -10,19 +10,35 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const { canvases, globalSettings, updateGlobalSettings } = useEditorStore();
   const [storeType, setStoreType] = useState<'app-store' | 'play-store'>('app-store');
   const [previewDevice, setPreviewDevice] = useState<'phone-sm' | 'phone-lg' | 'tablet'>('phone-lg');
+  const [scale, setScale] = useState(1);
 
   const isDark = globalSettings.theme !== 'light';
   const sizeConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
   
   const deviceStyles = {
-    'phone-sm': { width: 375, height: 667 },
-    'phone-lg': { width: 428, height: 926 },
-    'tablet': { width: 768, height: 1024 },
+    'phone-sm': { screenW: 375, screenH: 667, name: 'iPhone SE' },
+    'phone-lg': { screenW: 430, screenH: 932, name: 'iPhone 15 Pro Max' },
+    'tablet': { screenW: 834, screenH: 1194, name: 'iPad Pro 11"' },
   };
   const activeDevice = deviceStyles[previewDevice];
   
+  // Add 16px to account for the border-8 bezel (8px on each side)
+  const wrapperW = activeDevice.screenW + 16;
+  const wrapperH = activeDevice.screenH + 16;
+
+  useEffect(() => {
+    const handleResize = () => {
+      // 120px is for the top bar and padding
+      const availableHeight = window.innerHeight - 120;
+      setScale(Math.min(1, availableHeight / wrapperH));
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [wrapperH]);
+  
   return (
-    <div className={`fixed inset-0 z-[200] flex flex-col ${isDark ? 'bg-black text-white' : 'bg-[#f8fafc] text-gray-900'}`}>
+    <div className={`fixed inset-0 z-[200] flex flex-col overflow-hidden ${isDark ? 'bg-black text-white' : 'bg-[#f8fafc] text-gray-900'}`}>
       <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-zinc-800' : 'border-gray-200'}`}>
         <button onClick={onClose} className="px-4 py-2 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2">
           <IoClose className="w-5 h-5" />
@@ -68,10 +84,15 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto flex justify-center py-12">
+      <div className="flex-1 overflow-y-auto flex justify-center py-8">
         <div 
-          className="transition-all duration-300 relative" 
-          style={{ width: `${activeDevice.width}px`, height: `${activeDevice.height}px` }}
+          className="relative origin-top" 
+          style={{ 
+            width: `${wrapperW}px`, 
+            height: `${wrapperH}px`,
+            transform: `scale(${scale})`,
+            marginBottom: `calc(${wrapperH}px * (${scale} - 1))`
+          }}
         >
           <div className="w-full h-full bg-white border rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100 flex flex-col">
           
