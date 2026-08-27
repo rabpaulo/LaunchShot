@@ -38,7 +38,8 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex-1 overflow-y-auto flex justify-center py-12">
-        <div className="w-[420px] bg-white border rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100" style={{ height: '850px' }}>
+        <div className="resize overflow-hidden min-w-[320px] max-w-[90vw] min-h-[400px] max-h-[90vh] pb-4 pr-4" style={{ width: '440px', height: '866px' }}>
+          <div className="w-full h-full bg-white border rounded-[3rem] shadow-2xl overflow-hidden relative border-8 border-gray-100">
           
           {storeType === 'app-store' && (
             <div className="h-full flex flex-col font-sans text-black">
@@ -189,6 +190,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
              </div>
            </div>
           )}
+        </div>
         </div>
       </div>
     </div>
