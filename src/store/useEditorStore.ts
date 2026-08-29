@@ -28,7 +28,8 @@ export type LayoutType =
   | 'og-style-3'
   | 'hero-3d-center'
   | 'banner-stack-right'
-  | 'banner-triple-bottom';
+  | 'banner-triple-bottom'
+  | 'banner-kinetic-stack';
 
 export type CanvasItem = {
   id: string;

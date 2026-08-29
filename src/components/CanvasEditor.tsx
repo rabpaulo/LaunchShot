@@ -56,6 +56,7 @@ interface CanvasEditorProps {
 const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'basic-top', label: 'Basic Top (Standard)' },
   { value: 'basic-bottom', label: 'Basic Bottom (Header Phone)' },
+  { value: 'split-vertical', label: 'Split Vertical' },
   { value: 'tilt-right', label: 'Tilt Right (Dynamic Angle)' },
   { value: 'tilt-right-complement', label: 'Tilt Right Complement (Angle left)' },
   { value: 'tilt-left', label: 'Tilt Left (Dynamic Angle)' },
@@ -64,8 +65,17 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'tilt-bottom-left', label: 'Tilt Bottom Left (Dynamic Angle)' },
   { value: 'half-right', label: 'Half Right (Bleed Right)' },
   { value: 'half-left', label: 'Half Left (Bleed Left)' },
-  { value: 'device-only', label: 'Device Only (Clean Mockup)' },
   { value: 'hero-center', label: 'Hero Center (Large Scale)' },
+  { value: 'hero-3d-center', label: 'Hero 3D Center (Perspective)' },
+  { value: '3d-isometric-right', label: '3D Isometric Right' },
+  { value: '3d-isometric-left', label: '3D Isometric Left' },
+  { value: 'banner-kinetic-stack', label: 'Kinetic Repeating Banner (3 Phones)' },
+  { value: 'banner-stack-right', label: 'Banner Stacked Right' },
+  { value: 'banner-triple-bottom', label: 'Banner Triple Bottom' },
+  { value: 'og-style-1', label: 'Social Graphic - Clean Studio' },
+  { value: 'og-style-2', label: 'Social Graphic - Angled Focus' },
+  { value: 'og-style-3', label: 'Social Graphic - 3D Perspective' },
+  { value: 'device-only', label: 'Device Only (Clean Mockup)' },
 ];
 
 function getContrastColor(hex: string) {
@@ -320,6 +330,13 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           textContainerClass: "w-[80%] text-center z-20 drop-shadow-2xl flex flex-col justify-center items-center gap-6",
           phoneWrapperClass: "absolute bottom-[-15%] z-10 [transform:rotateX(30deg)_rotateY(0deg)_scale(1.15)] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:[transform:rotateX(20deg)_scale(1.15)]",
           textAlign: "center" as const,
+        };
+      case 'banner-kinetic-stack':
+        return {
+          containerClass: "relative flex items-center overflow-hidden",
+          textContainerClass: "w-[44%] pl-8 pr-2 text-left z-20 flex flex-col justify-center items-start h-full",
+          phoneWrapperClass: "absolute top-1/2 right-4 -translate-y-1/2 z-30 scale-100",
+          textAlign: "left" as const,
         };
       case 'banner-stack-right':
         return {
@@ -961,6 +978,29 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             <div className="absolute inset-0 bg-black/40 z-0" />
           )}
 
+          {/* Subtle Organic Curved Watermark Pattern for Kinetic Banner */}
+          {currentLayout === 'banner-kinetic-stack' && (
+            <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
+              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <defs>
+                  <pattern id={`banana-pattern-${canvas.id}`} width="130" height="95" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+                    <path
+                      d="M20,65 C45,80 80,72 100,42 C88,58 58,64 32,54 C24,50 18,54 20,65 Z"
+                      fill="currentColor"
+                      className="text-amber-500"
+                    />
+                    <path
+                      d="M80,24 C90,32 104,26 108,14 C103,20 92,22 82,18 Z"
+                      fill="currentColor"
+                      className="text-amber-600"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill={`url(#banana-pattern-${canvas.id})`} />
+              </svg>
+            </div>
+          )}
+
           {/* Responsive Text & Badge Section */}
           {currentLayout !== 'device-only' && (
             <div className={layoutConfig.textContainerClass}>
@@ -979,40 +1019,74 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               )}
 
               {/* Title & Hand-Drawn Doodle Accents */}
-              <div className="relative w-full">
-                <TextareaAutosize
-                  value={canvas.title}
-                  onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
-                  className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 ${
-                    isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
-                  } ${
-                    canvas.gradientText 
-                      ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
-                      : ''
-                  }`}
-                  style={{ 
-                    color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
-                    textAlign: layoutConfig.textAlign 
-                  }}
-                  placeholder="Enter Title"
-                />
-                <DoodleAccentGroup doodle={canvas.doodle} defaultColor="#facc15" />
-              </div>
+              {currentLayout === 'banner-kinetic-stack' ? (
+                <div className="w-full flex flex-col justify-center select-none overflow-hidden relative group/kinetic">
+                  <div className="mb-1 w-full relative z-20">
+                    <TextareaAutosize
+                      value={canvas.title}
+                      onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
+                      className="w-full bg-black/5 hover:bg-black/10 focus:bg-black/15 border border-black/15 focus:border-black/30 rounded-lg px-2 py-0.5 outline-none font-bold text-xs resize-none transition-all placeholder-black/40"
+                      style={{ color: canvas.textColor || '#000000' }}
+                      placeholder="Type repeating word (e.g. Platano)"
+                      title="Edit repeating keyword"
+                    />
+                  </div>
 
-              {/* Subtitle (Only if not split-vertical) */}
-              {currentLayout !== 'split-vertical' && (
-                <TextareaAutosize
-                  value={canvas.subtitle}
-                  onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
-                  className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
-                    isCompact ? 'text-sm' : 'text-xl'
-                  }`}
-                  style={{
-                    color: canvas.subtitleColor || canvas.textColor || '#ffffff',
-                    textAlign: layoutConfig.textAlign
-                  }}
-                  placeholder="Enter Subtitle"
-                />
+                  {/* Vertical Kinetic Typography Stack */}
+                  <div className="flex flex-col -my-2 select-none overflow-hidden relative">
+                    {Array.from({ length: 9 }).map((_, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[34px] sm:text-[46px] font-black tracking-tight leading-[1.03] select-none truncate transition-transform hover:translate-x-1"
+                        style={{
+                          color: canvas.textColor || '#000000',
+                          fontFamily: fontConfig.fontFamily,
+                        }}
+                      >
+                        {canvas.title || 'Platano'}
+                      </span>
+                    ))}
+                    <DoodleAccentGroup doodle={canvas.doodle} defaultColor="#facc15" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="relative w-full">
+                    <TextareaAutosize
+                      value={canvas.title}
+                      onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
+                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 ${
+                        isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
+                      } ${
+                        canvas.gradientText 
+                          ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
+                          : ''
+                      }`}
+                      style={{ 
+                        color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
+                        textAlign: layoutConfig.textAlign 
+                      }}
+                      placeholder="Enter Title"
+                    />
+                    <DoodleAccentGroup doodle={canvas.doodle} defaultColor="#facc15" />
+                  </div>
+
+                  {/* Subtitle (Only if not split-vertical) */}
+                  {currentLayout !== 'split-vertical' && (
+                    <TextareaAutosize
+                      value={canvas.subtitle}
+                      onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
+                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
+                        isCompact ? 'text-sm' : 'text-xl'
+                      }`}
+                      style={{
+                        color: canvas.subtitleColor || canvas.textColor || '#ffffff',
+                        textAlign: layoutConfig.textAlign
+                      }}
+                      placeholder="Enter Subtitle"
+                    />
+                  )}
+                </>
               )}
 
               {/* Native App Store Badge (Social Graphics) */}
@@ -1116,7 +1190,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             </MinimalPhoneFrame>
             </div>
             
-            {(currentLayout === 'banner-stack-right') && (
+            {(currentLayout === 'banner-stack-right' || currentLayout === 'banner-kinetic-stack') && (
               <>
                 <div className="absolute top-8 -left-[28%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 opacity-95 scale-[0.85]"
                      onClick={() => fileInputRef.current?.click()}>

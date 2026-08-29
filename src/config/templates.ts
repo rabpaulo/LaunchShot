@@ -141,6 +141,69 @@ export const TEMPLATES: TemplateDefinition[] = [
     }
   },
   {
+    name: 'Kinetic Repeating Banner (Platano Style)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'play-feature-graphic' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Platano',
+          subtitle: 'AI Creative Studio',
+          layout: 'banner-kinetic-stack',
+          backgroundColor: '#fed843',
+          textColor: '#0f172a',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'Featured App', style: 'pill-solid', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#f59e0b',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'sparkles', position: 'bottom-left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Photo Studio',
+          subtitle: 'Create AI avatars & portraits',
+          layout: 'basic-top',
+          backgroundColor: '#fef08a',
+          textColor: '#0f172a',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#f59e0b',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Creative Filters',
+          subtitle: 'Instant styles and lighting',
+          layout: 'basic-top',
+          backgroundColor: '#fef9c3',
+          textColor: '#0f172a',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#f59e0b',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
+    }
+  },
+  {
     name: 'Banner Triple Bottom',
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
