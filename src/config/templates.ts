@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
 
-
-
 export interface TemplateDefinition {
   name: string;
   apply: (
@@ -23,10 +21,18 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'Save places',
           subtitle: 'worth remembering',
           layout: 'tilt-right',
-          backgroundColor: 'radial-gradient(circle at 50% 50%, #fdf2f8 0%, #ffffff 60%)', // subtle pink
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #fdf2f8 0%, #ffffff 60%)',
           textColor: '#000000',
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -34,10 +40,18 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'Find whats good',
           subtitle: 'around you',
           layout: 'basic-top',
-          backgroundColor: 'radial-gradient(circle at 50% 50%, #eff6ff 0%, #ffffff 60%)', // subtle blue
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #eff6ff 0%, #ffffff 60%)',
           textColor: '#000000',
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -45,10 +59,18 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'Spend less time',
           subtitle: 'searching',
           layout: 'hero-center',
-          backgroundColor: 'radial-gradient(circle at 50% 50%, #fefce8 0%, #ffffff 60%)', // subtle yellow/beige
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #fefce8 0%, #ffffff 60%)',
           textColor: '#000000',
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'burst', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -56,10 +78,18 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'Curate your',
           subtitle: 'world into lists',
           layout: 'basic-bottom',
-          backgroundColor: 'radial-gradient(circle at 50% 50%, #fdf2f8 0%, #ffffff 60%)', // subtle pink
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #fdf2f8 0%, #ffffff 60%)',
           textColor: '#000000',
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -67,10 +97,18 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'And more',
           subtitle: 'exploring',
           layout: 'tilt-bottom-right',
-          backgroundColor: 'radial-gradient(circle at 50% 50%, #f8fafc 0%, #ffffff 60%)', // subtle grey/white
+          backgroundColor: 'radial-gradient(circle at 50% 50%, #f8fafc 0%, #ffffff 60%)',
           textColor: '#000000',
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'arrow-curved', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -86,10 +124,18 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'Calories, macros and workouts. In one app.',
           subtitle: 'Log in seconds.\nUnderstand what you eat.',
           layout: 'banner-stack-right',
-          backgroundColor: '#0f3a21', // Dark green like idea1
+          backgroundColor: '#0f3a21',
           textColor: '#ffffff',
           fontFamily: 'inter',
-          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' }
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'burst', position: 'bottom-right' }
+            ]
+          }
         }
       ]);
     }
@@ -105,9 +151,17 @@ export const TEMPLATES: TemplateDefinition[] = [
           title: 'The why behind your recovery.',
           subtitle: 'Every metric with its story: sleep stages, resting HR and HRV.',
           layout: 'banner-triple-bottom',
-          backgroundColor: '#113c2c', // Dark green like idea2
+          backgroundColor: '#113c2c',
           textColor: '#ffffff',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'underline-wave', position: 'underline' },
+              { type: 'lightning', position: 'top-right' }
+            ]
+          }
         }
       ]);
     }
@@ -126,7 +180,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'radial-gradient(circle at 50% 0%, #334155 0%, #0f172a 60%, #000000 100%)',
           textColor: '#ffffff',
           fontFamily: 'inter',
-          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' }
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'lightning', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -137,6 +199,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'radial-gradient(circle at 50% 0%, #334155 0%, #0f172a 60%, #000000 100%)',
           textColor: '#ffffff',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'burst', position: 'bottom-right' }
+            ]
+          }
         }
       ]);
     }
@@ -155,7 +225,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
-          badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'trophy' }
+          badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -166,6 +244,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'underline-wave', position: 'underline' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         }
       ]);
     }
@@ -175,238 +261,398 @@ export const TEMPLATES: TemplateDefinition[] = [
     name: `NeonCard Template`,
     apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'TRACK ALL YOUR SPENDING',
-                    subtitle: 'STAY ON TOP OF EVERY TRANSACTION',
-                    layout: 'split-vertical',
-                    backgroundColor: '#1f1f1f',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'SAVE MONEY AUTOMATICALLY',
-                    subtitle: 'SET SMART RULES TO GROW YOUR SAVINGS',
-                    layout: 'split-vertical',
-                    backgroundColor: '#1f1f1f',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'SEND MONEY INSTANTLY',
-                    subtitle: 'TRANSFER WORLDWIDE WITH REAL RATES',
-                    layout: 'split-vertical',
-                    backgroundColor: '#1f1f1f',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'FREEZE, UNFREEZE',
-                    subtitle: 'STAY IN CONTROL ANYTIME',
-                    layout: 'split-vertical',
-                    backgroundColor: '#1f1f1f',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'FULL CARD CONTROL',
-                    subtitle: 'MANAGE LIMITS, PINS & MORE',
-                    layout: 'split-vertical',
-                    backgroundColor: '#1f1f1f',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'TRACK ALL YOUR SPENDING',
+          subtitle: 'STAY ON TOP OF EVERY TRANSACTION',
+          layout: 'split-vertical',
+          backgroundColor: '#1f1f1f',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'SAVE MONEY AUTOMATICALLY',
+          subtitle: 'SET SMART RULES TO GROW YOUR SAVINGS',
+          layout: 'split-vertical',
+          backgroundColor: '#1f1f1f',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'SEND MONEY INSTANTLY',
+          subtitle: 'TRANSFER WORLDWIDE WITH REAL RATES',
+          layout: 'split-vertical',
+          backgroundColor: '#1f1f1f',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'arrow-curved', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'FREEZE, UNFREEZE',
+          subtitle: 'STAY IN CONTROL ANYTIME',
+          layout: 'split-vertical',
+          backgroundColor: '#1f1f1f',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'star', position: 'top-left' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'FULL CARD CONTROL',
+          subtitle: 'MANAGE LIMITS, PINS & MORE',
+          layout: 'split-vertical',
+          backgroundColor: '#1f1f1f',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
     name: `Basic Template (4 Screens)`,
     apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Amazing Features',
-                    subtitle: 'Discover what makes our app great',
-                    layout: 'basic-top',
-                    backgroundColor: '#000000',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Beautiful Design',
-                    subtitle: 'Carefully crafted for you',
-                    layout: 'tilt-right',
-                    backgroundColor: '#000000',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Blazing Fast',
-                    subtitle: 'Optimized for speed and performance',
-                    layout: 'tilt-left',
-                    backgroundColor: '#000000',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Start Today',
-                    subtitle: 'Join thousands of happy users',
-                    layout: 'basic-bottom',
-                    backgroundColor: '#000000',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Amazing Features',
+          subtitle: 'Discover what makes our app great',
+          layout: 'basic-top',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Beautiful Design',
+          subtitle: 'Carefully crafted for you',
+          layout: 'tilt-right',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'circle-loop', position: 'left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Blazing Fast',
+          subtitle: 'Optimized for speed and performance',
+          layout: 'tilt-left',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Start Today',
+          subtitle: 'Join thousands of happy users',
+          layout: 'basic-bottom',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'check', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
     name: `3D Showcase (3 Screens)`,
     apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Immersive 3D Experience',
-                    subtitle: 'Stand out from the crowd with beautiful isometric layouts',
-                    layout: '3d-isometric-right',
-                    backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)', // Midnight Violet
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Highlight Your UI',
-                    subtitle: 'Let your app design speak for itself in 3D',
-                    layout: '3d-isometric-left',
-                    backgroundColor: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #334155 100%)', // Deep Obsidian
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Engage Your Users',
-                    subtitle: 'Create a cinematic experience before they even download',
-                    layout: '3d-isometric-right',
-                    backgroundColor: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)', // Emerald Forest
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Immersive 3D Experience',
+          subtitle: 'Stand out from the crowd with beautiful isometric layouts',
+          layout: '3d-isometric-right',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'arrow-curved', position: 'bottom-left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Highlight Your UI',
+          subtitle: 'Let your app design speak for itself in 3D',
+          layout: '3d-isometric-left',
+          backgroundColor: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #334155 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Engage Your Users',
+          subtitle: 'Create a cinematic experience before they even download',
+          layout: '3d-isometric-right',
+          backgroundColor: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
     name: `Lifestyle Showcase (3 Screens)`,
     apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Your Life, Upgraded',
-                    subtitle: 'Seamless integration into your daily routine',
-                    layout: 'basic-top',
-                    backgroundColor: '#000000',
-                    backgroundImageSrc: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=1080',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Stay Connected',
-                    subtitle: 'Never miss a beat, no matter where you are',
-                    layout: 'half-right',
-                    backgroundColor: '#000000',
-                    backgroundImageSrc: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1080',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Peace of Mind',
-                    subtitle: 'Secure, reliable, and always ready when you need it',
-                    layout: 'tilt-left',
-                    backgroundColor: '#000000',
-                    backgroundImageSrc: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=1080',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Your Life, Upgraded',
+          subtitle: 'Seamless integration into your daily routine',
+          layout: 'basic-top',
+          backgroundColor: '#000000',
+          backgroundImageSrc: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=1080',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Stay Connected',
+          subtitle: 'Never miss a beat, no matter where you are',
+          layout: 'half-right',
+          backgroundColor: '#000000',
+          backgroundImageSrc: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1080',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Peace of Mind',
+          subtitle: 'Secure, reliable, and always ready when you need it',
+          layout: 'tilt-left',
+          backgroundColor: '#000000',
+          backgroundImageSrc: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=1080',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'check', position: 'top-right' },
+              { type: 'star', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
     name: `Continuous Story (5 Screens)`,
     apply: (loadTemplate, _updateGlobalSettings) => {
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Welcome to the Future',
-                    subtitle: 'Swipe to see how we change the game.',
-                    layout: 'half-right',
-                    backgroundColor: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Connect Instantly',
-                    subtitle: 'With friends, family, and the world.',
-                    layout: 'half-left',
-                    backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Share Your Moments',
-                    subtitle: 'Capture and share memories in a flash.',
-                    layout: 'tilt-right',
-                    backgroundColor: 'linear-gradient(135deg, #312e81 0%, #4c1d95 100%)',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Stay Secure',
-                    subtitle: 'Enterprise-grade encryption built in.',
-                    layout: 'tilt-left',
-                    backgroundColor: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Join Us Today',
-                    subtitle: 'Download now and get started.',
-                    layout: 'basic-bottom',
-                    backgroundColor: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Welcome to the Future',
+          subtitle: 'Swipe to see how we change the game.',
+          layout: 'half-right',
+          backgroundColor: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'arrow-curved', position: 'top-right' },
+              { type: 'sparkles', position: 'bottom-left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connect Instantly',
+          subtitle: 'With friends, family, and the world.',
+          layout: 'half-left',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'circle-loop', position: 'left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Share Your Moments',
+          subtitle: 'Capture and share memories in a flash.',
+          layout: 'tilt-right',
+          backgroundColor: 'linear-gradient(135deg, #312e81 0%, #4c1d95 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'burst', position: 'bottom-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Stay Secure',
+          subtitle: 'Enterprise-grade encryption built in.',
+          layout: 'tilt-left',
+          backgroundColor: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'star', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Join Us Today',
+          subtitle: 'Download now and get started.',
+          layout: 'basic-bottom',
+          backgroundColor: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'lightning', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -414,19 +660,27 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'play-feature-graphic' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Builder, at a glance',
-                    subtitle: 'Polished social graphics for every channel.',
-                    layout: 'og-style-1',
-                    backgroundColor: '#ffffff',
-                    textColor: '#000000',
-                    fontFamily: 'inter',
-                    showAppStoreBadge: true,
-                    appIconSrc: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=200&h=200&fit=crop'
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Builder, at a glance',
+          subtitle: 'Polished social graphics for every channel.',
+          layout: 'og-style-1',
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          fontFamily: 'inter',
+          showAppStoreBadge: true,
+          appIconSrc: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=200&h=200&fit=crop',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -434,18 +688,26 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'play-feature-graphic' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Power up Builder',
-                    subtitle: 'Never stop shipping visuals in minutes.',
-                    layout: 'og-style-2',
-                    backgroundColor: '#111827',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                    showAppStoreBadge: true,
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Power up Builder',
+          subtitle: 'Never stop shipping visuals in minutes.',
+          layout: 'og-style-2',
+          backgroundColor: '#111827',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          showAppStoreBadge: true,
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -453,18 +715,26 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'play-feature-graphic' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Builder feels premium',
-                    subtitle: 'Dark, cinematic assets for launch day.',
-                    layout: 'og-style-3',
-                    backgroundColor: '#030712',
-                    textColor: '#ffffff',
-                    fontFamily: 'poppins',
-                    showAppStoreBadge: true,
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Builder feels premium',
+          subtitle: 'Dark, cinematic assets for launch day.',
+          layout: 'og-style-3',
+          backgroundColor: '#030712',
+          textColor: '#ffffff',
+          fontFamily: 'poppins',
+          showAppStoreBadge: true,
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'sparkles', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -472,47 +742,79 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'dark' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Embrace the Dark',
-                    subtitle: 'A beautiful interface designed for night owls.',
-                    layout: 'basic-top',
-                    backgroundColor: '#0a0a0a',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Less Glare, More Focus',
-                    subtitle: 'Reduce eye strain with our true-black theme.',
-                    layout: 'half-right',
-                    backgroundColor: '#000000',
-                    textColor: '#10b981', // Neon green accent
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Saves Battery',
-                    subtitle: 'OLED displays turn off pixels for black.',
-                    layout: 'half-left',
-                    backgroundColor: '#050505',
-                    textColor: '#3b82f6', // Neon blue accent
-                    fontFamily: 'outfit',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Switch Anytime',
-                    subtitle: 'Toggle between light and dark instantly.',
-                    layout: 'basic-bottom',
-                    backgroundColor: '#0a0a0a',
-                    textColor: '#ffffff',
-                    fontFamily: 'outfit',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Embrace the Dark',
+          subtitle: 'A beautiful interface designed for night owls.',
+          layout: 'basic-top',
+          backgroundColor: '#0a0a0a',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#4ade80',
+            doodles: [
+              { type: 'star', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Less Glare, More Focus',
+          subtitle: 'Reduce eye strain with our true-black theme.',
+          layout: 'half-right',
+          backgroundColor: '#000000',
+          textColor: '#10b981',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#10b981',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Saves Battery',
+          subtitle: 'OLED displays turn off pixels for black.',
+          layout: 'half-left',
+          backgroundColor: '#050505',
+          textColor: '#3b82f6',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#38bdf8',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Switch Anytime',
+          subtitle: 'Toggle between light and dark instantly.',
+          layout: 'basic-bottom',
+          backgroundColor: '#0a0a0a',
+          textColor: '#ffffff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -520,57 +822,97 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'clay-light' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Fun & Vibrant',
-                    subtitle: 'Bring your ideas to life with color.',
-                    layout: 'tilt-right',
-                    backgroundColor: '#fef08a', // Yellow
-                    textColor: '#1e3a8a',
-                    fontFamily: 'poppins',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Express Yourself',
-                    subtitle: 'Unleash your creativity everyday.',
-                    layout: 'tilt-left',
-                    backgroundColor: '#fbcfe8', // Pink
-                    textColor: '#831843',
-                    fontFamily: 'poppins',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Stay Active',
-                    subtitle: 'Engage with a lively community.',
-                    layout: 'tilt-right',
-                    backgroundColor: '#a7f3d0', // Mint
-                    textColor: '#064e3b',
-                    fontFamily: 'poppins',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Find Joy',
-                    subtitle: 'Discover what makes you smile.',
-                    layout: 'tilt-left',
-                    backgroundColor: '#fed7aa', // Orange
-                    textColor: '#7c2d12',
-                    fontFamily: 'poppins',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Get Started',
-                    subtitle: 'Join the fun right now.',
-                    layout: 'basic-bottom',
-                    backgroundColor: '#bae6fd', // Blue
-                    textColor: '#0c4a6e',
-                    fontFamily: 'poppins',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Fun & Vibrant',
+          subtitle: 'Bring your ideas to life with color.',
+          layout: 'tilt-right',
+          backgroundColor: '#fef08a',
+          textColor: '#1e3a8a',
+          fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#e11d48',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Express Yourself',
+          subtitle: 'Unleash your creativity everyday.',
+          layout: 'tilt-left',
+          backgroundColor: '#fbcfe8',
+          textColor: '#831843',
+          fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#be185d',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Stay Active',
+          subtitle: 'Engage with a lively community.',
+          layout: 'tilt-right',
+          backgroundColor: '#a7f3d0',
+          textColor: '#064e3b',
+          fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#047857',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Find Joy',
+          subtitle: 'Discover what makes you smile.',
+          layout: 'tilt-left',
+          backgroundColor: '#fed7aa',
+          textColor: '#7c2d12',
+          fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#c2410c',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'star', position: 'top-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Get Started',
+          subtitle: 'Join the fun right now.',
+          layout: 'basic-bottom',
+          backgroundColor: '#bae6fd',
+          textColor: '#0c4a6e',
+          fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#0369a1',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -578,17 +920,25 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'play-feature-graphic' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Your Ultimate Toolkit',
-                    subtitle: 'Everything you need in one powerful application.',
-                    layout: 'half-right',
-                    backgroundColor: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 100%)',
-                    textColor: '#ffffff',
-                    fontFamily: 'inter',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Your Ultimate Toolkit',
+          subtitle: 'Everything you need in one powerful application.',
+          layout: 'half-right',
+          backgroundColor: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 100%)',
+          textColor: '#ffffff',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'lightning', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -596,47 +946,79 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'glass' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Split The Difference',
-                    subtitle: 'Contrast is king.',
-                    layout: 'split-vertical',
-                    backgroundColor: '#111827',
-                    textColor: '#ffffff',
-                    fontFamily: 'space-grotesk',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Bold Choices',
-                    subtitle: 'Make a statement.',
-                    layout: 'split-vertical',
-                    backgroundColor: '#f3f4f6',
-                    textColor: '#111827',
-                    fontFamily: 'space-grotesk',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Stand Out',
-                    subtitle: 'Never blend in.',
-                    layout: 'split-vertical',
-                    backgroundColor: '#111827',
-                    textColor: '#ffffff',
-                    fontFamily: 'space-grotesk',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Take Action',
-                    subtitle: 'Begin today.',
-                    layout: 'split-vertical',
-                    backgroundColor: '#f3f4f6',
-                    textColor: '#111827',
-                    fontFamily: 'space-grotesk',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Split The Difference',
+          subtitle: 'Contrast is king.',
+          layout: 'split-vertical',
+          backgroundColor: '#111827',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Bold Choices',
+          subtitle: 'Make a statement.',
+          layout: 'split-vertical',
+          backgroundColor: '#f3f4f6',
+          textColor: '#111827',
+          fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Stand Out',
+          subtitle: 'Never blend in.',
+          layout: 'split-vertical',
+          backgroundColor: '#111827',
+          textColor: '#ffffff',
+          fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'burst', position: 'bottom-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Take Action',
+          subtitle: 'Begin today.',
+          layout: 'split-vertical',
+          backgroundColor: '#f3f4f6',
+          textColor: '#111827',
+          fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'check', position: 'bottom-left' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -644,37 +1026,61 @@ export const TEMPLATES: TemplateDefinition[] = [
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'glass' });
       loadTemplate([
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Simply Beautiful',
-                    subtitle: 'Focus on what matters most.',
-                    layout: 'basic-top',
-                    backgroundColor: '#ffffff',
-                    textColor: '#000000',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Clarity First',
-                    subtitle: 'Zero distractions.',
-                    layout: 'half-right',
-                    backgroundColor: '#ffffff',
-                    textColor: '#000000',
-                    fontFamily: 'inter',
-                  },
-                  {
-                    id: crypto.randomUUID(),
-                    imageSrc: null,
-                    title: 'Pure Focus',
-                    subtitle: 'Get things done.',
-                    layout: 'tilt-left',
-                    backgroundColor: '#ffffff',
-                    textColor: '#000000',
-                    fontFamily: 'inter',
-                  }
-                ]);
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Simply Beautiful',
+          subtitle: 'Focus on what matters most.',
+          layout: 'basic-top',
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Clarity First',
+          subtitle: 'Zero distractions.',
+          layout: 'half-right',
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Pure Focus',
+          subtitle: 'Get things done.',
+          layout: 'tilt-left',
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
+        }
+      ]);
     }
   },
   {
@@ -691,7 +1097,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
-          badge: { enabled: true, text: '#1 AI Tool of 2024', style: 'pill-glass', icon: 'sparkle' }
+          badge: { enabled: true, text: '#1 AI Tool of 2024', style: 'pill-glass', icon: 'sparkle' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'arrow-curved', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -702,6 +1116,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -712,7 +1134,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'radial-gradient(circle at 50% 50%, #4338ca 0%, #1e1b4b 80%, #000000 100%)',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
-          badge: { enabled: true, text: '100% Private & Encrypted', style: 'pill-glass', icon: 'shield' }
+          badge: { enabled: true, text: '100% Private & Encrypted', style: 'pill-glass', icon: 'shield' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -723,7 +1153,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#090d16',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
-          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' }
+          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -742,7 +1180,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#111827',
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
-          badge: { enabled: true, text: 'Editors\' Choice', style: 'pill-glass', icon: 'star' }
+          badge: { enabled: true, text: 'Editors\' Choice', style: 'pill-glass', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -753,6 +1199,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#f8fafc',
           textColor: '#0f172a',
           fontFamily: 'plus-jakarta',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -763,6 +1217,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#111827',
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -773,7 +1235,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#f8fafc',
           textColor: '#0f172a',
           fontFamily: 'plus-jakarta',
-          badge: { enabled: true, text: 'Loved by 1M+ Users', style: 'pill-solid', icon: 'heart' }
+          badge: { enabled: true, text: 'Loved by 1M+ Users', style: 'pill-solid', icon: 'heart' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'check', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -792,7 +1262,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#0a2216',
           textColor: '#ffffff',
           fontFamily: 'inter',
-          badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' }
+          badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -803,6 +1281,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#090d16',
           textColor: '#ffffff',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -813,6 +1299,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#064e3b',
           textColor: '#ffffff',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -823,7 +1317,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#111827',
           textColor: '#ffffff',
           fontFamily: 'inter',
-          badge: { enabled: true, text: 'Bank-Grade 256-bit', style: 'pill-solid', icon: 'shield' }
+          badge: { enabled: true, text: 'Bank-Grade 256-bit', style: 'pill-solid', icon: 'shield' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'check', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -834,7 +1336,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#022c22',
           textColor: '#ffffff',
           fontFamily: 'inter',
-          badge: { enabled: true, text: 'App of the Day', style: 'pill-solid', icon: 'trophy' }
+          badge: { enabled: true, text: 'App of the Day', style: 'pill-solid', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -853,7 +1363,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
-          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-glass', icon: 'trophy' }
+          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-glass', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -864,6 +1382,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -874,6 +1400,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'arrow-curved', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -884,7 +1418,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'radial-gradient(circle at 50% 0%, #334155 0%, #0f172a 60%, #000000 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
-          badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' }
+          badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'sparkles', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -903,7 +1445,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#000000',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
-          badge: { enabled: true, text: '#1 Gaming Companion', style: 'pill-solid', icon: 'flame' }
+          badge: { enabled: true, text: '#1 Gaming Companion', style: 'pill-solid', icon: 'flame' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -914,6 +1464,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#09090b',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -924,6 +1482,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#18181b',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -934,7 +1500,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#000000',
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
-          badge: { enabled: true, text: 'Best of 2024', style: 'pill-solid', icon: 'trophy' }
+          badge: { enabled: true, text: 'Best of 2024', style: 'pill-solid', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'lightning', position: 'bottom-right' }
+            ]
+          }
         }
       ]);
     }
@@ -953,7 +1527,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#ffffff',
           textColor: '#000000',
           fontFamily: 'inter',
-          badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'star' }
+          badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -964,6 +1546,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#000000',
           textColor: '#ffffff',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -974,6 +1564,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#ffffff',
           textColor: '#000000',
           fontFamily: 'inter',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -984,7 +1582,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#000000',
           textColor: '#ffffff',
           fontFamily: 'inter',
-          badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'trophy' }
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -1003,7 +1609,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
-          badge: { enabled: true, text: 'App of the Day', style: 'pill-glass', icon: 'trophy' }
+          badge: { enabled: true, text: 'App of the Day', style: 'pill-glass', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1014,6 +1628,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'circle-loop', position: 'left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1024,6 +1646,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'sparkles', position: 'top-right' },
+              { type: 'arrow-curved', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1034,7 +1664,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
-          badge: { enabled: true, text: '100% Private & On-Device', style: 'pill-glass', icon: 'shield' }
+          badge: { enabled: true, text: '100% Private & On-Device', style: 'pill-glass', icon: 'shield' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'star', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1045,6 +1683,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
           textColor: '#ffffff',
           fontFamily: 'outfit',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'lightning', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -1063,7 +1709,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#f5f5f4',
           textColor: '#1c1917',
           fontFamily: 'playfair',
-          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' }
+          badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1074,6 +1728,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#1c1917',
           textColor: '#f5f5f4',
           fontFamily: 'playfair',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'star', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1084,6 +1746,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#f5f5f4',
           textColor: '#1c1917',
           fontFamily: 'playfair',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'speech-bubble', position: 'top-left' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1094,7 +1764,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#1c1917',
           textColor: '#f5f5f4',
           fontFamily: 'playfair',
-          badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'star' }
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'star' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -1113,7 +1791,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#0f172a',
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
-          badge: { enabled: true, text: 'Trusted by 10k+ Companies', style: 'pill-glass', icon: 'shield' }
+          badge: { enabled: true, text: 'Trusted by 10k+ Companies', style: 'pill-glass', icon: 'shield' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'target', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1124,6 +1810,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#1e293b',
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1134,6 +1828,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#334155',
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1144,7 +1846,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#0f172a',
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
-          badge: { enabled: true, text: 'SOC2 & HIPAA Compliant', style: 'pill-solid', icon: 'shield' }
+          badge: { enabled: true, text: 'SOC2 & HIPAA Compliant', style: 'pill-solid', icon: 'shield' },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'check', position: 'bottom-left' }
+            ]
+          }
         }
       ]);
     }
@@ -1163,7 +1873,15 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#fef08a',
           textColor: '#1e3a8a',
           fontFamily: 'poppins',
-          badge: { enabled: true, text: '#1 Product of the Day', style: 'pill-solid', icon: 'flame' }
+          badge: { enabled: true, text: '#1 Product of the Day', style: 'pill-solid', icon: 'flame' },
+          doodle: {
+            enabled: true,
+            color: '#e11d48',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1174,6 +1892,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#fbcfe8',
           textColor: '#831843',
           fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#be185d',
+            doodles: [
+              { type: 'circle-loop', position: 'left' },
+              { type: 'sparkles', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1184,6 +1910,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#a7f3d0',
           textColor: '#064e3b',
           fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#047857',
+            doodles: [
+              { type: 'lightning', position: 'top-right' },
+              { type: 'burst', position: 'bottom-left' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1194,6 +1928,14 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#fed7aa',
           textColor: '#7c2d12',
           fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#c2410c',
+            doodles: [
+              { type: 'heart', position: 'top-left' },
+              { type: 'star', position: 'top-right' }
+            ]
+          }
         },
         {
           id: crypto.randomUUID(),
@@ -1204,9 +1946,16 @@ export const TEMPLATES: TemplateDefinition[] = [
           backgroundColor: '#bae6fd',
           textColor: '#0c4a6e',
           fontFamily: 'poppins',
+          doodle: {
+            enabled: true,
+            color: '#0369a1',
+            doodles: [
+              { type: 'crown', position: 'top-right' },
+              { type: 'double-underline', position: 'underline' }
+            ]
+          }
         }
       ]);
     }
   }
 ];
-

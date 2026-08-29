@@ -28,6 +28,16 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { TARGET_SIZES } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BADGE_PRESETS, BadgeConfig } from '@/config/badges';
+import { DoodleAccentGroup, DoodleShape } from './DoodleAccent';
+import {
+  DOODLE_PRESETS,
+  DOODLE_COLOR_PALETTE,
+  DOODLE_TYPE_OPTIONS,
+  DOODLE_POSITION_OPTIONS,
+  DoodleType,
+  DoodlePosition
+} from '@/config/doodles';
+import { IoBrushOutline } from 'react-icons/io5';
 
 import { useShallow } from 'zustand/react/shallow';
 
@@ -82,6 +92,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     duplicateCanvas,
     applyLayoutToAll,
     applyContentToAll,
+    applyDoodlesToAll,
     setIsDraggingGlobal
   } = useEditorStore(useShallow((state) => ({
     globalSettings: state.globalSettings,
@@ -91,10 +102,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     duplicateCanvas: state.duplicateCanvas,
     applyLayoutToAll: state.applyLayoutToAll,
     applyContentToAll: state.applyContentToAll,
+    applyDoodlesToAll: state.applyDoodlesToAll,
     setIsDraggingGlobal: state.setIsDraggingGlobal
   })));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
+  const [showDoodleMenu, setShowDoodleMenu] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
@@ -423,7 +436,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
           {/* Social Proof Badge Toggle */}
           <button
-            onClick={() => setShowBadgeMenu(!showBadgeMenu)}
+            onClick={() => {
+              setShowBadgeMenu(!showBadgeMenu);
+              setShowDoodleMenu(false);
+            }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
               canvas.badge?.enabled
                 ? isDark 
@@ -437,6 +453,27 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           >
             <IoStar className={`w-3.5 h-3.5 ${canvas.badge?.enabled ? 'fill-amber-400 text-amber-500' : 'text-gray-400'}`} />
             <span>Badge</span>
+          </button>
+
+          {/* Hand-Drawn Doodle Accents Toggle */}
+          <button
+            onClick={() => {
+              setShowDoodleMenu(!showDoodleMenu);
+              setShowBadgeMenu(false);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
+              canvas.doodle?.enabled
+                ? isDark 
+                  ? 'bg-yellow-950/60 text-yellow-300 border-yellow-500/40 shadow-sm' 
+                  : 'bg-yellow-50 text-yellow-800 border-yellow-300 shadow-sm'
+                : isDark
+                  ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
+                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+            }`}
+            title="Add Hand-Drawn Doodle Accents"
+          >
+            <IoBrushOutline className={`w-3.5 h-3.5 ${canvas.doodle?.enabled ? 'text-yellow-400' : 'text-gray-400'}`} />
+            <span>Doodles</span>
           </button>
 
           {/* Gradient Text Toggle */}
@@ -613,6 +650,287 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             </div>
           </div>
         )}
+
+        {/* Doodle Selector Popover */}
+        {showDoodleMenu && (
+          <div className={`absolute top-12 left-44 z-50 rounded-2xl shadow-2xl border p-3.5 w-80 flex flex-col gap-3 ${
+            isDark ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'
+          }`}>
+            <div className={`flex items-center justify-between border-b pb-2 ${
+              isDark ? 'border-gray-800' : 'border-gray-100'
+            }`}>
+              <span className="text-xs font-bold flex items-center gap-1.5">
+                <IoBrushOutline className="w-3.5 h-3.5 text-yellow-400" />
+                Doodle Accents
+              </span>
+              <button 
+                onClick={() => setShowDoodleMenu(false)}
+                className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
+              >
+                <IoClose className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Quick Toggle On/Off */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold">Toggle Accents</span>
+              <button
+                onClick={() => {
+                  const isCurrentlyEnabled = !!canvas.doodle?.enabled;
+                  const defaultDoodles = [
+                    { type: 'question' as const, position: 'top-right' as const },
+                    { type: 'underline-wave' as const, position: 'underline' as const }
+                  ];
+                  updateCanvas(canvas.id, {
+                    doodle: {
+                      enabled: !isCurrentlyEnabled,
+                      color: canvas.doodle?.color || '#facc15',
+                      doodles: canvas.doodle?.doodles?.length ? canvas.doodle.doodles : defaultDoodles
+                    }
+                  });
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
+                  canvas.doodle?.enabled
+                    ? 'bg-yellow-500 text-black border-yellow-400 shadow-sm'
+                    : isDark ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-100 text-gray-600 border-gray-300'
+                }`}
+              >
+                {canvas.doodle?.enabled ? 'Active' : 'Off'}
+              </button>
+            </div>
+
+            {/* Color Palette Picker */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-medium opacity-75">Doodle Color</span>
+                <span className="text-[10px] font-mono opacity-60">{canvas.doodle?.color || '#facc15'}</span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {DOODLE_COLOR_PALETTE.map((pal) => (
+                  <button
+                    key={pal.value}
+                    onClick={() => {
+                      const currentDoodles = canvas.doodle?.doodles || [
+                        { type: 'question', position: 'top-right' },
+                        { type: 'underline-wave', position: 'underline' }
+                      ];
+                      updateCanvas(canvas.id, {
+                        doodle: {
+                          enabled: true,
+                          color: pal.value,
+                          doodles: currentDoodles.map(d => ({ ...d, color: pal.value }))
+                        }
+                      });
+                    }}
+                    className={`w-5 h-5 rounded-full border shadow-sm transition-transform hover:scale-125 ${
+                      (canvas.doodle?.color || '#facc15') === pal.value ? 'ring-2 ring-yellow-400 ring-offset-1 scale-110' : 'border-black/20'
+                    }`}
+                    style={{ backgroundColor: pal.value }}
+                    title={pal.name}
+                  />
+                ))}
+                <input
+                  type="color"
+                  value={canvas.doodle?.color || '#facc15'}
+                  onChange={(e) => {
+                    const newColor = e.target.value;
+                    const currentDoodles = canvas.doodle?.doodles || [
+                      { type: 'question', position: 'top-right' },
+                      { type: 'underline-wave', position: 'underline' }
+                    ];
+                    updateCanvas(canvas.id, {
+                      doodle: {
+                        enabled: true,
+                        color: newColor,
+                        doodles: currentDoodles.map(d => ({ ...d, color: newColor }))
+                      }
+                    });
+                  }}
+                  className="w-5 h-5 rounded-full border-0 cursor-pointer p-0 shadow-sm ml-1"
+                  title="Custom Doodle Color"
+                />
+              </div>
+            </div>
+
+            {/* Curated Presets */}
+            <div className="space-y-1">
+              <span className="text-[11px] font-medium opacity-75">Preset Styles</span>
+              <div 
+                className="space-y-1 max-h-36 overflow-y-auto pr-1"
+                onWheel={(e) => e.stopPropagation()}
+              >
+                {DOODLE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => {
+                      const color = canvas.doodle?.color || preset.config.color || '#facc15';
+                      updateCanvas(canvas.id, {
+                        doodle: {
+                          ...preset.config,
+                          color,
+                          doodles: preset.config.doodles.map(d => ({ ...d, color }))
+                        }
+                      });
+                    }}
+                    className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex items-center justify-between transition-colors border ${
+                      isDark 
+                        ? 'border-transparent hover:border-gray-700 hover:bg-gray-800 text-gray-200' 
+                        : 'border-transparent hover:border-zinc-100 hover:bg-zinc-50 text-gray-700'
+                    }`}
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-semibold">{preset.label}</span>
+                      <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{preset.description}</span>
+                    </div>
+                    <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                      <DoodleShape type={preset.config.doodles[0]?.type || 'question'} color={canvas.doodle?.color || '#facc15'} className="w-5 h-5" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Doodle Fine-Tuning */}
+            <div className={`pt-2 border-t space-y-1.5 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}>
+              <span className="text-[11px] font-medium opacity-75">Custom Doodles</span>
+              
+              {/* Primary Doodle */}
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="w-14 font-semibold text-[10px] uppercase opacity-70">Primary:</span>
+                <select
+                  value={canvas.doodle?.doodles?.[0]?.type || 'question'}
+                  onChange={(e) => {
+                    const newType = e.target.value as DoodleType;
+                    const current = canvas.doodle?.doodles ? [...canvas.doodle.doodles] : [];
+                    const currentFirst = current[0] || { type: 'question' as const, position: 'top-right' as const };
+                    current[0] = { ...currentFirst, type: newType, color: canvas.doodle?.color || '#facc15' };
+                    updateCanvas(canvas.id, {
+                      doodle: {
+                        enabled: true,
+                        color: canvas.doodle?.color || '#facc15',
+                        doodles: current
+                      }
+                    });
+                  }}
+                  className={`flex-1 text-xs rounded-lg px-2 py-1 border outline-none font-medium ${
+                    isDark ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-700'
+                  }`}
+                >
+                  {DOODLE_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={canvas.doodle?.doodles?.[0]?.position || 'top-right'}
+                  onChange={(e) => {
+                    const newPos = e.target.value as DoodlePosition;
+                    const current = canvas.doodle?.doodles ? [...canvas.doodle.doodles] : [];
+                    const currentFirst = current[0] || { type: 'question' as const, position: 'top-right' as const };
+                    current[0] = { ...currentFirst, position: newPos, color: canvas.doodle?.color || '#facc15' };
+                    updateCanvas(canvas.id, {
+                      doodle: {
+                        enabled: true,
+                        color: canvas.doodle?.color || '#facc15',
+                        doodles: current
+                      }
+                    });
+                  }}
+                  className={`w-28 text-xs rounded-lg px-2 py-1 border outline-none font-medium ${
+                    isDark ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-700'
+                  }`}
+                >
+                  {DOODLE_POSITION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Secondary Doodle */}
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="w-14 font-semibold text-[10px] uppercase opacity-70">Secondary:</span>
+                <select
+                  value={canvas.doodle?.doodles?.[1]?.type || 'none'}
+                  onChange={(e) => {
+                    const newType = e.target.value as DoodleType;
+                    const current = canvas.doodle?.doodles ? [...canvas.doodle.doodles] : [{ type: 'question' as const, position: 'top-right' as const }];
+                    if (newType === 'none') {
+                      current.splice(1, 1);
+                    } else {
+                      const currentSecond = current[1] || { type: 'underline-wave' as const, position: 'underline' as const };
+                      current[1] = { ...currentSecond, type: newType, color: canvas.doodle?.color || '#facc15' };
+                    }
+                    updateCanvas(canvas.id, {
+                      doodle: {
+                        enabled: true,
+                        color: canvas.doodle?.color || '#facc15',
+                        doodles: current
+                      }
+                    });
+                  }}
+                  className={`flex-1 text-xs rounded-lg px-2 py-1 border outline-none font-medium ${
+                    isDark ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-700'
+                  }`}
+                >
+                  {DOODLE_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={canvas.doodle?.doodles?.[1]?.position || 'underline'}
+                  onChange={(e) => {
+                    const newPos = e.target.value as DoodlePosition;
+                    const current = canvas.doodle?.doodles ? [...canvas.doodle.doodles] : [{ type: 'question' as const, position: 'top-right' as const }];
+                    const currentSecond = current[1] || { type: 'underline-wave' as const, position: 'underline' as const };
+                    current[1] = { ...currentSecond, position: newPos, color: canvas.doodle?.color || '#facc15' };
+                    updateCanvas(canvas.id, {
+                      doodle: {
+                        enabled: true,
+                        color: canvas.doodle?.color || '#facc15',
+                        doodles: current
+                      }
+                    });
+                  }}
+                  className={`w-28 text-xs rounded-lg px-2 py-1 border outline-none font-medium ${
+                    isDark ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-700'
+                  }`}
+                >
+                  {DOODLE_POSITION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className={isDark ? 'bg-gray-900 text-gray-300' : ''}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Apply to All Screens Button */}
+            {canvas.doodle?.enabled && (
+              <button
+                onClick={() => {
+                  if (canvas.doodle) {
+                    applyDoodlesToAll(canvas.doodle);
+                    toast.success("Applied doodle style to all screens!");
+                  }
+                }}
+                className={`w-full py-2 text-center rounded-xl text-xs font-bold border transition-colors ${
+                  isDark
+                    ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700'
+                    : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border-zinc-200'
+                }`}
+              >
+                Apply Doodles to All Screens
+              </button>
+            )}
+          </div>
+        )}
       </div>
       )}
 
@@ -660,23 +978,26 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 </div>
               )}
 
-              {/* Title */}
-              <TextareaAutosize
-                value={canvas.title}
-                onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
-                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden ${
-                  isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
-                } ${
-                  canvas.gradientText 
-                    ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
-                    : ''
-                }`}
-                style={{ 
-                  color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
-                  textAlign: layoutConfig.textAlign 
-                }}
-                placeholder="Enter Title"
-              />
+              {/* Title & Hand-Drawn Doodle Accents */}
+              <div className="relative w-full">
+                <TextareaAutosize
+                  value={canvas.title}
+                  onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
+                  className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 ${
+                    isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
+                  } ${
+                    canvas.gradientText 
+                      ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
+                      : ''
+                  }`}
+                  style={{ 
+                    color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
+                    textAlign: layoutConfig.textAlign 
+                  }}
+                  placeholder="Enter Title"
+                />
+                <DoodleAccentGroup doodle={canvas.doodle} defaultColor="#facc15" />
+              </div>
 
               {/* Subtitle (Only if not split-vertical) */}
               {currentLayout !== 'split-vertical' && (

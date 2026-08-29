@@ -1,12 +1,12 @@
 import type { CanvasItem, LayoutType, MockupStyle } from '@/store/useEditorStore';
 import { type BadgeConfig, BADGE_PRESETS } from '@/config/badges';
-
-
+import type { DoodleConfig } from '@/config/doodles';
 
 export interface NicheCopyItem {
   title: string;
   subtitle: string;
   badge?: BadgeConfig;
+  doodle?: DoodleConfig;
   layout?: LayoutType;
 }
 
@@ -1313,6 +1313,57 @@ export function generateTemplateForNiche(nicheInput: string): {
   const defaultLayouts: LayoutType[] = ['basic-top', 'tilt-right', 'tilt-left', 'split-vertical', 'basic-bottom'];
   const layouts = selectedNiche.layouts?.length ? selectedNiche.layouts : defaultLayouts;
 
+  const getDefaultDoodleForSlide = (index: number): DoodleConfig => {
+    switch (index % 5) {
+      case 0:
+        return {
+          enabled: true,
+          color: '#facc15',
+          doodles: [
+            { type: 'question', position: 'top-right' },
+            { type: 'underline-wave', position: 'underline' }
+          ]
+        };
+      case 1:
+        return {
+          enabled: true,
+          color: '#facc15',
+          doodles: [
+            { type: 'circle-loop', position: 'left' },
+            { type: 'lightning', position: 'bottom-right' }
+          ]
+        };
+      case 2:
+        return {
+          enabled: true,
+          color: '#facc15',
+          doodles: [
+            { type: 'speech-bubble', position: 'top-left' },
+            { type: 'burst', position: 'bottom-right' }
+          ]
+        };
+      case 3:
+        return {
+          enabled: true,
+          color: '#facc15',
+          doodles: [
+            { type: 'heart', position: 'top-left' },
+            { type: 'underline-wave', position: 'underline' }
+          ]
+        };
+      case 4:
+      default:
+        return {
+          enabled: true,
+          color: '#facc15',
+          doodles: [
+            { type: 'crown', position: 'top-right' },
+            { type: 'sparkles', position: 'bottom-left' }
+          ]
+        };
+    }
+  };
+
   const canvases: CanvasItem[] = selectedNiche.copy.map((copyItem, index) => {
     const colorIndex = index % selectedNiche.theme.colors.length;
     const bgColor = selectedNiche.theme.colors[colorIndex];
@@ -1339,6 +1390,7 @@ export function generateTemplateForNiche(nicheInput: string): {
       textColor: isLightText ? '#0f172a' : '#ffffff',
       fontFamily: selectedNiche.theme.fontFamily,
       badge: copyItem.badge ? { ...copyItem.badge } : undefined,
+      doodle: copyItem.doodle || getDefaultDoodleForSlide(index),
     };
   });
 

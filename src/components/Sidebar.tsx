@@ -15,12 +15,14 @@ import {
   IoSparklesOutline,
   IoChevronBack,
   IoChevronForward,
-  IoGlobeOutline
+  IoGlobeOutline,
+  IoBrushOutline
 } from 'react-icons/io5';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
+import { DOODLE_PRESETS, DOODLE_COLOR_PALETTE } from '@/config/doodles';
 
 import { ExportModal } from './ExportModal';
 import { TranslationModal } from './TranslationModal';
@@ -88,6 +90,9 @@ export function Sidebar() {
     canvases,
     applyBackgroundToAll,
     applyFontToAll,
+    applyDoodlesToAll,
+    applyDoodleColorToAll,
+    toggleDoodlesOnAll,
     clearAllCanvases,
     setIsDraggingGlobal,
     activeTemplateIndex,
@@ -99,6 +104,9 @@ export function Sidebar() {
     canvases: state.canvases,
     applyBackgroundToAll: state.applyBackgroundToAll,
     applyFontToAll: state.applyFontToAll,
+    applyDoodlesToAll: state.applyDoodlesToAll,
+    applyDoodleColorToAll: state.applyDoodleColorToAll,
+    toggleDoodlesOnAll: state.toggleDoodlesOnAll,
     clearAllCanvases: state.clearAllCanvases,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
     activeTemplateIndex: state.activeTemplateIndex,
@@ -769,6 +777,107 @@ export function Sidebar() {
                 {style.replace('-', ' ')}
               </button>
             ))}
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
+        {/* Hand-Drawn Doodle Accents */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              <IoBrushOutline className="w-3.5 h-3.5 text-yellow-400" />
+              Doodle Accents
+            </h2>
+            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              isDark ? 'bg-yellow-500/10 text-yellow-300' : 'bg-yellow-50 text-yellow-700'
+            }`}>
+              Hand-Drawn
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {/* Quick Toggle All */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  toggleDoodlesOnAll(true);
+                  toast.success("Enabled doodles on all screens!");
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                  isDark
+                    ? 'bg-yellow-950/40 border-yellow-500/40 text-yellow-300 hover:bg-yellow-900/40'
+                    : 'bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100'
+                }`}
+              >
+                Enable on All
+              </button>
+              <button
+                onClick={() => {
+                  toggleDoodlesOnAll(false);
+                  toast.success("Disabled doodles on all screens!");
+                }}
+                className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                  isDark
+                    ? 'bg-gray-800/80 border-gray-700 text-gray-400 hover:bg-gray-700'
+                    : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Turn Off
+              </button>
+            </div>
+
+            {/* Global Doodle Color Palette */}
+            <div>
+              <label className={`block text-[11px] font-medium mb-1.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Global Accent Color:
+              </label>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {DOODLE_COLOR_PALETTE.map((pal) => (
+                  <button
+                    key={pal.value}
+                    onClick={() => {
+                      applyDoodleColorToAll(pal.value);
+                      toast.success(`Applied ${pal.name} to all doodles!`);
+                    }}
+                    className="w-5 h-5 rounded-full border shadow-sm transition-transform hover:scale-125 border-black/20"
+                    style={{ backgroundColor: pal.value }}
+                    title={`Apply ${pal.name} to all screens`}
+                  />
+                ))}
+                <input
+                  type="color"
+                  defaultValue="#facc15"
+                  onChange={(e) => {
+                    applyDoodleColorToAll(e.target.value);
+                  }}
+                  className="w-5 h-5 rounded-full border-0 cursor-pointer p-0 shadow-sm ml-1"
+                  title="Custom Accent Color for All"
+                />
+              </div>
+            </div>
+
+            {/* Apply Preset Style to All */}
+            <div className="space-y-1">
+              <label className={`block text-[11px] font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Apply Preset to All Screens:
+              </label>
+              <CustomDropdown
+                value=""
+                placeholder="Choose Doodle Style Preset..."
+                onChange={(val) => {
+                  const preset = DOODLE_PRESETS.find(p => p.id === String(val));
+                  if (preset) {
+                    applyDoodlesToAll(preset.config);
+                    toast.success(`Applied ${preset.label} to all screens!`);
+                  }
+                }}
+                options={DOODLE_PRESETS.map(p => ({ label: p.label, value: p.id }))}
+                isDark={isDark}
+              />
+            </div>
           </div>
         </section>
 

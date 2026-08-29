@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { type TargetSizeId, DEFAULT_SIZE } from '@/config/sizes';
 import { DEFAULT_FONT } from '@/config/fonts';
 import type { BadgeConfig } from '@/config/badges';
+import type { DoodleConfig } from '@/config/doodles';
 import { DEFAULT_LANGUAGE } from '@/config/languages';
 
 export type LayoutType = 
@@ -41,6 +42,7 @@ export type CanvasItem = {
   subtitleColor?: string;
   fontFamily?: string;
   badge?: BadgeConfig;
+  doodle?: DoodleConfig;
   showAppStoreBadge?: boolean;
   appIconSrc?: string;
   gradientText?: boolean;
@@ -91,6 +93,9 @@ interface EditorState {
   applyContentToAll: (title: string, subtitle: string) => void;
   applyAppIconToAll: (appIconSrc: string) => void;
   removeAppIconFromAll: () => void;
+  applyDoodlesToAll: (doodle: DoodleConfig) => void;
+  applyDoodleColorToAll: (color: string) => void;
+  toggleDoodlesOnAll: (enabled: boolean) => void;
   clearAllCanvases: () => void;
   loadTemplate: (canvases: CanvasItem[]) => void;
   isPreviewMode: boolean;
@@ -156,6 +161,14 @@ export const useEditorStore = create<EditorState>()(
             text: '4.9 App Store',
             subtext: '30k+ ratings',
             style: 'pill-glass',
+          },
+          doodle: {
+            enabled: true,
+            color: '#facc15',
+            doodles: [
+              { type: 'question', position: 'top-right' },
+              { type: 'underline-wave', position: 'underline' },
+            ],
           },
           translations: {
             en: {
@@ -318,6 +331,43 @@ export const useEditorStore = create<EditorState>()(
             appIconSrc: undefined,
           })),
         })),
+      applyDoodlesToAll: (doodle) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            doodle: {
+              ...doodle,
+              doodles: doodle.doodles ? [...doodle.doodles] : [],
+            },
+          })),
+        })),
+      applyDoodleColorToAll: (color) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            doodle: c.doodle
+              ? {
+                  ...c.doodle,
+                  color,
+                  doodles: (c.doodle.doodles || []).map((d) => ({ ...d, color })),
+                }
+              : {
+                  enabled: true,
+                  color,
+                  doodles: [
+                    { type: 'question', position: 'top-right', color },
+                    { type: 'underline-wave', position: 'underline', color },
+                  ],
+                },
+          })),
+        })),
+      toggleDoodlesOnAll: (enabled) =>
+        set((state) => ({
+          canvases: state.canvases.map((c) => ({
+            ...c,
+            doodle: c.doodle ? { ...c.doodle, enabled } : { enabled, color: '#facc15', doodles: [{ type: 'underline-wave', position: 'underline' }] },
+          })),
+        })),
       clearAllCanvases: () =>
         set(() => ({
           canvases: []
@@ -348,6 +398,7 @@ export const useEditorStore = create<EditorState>()(
                   textColor: lastTemplateCanvas ? lastTemplateCanvas.textColor : userCanvas.textColor,
                   subtitleColor: lastTemplateCanvas ? lastTemplateCanvas.subtitleColor : userCanvas.subtitleColor,
                   fontFamily: lastTemplateCanvas ? lastTemplateCanvas.fontFamily : userCanvas.fontFamily,
+                  doodle: lastTemplateCanvas ? lastTemplateCanvas.doodle : userCanvas.doodle,
                 });
               }
             }
