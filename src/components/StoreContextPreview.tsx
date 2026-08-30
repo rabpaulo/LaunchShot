@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
 import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose, IoPhonePortraitOutline, IoTabletPortraitOutline } from 'react-icons/io5';
@@ -32,8 +33,10 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener('resize', handleResize);
   }, [wrapperH]);
   
-  return (
-    <div className={`fixed inset-0 z-[200] flex flex-col overflow-hidden ${isDark ? 'bg-black text-white' : 'bg-[#f8fafc] text-gray-900'}`}>
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className={`fixed inset-0 z-[99999] flex flex-col overflow-hidden ${isDark ? 'bg-black text-white' : 'bg-[#f8fafc] text-gray-900'}`}>
       <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-zinc-800' : 'border-gray-200'}`}>
         <button onClick={onClose} className="px-4 py-2 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2">
           <IoClose className="w-5 h-5" />
@@ -280,6 +283,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
         </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

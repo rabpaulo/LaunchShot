@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import { IoClose, IoColorPaletteOutline } from 'react-icons/io5';
 import { TEMPLATES, TemplateDefinition } from '@/config/templates';
@@ -118,8 +119,10 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
   const { loadTemplate, updateGlobalSettings, globalSettings, setActiveTemplateIndex } = useEditorStore();
   const isDark = globalSettings.theme !== 'light';
 
-  return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-md flex items-center justify-center p-6 sm:p-10 animate-in fade-in duration-200">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-md flex items-center justify-center p-6 sm:p-10 animate-in fade-in duration-200">
       <div className={`w-full max-w-[90vw] h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden ${
         isDark ? 'bg-zinc-950 border border-white/10' : 'bg-white border border-black/10'
       }`}>
@@ -170,6 +173,7 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

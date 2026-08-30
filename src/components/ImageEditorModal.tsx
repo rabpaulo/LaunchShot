@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Cropper from 'react-easy-crop';
 import { IoClose, IoColorWandOutline, IoCropOutline } from 'react-icons/io5';
 import { CanvasItem, useEditorStore } from '@/store/useEditorStore';
@@ -60,8 +61,10 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
     // but react-easy-crop handles everything via CSS transforms which html-to-image supports beautifully!
   }, []);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden shadow-2xl h-[85vh]">
         
         {/* Cropper Area */}
@@ -182,6 +185,7 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

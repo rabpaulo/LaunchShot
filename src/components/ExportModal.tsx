@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { IoClose, IoDownloadOutline, IoGlobeOutline } from 'react-icons/io5';
 import { TargetSizeId, TARGET_SIZES } from '@/config/sizes';
 import { useEditorStore } from '@/store/useEditorStore';
@@ -90,8 +91,10 @@ export function ExportModal({ onClose }: ExportModalProps) {
 
   const totalCombinations = selectedSizes.length * selectedLanguages.length;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className={`w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
         isDark ? 'bg-zinc-900 border border-zinc-800' : 'bg-white border border-gray-200'
       }`}>
@@ -317,6 +320,7 @@ export function ExportModal({ onClose }: ExportModalProps) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

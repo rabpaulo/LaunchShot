@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   IoClose,
   IoGlobeOutline,
@@ -301,8 +302,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
     });
   };
 
-  return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
       <div
         className={`w-full max-w-5xl h-[88vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col border ${
           isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'
@@ -737,6 +740,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
