@@ -2020,5 +2020,2134 @@ export const TEMPLATES: TemplateDefinition[] = [
         }
       ]);
     }
+  },
+  {
+    name: 'Play Store Vibrant (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Welcome to the Future',
+          subtitle: 'Experience innovation like never before.',
+          layout: 'basic-top',
+          backgroundColor: '#3b82f6',
+          textColor: '#ffffff',
+          subtitleColor: '#bfdbfe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#bfdbfe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Lightning Fast',
+          subtitle: 'Optimized for the ultimate speed.',
+          layout: 'tilt-right',
+          backgroundColor: '#3b82f6',
+          textColor: '#ffffff',
+          subtitleColor: '#bfdbfe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#bfdbfe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connect Anywhere',
+          subtitle: 'Stay online, no matter where you go.',
+          layout: 'tilt-left',
+          backgroundColor: '#3b82f6',
+          textColor: '#ffffff',
+          subtitleColor: '#bfdbfe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#bfdbfe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Secure & Private',
+          subtitle: 'Your data belongs to you, always.',
+          layout: 'half-right',
+          backgroundColor: '#3b82f6',
+          textColor: '#ffffff',
+          subtitleColor: '#bfdbfe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#bfdbfe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Get Started Today',
+          subtitle: 'Join millions of happy users.',
+          layout: 'hero-center',
+          backgroundColor: '#3b82f6',
+          textColor: '#ffffff',
+          subtitleColor: '#bfdbfe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#bfdbfe',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Android Material You (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Your Daily Companion',
+          subtitle: 'Make every day more productive.',
+          layout: 'hero-center',
+          backgroundColor: '#f3e8ff',
+          textColor: '#4c1d95',
+          subtitleColor: '#6d28d9',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6d28d9',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Smart Insights',
+          subtitle: 'Understand your habits instantly.',
+          layout: 'half-left',
+          backgroundColor: '#f3e8ff',
+          textColor: '#4c1d95',
+          subtitleColor: '#6d28d9',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6d28d9',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Seamless Sync',
+          subtitle: 'Across all your favorite devices.',
+          layout: 'half-right',
+          backgroundColor: '#f3e8ff',
+          textColor: '#4c1d95',
+          subtitleColor: '#6d28d9',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6d28d9',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Beautiful Design',
+          subtitle: 'Crafted with Material You in mind.',
+          layout: 'tilt-bottom-right',
+          backgroundColor: '#f3e8ff',
+          textColor: '#4c1d95',
+          subtitleColor: '#6d28d9',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6d28d9',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Achieve More',
+          subtitle: 'Start your journey right now.',
+          layout: 'basic-bottom',
+          backgroundColor: '#f3e8ff',
+          textColor: '#4c1d95',
+          subtitleColor: '#6d28d9',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6d28d9',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Dark AMOLED (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'True Black Interface',
+          subtitle: 'Save battery with stunning AMOLED dark mode.',
+          layout: 'split-vertical',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Focus on Content',
+          subtitle: 'No distractions, just what matters.',
+          layout: 'basic-top',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Night Owl Mode',
+          subtitle: 'Easy on your eyes after sunset.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Customizable Themes',
+          subtitle: 'Make it truly your own.',
+          layout: '3d-isometric-left',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Embrace the Dark',
+          subtitle: 'Download now and save power.',
+          layout: 'hero-center',
+          backgroundColor: '#000000',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Minimal Glass (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Clarity & Focus',
+          subtitle: 'A clutter-free experience.',
+          layout: 'og-style-1',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Intuitive Controls',
+          subtitle: 'Gestures that feel natural.',
+          layout: 'half-right',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Crystal Clear',
+          subtitle: 'High resolution assets and typography.',
+          layout: 'half-left',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Organize Your Life',
+          subtitle: 'Everything in its right place.',
+          layout: 'tilt-right-complement',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Minimalist Perfection',
+          subtitle: 'Try it for free today.',
+          layout: 'tilt-left-complement',
+          backgroundColor: '#f8fafc',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Gradient Burst (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Unleash the Power',
+          subtitle: 'Next generation mobile experience.',
+          layout: 'hero-3d-center',
+          backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fbcfe8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fbcfe8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Vibrant Colors',
+          subtitle: 'Stand out from the crowd.',
+          layout: 'tilt-right',
+          backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fbcfe8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fbcfe8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Dynamic Layouts',
+          subtitle: 'Adapts to your screen size.',
+          layout: 'half-left',
+          backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fbcfe8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fbcfe8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Share with Friends',
+          subtitle: 'One tap to spread the word.',
+          layout: 'basic-bottom',
+          backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fbcfe8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fbcfe8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Join the Revolution',
+          subtitle: 'Be part of something bigger.',
+          layout: 'basic-top',
+          backgroundColor: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fbcfe8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fbcfe8',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Android Gaming Pro (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Level Up Your Game',
+          subtitle: 'Track stats, analyze matches, win more.',
+          layout: 'basic-top',
+          backgroundColor: '#171717',
+          textColor: '#22c55e',
+          subtitleColor: '#d4d4d8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#d4d4d8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Real-Time Stats',
+          subtitle: 'Never miss a beat during the match.',
+          layout: 'tilt-right',
+          backgroundColor: '#171717',
+          textColor: '#22c55e',
+          subtitleColor: '#d4d4d8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#d4d4d8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Pro Strategies',
+          subtitle: 'Learn from the best in the world.',
+          layout: 'tilt-left',
+          backgroundColor: '#171717',
+          textColor: '#22c55e',
+          subtitleColor: '#d4d4d8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#d4d4d8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connect with Squad',
+          subtitle: 'Voice chat and tactical planning.',
+          layout: 'half-right',
+          backgroundColor: '#171717',
+          textColor: '#22c55e',
+          subtitleColor: '#d4d4d8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#d4d4d8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Ready to Play?',
+          subtitle: 'Download and dominate.',
+          layout: 'hero-center',
+          backgroundColor: '#171717',
+          textColor: '#22c55e',
+          subtitleColor: '#d4d4d8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#d4d4d8',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Split Tone (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Two Sides of the Story',
+          subtitle: 'Balance your personal and work life.',
+          layout: 'hero-center',
+          backgroundColor: '#fbbf24',
+          textColor: '#78350f',
+          subtitleColor: '#92400e',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#92400e',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Split Screen Ready',
+          subtitle: 'Multitask like a true professional.',
+          layout: 'half-left',
+          backgroundColor: '#fbbf24',
+          textColor: '#78350f',
+          subtitleColor: '#92400e',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#92400e',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Contrast that Pops',
+          subtitle: 'Designed to capture attention.',
+          layout: 'half-right',
+          backgroundColor: '#fbbf24',
+          textColor: '#78350f',
+          subtitleColor: '#92400e',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#92400e',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Drag and Drop',
+          subtitle: 'Move files across apps effortlessly.',
+          layout: 'tilt-bottom-right',
+          backgroundColor: '#fbbf24',
+          textColor: '#78350f',
+          subtitleColor: '#92400e',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#92400e',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Find Your Balance',
+          subtitle: 'Get the app today.',
+          layout: 'basic-bottom',
+          backgroundColor: '#fbbf24',
+          textColor: '#78350f',
+          subtitleColor: '#92400e',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#92400e',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Android Productivity (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Boost Productivity',
+          subtitle: 'Get more done in less time.',
+          layout: 'split-vertical',
+          backgroundColor: '#e0f2fe',
+          textColor: '#0369a1',
+          subtitleColor: '#0284c7',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0284c7',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Task Management',
+          subtitle: 'Keep track of every little detail.',
+          layout: 'basic-top',
+          backgroundColor: '#e0f2fe',
+          textColor: '#0369a1',
+          subtitleColor: '#0284c7',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0284c7',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Collaborate Live',
+          subtitle: 'Work with your team in real-time.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#e0f2fe',
+          textColor: '#0369a1',
+          subtitleColor: '#0284c7',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0284c7',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Automate Workflows',
+          subtitle: 'Let the app do the heavy lifting.',
+          layout: '3d-isometric-left',
+          backgroundColor: '#e0f2fe',
+          textColor: '#0369a1',
+          subtitleColor: '#0284c7',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0284c7',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Start Achieving',
+          subtitle: 'Your goals are within reach.',
+          layout: 'hero-center',
+          backgroundColor: '#e0f2fe',
+          textColor: '#0369a1',
+          subtitleColor: '#0284c7',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0284c7',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Fitness Pulse (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Welcome to the Future',
+          subtitle: 'Experience innovation like never before.',
+          layout: 'og-style-1',
+          backgroundColor: '#ef4444',
+          textColor: '#ffffff',
+          subtitleColor: '#fecaca',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fecaca',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Lightning Fast',
+          subtitle: 'Optimized for the ultimate speed.',
+          layout: 'half-right',
+          backgroundColor: '#ef4444',
+          textColor: '#ffffff',
+          subtitleColor: '#fecaca',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fecaca',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connect Anywhere',
+          subtitle: 'Stay online, no matter where you go.',
+          layout: 'half-left',
+          backgroundColor: '#ef4444',
+          textColor: '#ffffff',
+          subtitleColor: '#fecaca',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fecaca',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Secure & Private',
+          subtitle: 'Your data belongs to you, always.',
+          layout: 'tilt-right-complement',
+          backgroundColor: '#ef4444',
+          textColor: '#ffffff',
+          subtitleColor: '#fecaca',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fecaca',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Get Started Today',
+          subtitle: 'Join millions of happy users.',
+          layout: 'tilt-left-complement',
+          backgroundColor: '#ef4444',
+          textColor: '#ffffff',
+          subtitleColor: '#fecaca',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fecaca',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Android Finance Trust (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Your Daily Companion',
+          subtitle: 'Make every day more productive.',
+          layout: 'hero-3d-center',
+          backgroundColor: '#064e3b',
+          textColor: '#ffffff',
+          subtitleColor: '#a7f3d0',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a7f3d0',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Smart Insights',
+          subtitle: 'Understand your habits instantly.',
+          layout: 'tilt-right',
+          backgroundColor: '#064e3b',
+          textColor: '#ffffff',
+          subtitleColor: '#a7f3d0',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a7f3d0',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Seamless Sync',
+          subtitle: 'Across all your favorite devices.',
+          layout: 'half-left',
+          backgroundColor: '#064e3b',
+          textColor: '#ffffff',
+          subtitleColor: '#a7f3d0',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a7f3d0',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Beautiful Design',
+          subtitle: 'Crafted with Material You in mind.',
+          layout: 'basic-bottom',
+          backgroundColor: '#064e3b',
+          textColor: '#ffffff',
+          subtitleColor: '#a7f3d0',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a7f3d0',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Achieve More',
+          subtitle: 'Start your journey right now.',
+          layout: 'basic-top',
+          backgroundColor: '#064e3b',
+          textColor: '#ffffff',
+          subtitleColor: '#a7f3d0',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a7f3d0',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Social (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'True Black Interface',
+          subtitle: 'Save battery with stunning AMOLED dark mode.',
+          layout: 'basic-top',
+          backgroundColor: '#ffedd5',
+          textColor: '#9a3412',
+          subtitleColor: '#c2410c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c2410c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Focus on Content',
+          subtitle: 'No distractions, just what matters.',
+          layout: 'tilt-right',
+          backgroundColor: '#ffedd5',
+          textColor: '#9a3412',
+          subtitleColor: '#c2410c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c2410c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Night Owl Mode',
+          subtitle: 'Easy on your eyes after sunset.',
+          layout: 'tilt-left',
+          backgroundColor: '#ffedd5',
+          textColor: '#9a3412',
+          subtitleColor: '#c2410c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c2410c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Customizable Themes',
+          subtitle: 'Make it truly your own.',
+          layout: 'half-right',
+          backgroundColor: '#ffedd5',
+          textColor: '#9a3412',
+          subtitleColor: '#c2410c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c2410c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Embrace the Dark',
+          subtitle: 'Download now and save power.',
+          layout: 'hero-center',
+          backgroundColor: '#ffedd5',
+          textColor: '#9a3412',
+          subtitleColor: '#c2410c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c2410c',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Android Utility Tools (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Clarity & Focus',
+          subtitle: 'A clutter-free experience.',
+          layout: 'hero-center',
+          backgroundColor: '#374151',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Intuitive Controls',
+          subtitle: 'Gestures that feel natural.',
+          layout: 'half-left',
+          backgroundColor: '#374151',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Crystal Clear',
+          subtitle: 'High resolution assets and typography.',
+          layout: 'half-right',
+          backgroundColor: '#374151',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Organize Your Life',
+          subtitle: 'Everything in its right place.',
+          layout: 'tilt-bottom-right',
+          backgroundColor: '#374151',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Minimalist Perfection',
+          subtitle: 'Try it for free today.',
+          layout: 'basic-bottom',
+          backgroundColor: '#374151',
+          textColor: '#ffffff',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#9ca3af',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Education (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Unleash the Power',
+          subtitle: 'Next generation mobile experience.',
+          layout: 'split-vertical',
+          backgroundColor: '#dcfce7',
+          textColor: '#166534',
+          subtitleColor: '#15803d',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#15803d',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Vibrant Colors',
+          subtitle: 'Stand out from the crowd.',
+          layout: 'basic-top',
+          backgroundColor: '#dcfce7',
+          textColor: '#166534',
+          subtitleColor: '#15803d',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#15803d',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Dynamic Layouts',
+          subtitle: 'Adapts to your screen size.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#dcfce7',
+          textColor: '#166534',
+          subtitleColor: '#15803d',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#15803d',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Share with Friends',
+          subtitle: 'One tap to spread the word.',
+          layout: '3d-isometric-left',
+          backgroundColor: '#dcfce7',
+          textColor: '#166534',
+          subtitleColor: '#15803d',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#15803d',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Join the Revolution',
+          subtitle: 'Be part of something bigger.',
+          layout: 'hero-center',
+          backgroundColor: '#dcfce7',
+          textColor: '#166534',
+          subtitleColor: '#15803d',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#15803d',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Travel (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Level Up Your Game',
+          subtitle: 'Track stats, analyze matches, win more.',
+          layout: 'og-style-1',
+          backgroundColor: '#cffafe',
+          textColor: '#164e63',
+          subtitleColor: '#0891b2',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0891b2',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Real-Time Stats',
+          subtitle: 'Never miss a beat during the match.',
+          layout: 'half-right',
+          backgroundColor: '#cffafe',
+          textColor: '#164e63',
+          subtitleColor: '#0891b2',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0891b2',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Pro Strategies',
+          subtitle: 'Learn from the best in the world.',
+          layout: 'half-left',
+          backgroundColor: '#cffafe',
+          textColor: '#164e63',
+          subtitleColor: '#0891b2',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0891b2',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connect with Squad',
+          subtitle: 'Voice chat and tactical planning.',
+          layout: 'tilt-right-complement',
+          backgroundColor: '#cffafe',
+          textColor: '#164e63',
+          subtitleColor: '#0891b2',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0891b2',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Ready to Play?',
+          subtitle: 'Download and dominate.',
+          layout: 'tilt-left-complement',
+          backgroundColor: '#cffafe',
+          textColor: '#164e63',
+          subtitleColor: '#0891b2',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#0891b2',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Android Creative Studio (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Two Sides of the Story',
+          subtitle: 'Balance your personal and work life.',
+          layout: 'hero-3d-center',
+          backgroundColor: 'linear-gradient(45deg, #f43f5e 0%, #facc15 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fffbeb',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fffbeb',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Split Screen Ready',
+          subtitle: 'Multitask like a true professional.',
+          layout: 'tilt-right',
+          backgroundColor: 'linear-gradient(45deg, #f43f5e 0%, #facc15 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fffbeb',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fffbeb',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Contrast that Pops',
+          subtitle: 'Designed to capture attention.',
+          layout: 'half-left',
+          backgroundColor: 'linear-gradient(45deg, #f43f5e 0%, #facc15 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fffbeb',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fffbeb',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Drag and Drop',
+          subtitle: 'Move files across apps effortlessly.',
+          layout: 'basic-bottom',
+          backgroundColor: 'linear-gradient(45deg, #f43f5e 0%, #facc15 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fffbeb',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fffbeb',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Find Your Balance',
+          subtitle: 'Get the app today.',
+          layout: 'basic-top',
+          backgroundColor: 'linear-gradient(45deg, #f43f5e 0%, #facc15 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#fffbeb',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fffbeb',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Play Store Feature Graphic (1 Screen)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'play-feature-graphic' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'The Ultimate Experience',
+          subtitle: 'Download now and transform your daily routine.',
+          layout: 'hero-center',
+          backgroundColor: 'radial-gradient(circle, #2563eb 0%, #1e3a8a 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#93c5fd',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#93c5fd',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Android Tablet Pro (4 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'android-tablet-10' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Bigger Canvas',
+          subtitle: 'More space for your ideas.',
+          layout: 'basic-bottom',
+          backgroundColor: '#020617',
+          textColor: '#e2e8f0',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#94a3b8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Multitasking Master',
+          subtitle: 'Run apps side by side effortlessly.',
+          layout: 'split-vertical',
+          backgroundColor: '#020617',
+          textColor: '#e2e8f0',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#94a3b8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Desktop Class',
+          subtitle: 'Features you need, on the go.',
+          layout: 'device-only',
+          backgroundColor: '#020617',
+          textColor: '#e2e8f0',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#94a3b8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Immersive Media',
+          subtitle: 'Watch and play in high definition.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#020617',
+          textColor: '#e2e8f0',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#94a3b8',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Android Tablet Minimal (4 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'android-tablet-10' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Focus on Writing',
+          subtitle: 'A distraction free environment.',
+          layout: 'hero-center',
+          backgroundColor: '#f1f5f9',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Cloud Sync',
+          subtitle: 'Access from phone, tablet, and PC.',
+          layout: 'og-style-1',
+          backgroundColor: '#f1f5f9',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Export Anywhere',
+          subtitle: 'PDF, Word, and Markdown support.',
+          layout: 'basic-top',
+          backgroundColor: '#f1f5f9',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Clean Interface',
+          subtitle: 'Only the tools you need right now.',
+          layout: 'half-right',
+          backgroundColor: '#f1f5f9',
+          textColor: '#0f172a',
+          subtitleColor: '#475569',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#475569',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Play Store Casual Games (6 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Pop the Bubbles',
+          subtitle: 'Match 3 to clear the board!',
+          layout: 'basic-bottom',
+          backgroundColor: '#f472b6',
+          textColor: '#ffffff',
+          subtitleColor: '#fdf2f8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fdf2f8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Daily Rewards',
+          subtitle: 'Come back every day for free coins.',
+          layout: 'split-vertical',
+          backgroundColor: '#f472b6',
+          textColor: '#ffffff',
+          subtitleColor: '#fdf2f8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fdf2f8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Unlock Characters',
+          subtitle: 'Over 50 cute animals to collect.',
+          layout: 'device-only',
+          backgroundColor: '#f472b6',
+          textColor: '#ffffff',
+          subtitleColor: '#fdf2f8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fdf2f8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Compete Globally',
+          subtitle: 'Climb the leaderboards.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#f472b6',
+          textColor: '#ffffff',
+          subtitleColor: '#fdf2f8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fdf2f8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Play Offline',
+          subtitle: 'No Wi-Fi? No problem!',
+          layout: 'hero-3d-center',
+          backgroundColor: '#f472b6',
+          textColor: '#ffffff',
+          subtitleColor: '#fdf2f8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fdf2f8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Endless Fun',
+          subtitle: 'Thousands of levels await.',
+          layout: 'og-style-2',
+          backgroundColor: '#f472b6',
+          textColor: '#ffffff',
+          subtitleColor: '#fdf2f8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#fdf2f8',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Android Security & VPN (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Bank-Grade Security',
+          subtitle: 'Your data is encrypted and safe.',
+          layout: 'hero-center',
+          backgroundColor: '#0f766e',
+          textColor: '#ffffff',
+          subtitleColor: '#ccfbf1',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#ccfbf1',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'One-Tap Connect',
+          subtitle: 'Secure your connection instantly.',
+          layout: 'og-style-1',
+          backgroundColor: '#0f766e',
+          textColor: '#ffffff',
+          subtitleColor: '#ccfbf1',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#ccfbf1',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Global Servers',
+          subtitle: 'Access content from anywhere.',
+          layout: 'basic-top',
+          backgroundColor: '#0f766e',
+          textColor: '#ffffff',
+          subtitleColor: '#ccfbf1',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#ccfbf1',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Zero Logs Policy',
+          subtitle: 'We never track your browsing.',
+          layout: 'half-right',
+          backgroundColor: '#0f766e',
+          textColor: '#ffffff',
+          subtitleColor: '#ccfbf1',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#ccfbf1',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Stay Protected',
+          subtitle: 'On public Wi-Fi and beyond.',
+          layout: 'tilt-right',
+          backgroundColor: '#0f766e',
+          textColor: '#ffffff',
+          subtitleColor: '#ccfbf1',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#ccfbf1',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Play Store E-Commerce (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'samsung-s26-ultra' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Shop the Latest Trends',
+          subtitle: 'Thousands of items added daily.',
+          layout: 'basic-bottom',
+          backgroundColor: '#ffffff',
+          textColor: '#111827',
+          subtitleColor: '#6b7280',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6b7280',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Exclusive Discounts',
+          subtitle: 'App-only deals you will love.',
+          layout: 'split-vertical',
+          backgroundColor: '#ffffff',
+          textColor: '#111827',
+          subtitleColor: '#6b7280',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6b7280',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Fast Checkout',
+          subtitle: 'Save your details securely.',
+          layout: 'device-only',
+          backgroundColor: '#ffffff',
+          textColor: '#111827',
+          subtitleColor: '#6b7280',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6b7280',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Track Your Order',
+          subtitle: 'Real-time shipping updates.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#ffffff',
+          textColor: '#111827',
+          subtitleColor: '#6b7280',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6b7280',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Easy Returns',
+          subtitle: 'Hassle-free 30-day return policy.',
+          layout: 'hero-3d-center',
+          backgroundColor: '#ffffff',
+          textColor: '#111827',
+          subtitleColor: '#6b7280',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#6b7280',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Android Weather App (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Accurate Forecasts',
+          subtitle: 'Know what to expect before you step out.',
+          layout: 'hero-center',
+          backgroundColor: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#e0f2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#e0f2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Live Radar',
+          subtitle: 'Track storms in real-time.',
+          layout: 'og-style-1',
+          backgroundColor: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#e0f2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#e0f2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Severe Alerts',
+          subtitle: 'Stay safe with push notifications.',
+          layout: 'basic-top',
+          backgroundColor: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#e0f2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#e0f2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Hourly Breakdowns',
+          subtitle: 'Plan your day hour by hour.',
+          layout: 'half-right',
+          backgroundColor: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#e0f2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#e0f2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Beautiful Widgets',
+          subtitle: 'Weather at a glance on your home screen.',
+          layout: 'tilt-right',
+          backgroundColor: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#e0f2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#e0f2fe',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Play Store Photography (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'samsung-s26' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Professional Filters',
+          subtitle: 'Elevate your photos in one tap.',
+          layout: 'basic-bottom',
+          backgroundColor: '#18181b',
+          textColor: '#ffffff',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a1a1aa',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Advanced Editing',
+          subtitle: 'Fine-tune exposure, contrast, and more.',
+          layout: 'split-vertical',
+          backgroundColor: '#18181b',
+          textColor: '#ffffff',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a1a1aa',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'RAW Support',
+          subtitle: 'Edit high quality files seamlessly.',
+          layout: 'device-only',
+          backgroundColor: '#18181b',
+          textColor: '#ffffff',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a1a1aa',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Batch Processing',
+          subtitle: 'Apply edits to multiple photos at once.',
+          layout: '3d-isometric-right',
+          backgroundColor: '#18181b',
+          textColor: '#ffffff',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a1a1aa',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Share Your Art',
+          subtitle: 'Export in full resolution.',
+          layout: 'hero-3d-center',
+          backgroundColor: '#18181b',
+          textColor: '#ffffff',
+          subtitleColor: '#a1a1aa',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#a1a1aa',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Android Local Dating (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'clay-light', targetSize: 'android-tall' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Meet Local Singles',
+          subtitle: 'Find your perfect match nearby.',
+          layout: 'hero-center',
+          backgroundColor: '#fda4af',
+          textColor: '#881337',
+          subtitleColor: '#be123c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#be123c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Verified Profiles',
+          subtitle: 'Real people, real connections.',
+          layout: 'og-style-1',
+          backgroundColor: '#fda4af',
+          textColor: '#881337',
+          subtitleColor: '#be123c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#be123c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Icebreakers',
+          subtitle: 'Start the conversation effortlessly.',
+          layout: 'basic-top',
+          backgroundColor: '#fda4af',
+          textColor: '#881337',
+          subtitleColor: '#be123c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#be123c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Video Chat',
+          subtitle: 'Connect face-to-face securely.',
+          layout: 'half-right',
+          backgroundColor: '#fda4af',
+          textColor: '#881337',
+          subtitleColor: '#be123c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#be123c',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Find Love Today',
+          subtitle: 'Join the community.',
+          layout: 'tilt-right',
+          backgroundColor: '#fda4af',
+          textColor: '#881337',
+          subtitleColor: '#be123c',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#be123c',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+
+  {
+    name: 'Play Store Music Player (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'glass', targetSize: 'samsung-s26-ultra' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'High-Res Audio',
+          subtitle: 'Experience music in studio quality.',
+          layout: 'basic-bottom',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c7d2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Smart Playlists',
+          subtitle: 'Mixes tailored to your taste.',
+          layout: 'split-vertical',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c7d2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Offline Mode',
+          subtitle: 'Download your favorites for the road.',
+          layout: 'device-only',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c7d2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Lyrics on Sync',
+          subtitle: 'Sing along with real-time lyrics.',
+          layout: '3d-isometric-right',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c7d2fe',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Crossfade & EQ',
+          subtitle: 'Take control of your sound.',
+          layout: 'hero-3d-center',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#c7d2fe',
+            doodles: []
+          }
+        }
+      ]);
+    }
   }
 ];
