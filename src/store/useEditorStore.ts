@@ -164,7 +164,7 @@ export const useEditorStore = create<EditorState>()(
             style: 'pill-glass',
           },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },

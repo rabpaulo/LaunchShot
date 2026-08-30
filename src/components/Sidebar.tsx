@@ -791,11 +791,22 @@ export function Sidebar() {
               <IoBrushOutline className="w-3.5 h-3.5 text-yellow-400" />
               Doodle Accents
             </h2>
-            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-              isDark ? 'bg-yellow-500/10 text-yellow-300' : 'bg-yellow-50 text-yellow-700'
-            }`}>
-              Hand-Drawn
-            </span>
+            <button
+              type="button"
+              onClick={() => {
+                const anyEnabled = canvases.some(c => c.doodle?.enabled);
+                toggleDoodlesOnAll(!anyEnabled);
+                toast.success(!anyEnabled ? "Enabled doodles on all screens!" : "Disabled doodles on all screens!");
+              }}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${
+                canvases.some(c => c.doodle?.enabled) ? (isDark ? 'bg-yellow-500' : 'bg-yellow-500') : (isDark ? 'bg-gray-700' : 'bg-gray-300')
+              }`}
+              title="Toggle Doodles on all screens"
+            >
+              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                canvases.some(c => c.doodle?.enabled) ? 'translate-x-5' : 'translate-x-1'
+              }`} />
+            </button>
           </div>
 
           <div className="space-y-3">
@@ -870,7 +881,7 @@ export function Sidebar() {
                 onChange={(val) => {
                   const preset = DOODLE_PRESETS.find(p => p.id === String(val));
                   if (preset) {
-                    applyDoodlesToAll(preset.config);
+                    applyDoodlesToAll({ ...preset.config, enabled: true });
                     toast.success(`Applied ${preset.label} to all screens!`);
                   }
                 }}

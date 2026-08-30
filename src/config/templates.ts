@@ -26,7 +26,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -45,7 +45,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -64,7 +64,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -83,7 +83,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -102,7 +102,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           subtitleColor: '#a1a1aa',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -129,7 +129,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -156,7 +156,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           badge: { enabled: true, text: 'Featured App', style: 'pill-solid', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#f59e0b',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -174,7 +174,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#0f172a',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#f59e0b',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -192,7 +192,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#0f172a',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#f59e0b',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -218,7 +218,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'underline-wave', position: 'underline' },
@@ -245,7 +245,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -263,7 +263,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -290,7 +290,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -308,7 +308,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'underline-wave', position: 'underline' },
@@ -334,7 +334,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -352,7 +352,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -370,7 +370,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'arrow-curved', position: 'top-right' },
@@ -388,7 +388,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'star', position: 'top-left' },
@@ -406,7 +406,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -431,7 +431,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -449,7 +449,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -467,7 +467,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -485,7 +485,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -510,7 +510,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -528,7 +528,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -546,7 +546,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -572,7 +572,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -591,7 +591,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -610,7 +610,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'check', position: 'top-right' },
@@ -635,7 +635,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'arrow-curved', position: 'top-right' },
@@ -653,7 +653,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -671,7 +671,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -689,7 +689,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'star', position: 'top-right' },
@@ -707,7 +707,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -735,7 +735,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           showAppStoreBadge: true,
           appIconSrc: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=200&h=200&fit=crop',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -762,7 +762,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           showAppStoreBadge: true,
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -789,7 +789,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'poppins',
           showAppStoreBadge: true,
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -815,7 +815,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#4ade80',
             doodles: [
               { type: 'star', position: 'top-right' },
@@ -833,7 +833,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#10b981',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#10b981',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -851,7 +851,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#3b82f6',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#38bdf8',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -869,7 +869,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -895,7 +895,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#1e3a8a',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#e11d48',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -913,7 +913,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#831843',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#be185d',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -931,7 +931,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#064e3b',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#047857',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -949,7 +949,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#7c2d12',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#c2410c',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -967,7 +967,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#0c4a6e',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#0369a1',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -993,7 +993,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -1019,7 +1019,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1037,7 +1037,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#111827',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -1055,7 +1055,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1073,7 +1073,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#111827',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1099,7 +1099,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#000000',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -1117,7 +1117,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#000000',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1135,7 +1135,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#000000',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1162,7 +1162,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'space-grotesk',
           badge: { enabled: true, text: '#1 AI Tool of 2024', style: 'pill-glass', icon: 'sparkle' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -1180,7 +1180,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -1199,7 +1199,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'space-grotesk',
           badge: { enabled: true, text: '100% Private & Encrypted', style: 'pill-glass', icon: 'shield' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-right' },
@@ -1218,7 +1218,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'space-grotesk',
           badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1245,7 +1245,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'plus-jakarta',
           badge: { enabled: true, text: 'Editors\' Choice', style: 'pill-glass', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1263,7 +1263,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#0f172a',
           fontFamily: 'plus-jakarta',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1281,7 +1281,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -1300,7 +1300,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'plus-jakarta',
           badge: { enabled: true, text: 'Loved by 1M+ Users', style: 'pill-solid', icon: 'heart' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1327,7 +1327,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1345,7 +1345,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1363,7 +1363,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -1382,7 +1382,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: 'Bank-Grade 256-bit', style: 'pill-solid', icon: 'shield' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'check', position: 'top-right' },
@@ -1401,7 +1401,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: 'App of the Day', style: 'pill-solid', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1428,7 +1428,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           badge: { enabled: true, text: 'Apple Design Award', style: 'pill-glass', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -1446,7 +1446,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1464,7 +1464,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'arrow-curved', position: 'top-right' },
@@ -1483,7 +1483,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           badge: { enabled: true, text: '4.9 App Store', style: 'pill-glass', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1510,7 +1510,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'space-grotesk',
           badge: { enabled: true, text: '#1 Gaming Companion', style: 'pill-solid', icon: 'flame' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1528,7 +1528,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -1546,7 +1546,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'space-grotesk',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-left' },
@@ -1565,7 +1565,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'space-grotesk',
           badge: { enabled: true, text: 'Best of 2024', style: 'pill-solid', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1592,7 +1592,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: 'Editor\'s Choice', style: 'pill-solid', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -1610,7 +1610,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1628,7 +1628,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#000000',
           fontFamily: 'inter',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1647,7 +1647,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'inter',
           badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1674,7 +1674,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           badge: { enabled: true, text: 'App of the Day', style: 'pill-glass', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -1692,7 +1692,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -1710,7 +1710,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'sparkles', position: 'top-right' },
@@ -1729,7 +1729,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'outfit',
           badge: { enabled: true, text: '100% Private & On-Device', style: 'pill-glass', icon: 'shield' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'star', position: 'top-right' },
@@ -1747,7 +1747,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'outfit',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1774,7 +1774,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'playfair',
           badge: { enabled: true, text: 'Apple Design Award', style: 'pill-solid', icon: 'trophy' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -1792,7 +1792,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#f5f5f4',
           fontFamily: 'playfair',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1810,7 +1810,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#1c1917',
           fontFamily: 'playfair',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'speech-bubble', position: 'top-left' },
@@ -1829,7 +1829,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'playfair',
           badge: { enabled: true, text: 'Top Rated', style: 'pill-solid', icon: 'star' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1856,7 +1856,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'plus-jakarta',
           badge: { enabled: true, text: 'Trusted by 10k+ Companies', style: 'pill-glass', icon: 'shield' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'target', position: 'top-right' },
@@ -1874,7 +1874,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1892,7 +1892,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#ffffff',
           fontFamily: 'plus-jakarta',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1911,7 +1911,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'plus-jakarta',
           badge: { enabled: true, text: 'SOC2 & HIPAA Compliant', style: 'pill-solid', icon: 'shield' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#facc15',
             doodles: [
               { type: 'crown', position: 'top-right' },
@@ -1938,7 +1938,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           fontFamily: 'poppins',
           badge: { enabled: true, text: '#1 Product of the Day', style: 'pill-solid', icon: 'flame' },
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#e11d48',
             doodles: [
               { type: 'question', position: 'top-right' },
@@ -1956,7 +1956,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#831843',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#be185d',
             doodles: [
               { type: 'circle-loop', position: 'left' },
@@ -1974,7 +1974,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#064e3b',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#047857',
             doodles: [
               { type: 'lightning', position: 'top-right' },
@@ -1992,7 +1992,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#7c2d12',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#c2410c',
             doodles: [
               { type: 'heart', position: 'top-left' },
@@ -2010,7 +2010,7 @@ export const TEMPLATES: TemplateDefinition[] = [
           textColor: '#0c4a6e',
           fontFamily: 'poppins',
           doodle: {
-            enabled: true,
+            enabled: false,
             color: '#0369a1',
             doodles: [
               { type: 'crown', position: 'top-right' },

@@ -1317,7 +1317,7 @@ export function generateTemplateForNiche(nicheInput: string): {
     switch (index % 5) {
       case 0:
         return {
-          enabled: true,
+          enabled: false,
           color: '#facc15',
           doodles: [
             { type: 'question', position: 'top-right' },
@@ -1326,7 +1326,7 @@ export function generateTemplateForNiche(nicheInput: string): {
         };
       case 1:
         return {
-          enabled: true,
+          enabled: false,
           color: '#facc15',
           doodles: [
             { type: 'circle-loop', position: 'left' },
@@ -1335,7 +1335,7 @@ export function generateTemplateForNiche(nicheInput: string): {
         };
       case 2:
         return {
-          enabled: true,
+          enabled: false,
           color: '#facc15',
           doodles: [
             { type: 'speech-bubble', position: 'top-left' },
@@ -1344,7 +1344,7 @@ export function generateTemplateForNiche(nicheInput: string): {
         };
       case 3:
         return {
-          enabled: true,
+          enabled: false,
           color: '#facc15',
           doodles: [
             { type: 'heart', position: 'top-left' },
@@ -1354,7 +1354,7 @@ export function generateTemplateForNiche(nicheInput: string): {
       case 4:
       default:
         return {
-          enabled: true,
+          enabled: false,
           color: '#facc15',
           doodles: [
             { type: 'crown', position: 'top-right' },
