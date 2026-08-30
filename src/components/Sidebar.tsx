@@ -810,36 +810,6 @@ export function Sidebar() {
           </div>
 
           <div className="space-y-3">
-            {/* Quick Toggle All */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  toggleDoodlesOnAll(true);
-                  toast.success("Enabled doodles on all screens!");
-                }}
-                className={`flex-1 py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
-                  isDark
-                    ? 'bg-yellow-950/40 border-yellow-500/40 text-yellow-300 hover:bg-yellow-900/40'
-                    : 'bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100'
-                }`}
-              >
-                Enable on All
-              </button>
-              <button
-                onClick={() => {
-                  toggleDoodlesOnAll(false);
-                  toast.success("Disabled doodles on all screens!");
-                }}
-                className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
-                  isDark
-                    ? 'bg-gray-800/80 border-gray-700 text-gray-400 hover:bg-gray-700'
-                    : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Turn Off
-              </button>
-            </div>
-
             {/* Global Doodle Color Palette */}
             <div>
               <label className={`block text-[11px] font-medium mb-1.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
