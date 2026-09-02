@@ -1,176 +1,386 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
-import { IoClose, IoColorPaletteOutline } from 'react-icons/io5';
+import {
+  IoClose,
+  IoColorPaletteOutline,
+  IoSearchOutline,
+  IoSparklesOutline,
+  IoCheckmark,
+} from 'react-icons/io5';
 import { TEMPLATES, TemplateDefinition } from '@/config/templates';
 import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
-import { CanvasEditor } from './CanvasEditor';
 
-interface TemplatePreviewProps {
+interface ParsedTemplate {
+  index: number;
   template: TemplateDefinition;
-  isDark: boolean;
-  onSelect: () => void;
+  name: string;
+  category: string;
+  canvases: CanvasItem[];
+  settings: Partial<GlobalSettings>;
 }
 
-const getTemplateImage = (name: string) => {
-  const nameLower = name.toLowerCase();
-  
-  if (nameLower.includes('fitness') || nameLower.includes('health') || nameLower.includes('stacked') || nameLower.includes('triple')) {
-    // Fitness/Health
-    return 'https://images.unsplash.com/photo-1526506456079-6617a216db8a?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('fintech') || nameLower.includes('neoncard')) {
-    // Finance
-    return 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('productivity') || nameLower.includes('bento') || nameLower.includes('hero 3d')) {
-    // Productivity
-    return 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('social') || nameLower.includes('lifestyle') || nameLower.includes('story') || nameLower.includes('aesthetic')) {
-    // Social / Lifestyle
-    return 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('ai') || nameLower.includes('copilot') || nameLower.includes('cyberpunk') || nameLower.includes('duotone')) {
-    // AI / Tech / Cyberpunk
-    return 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('saas') || nameLower.includes('cloud') || nameLower.includes('overlap')) {
-    // Dashboards / SaaS
-    return 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('minimalist') || nameLower.includes('white') || nameLower.includes('basic')) {
-    // Minimal
-    return 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('playful') || nameLower.includes('glassmorphism') || nameLower.includes('sunset')) {
-    // Colorful
-    return 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=300&h=600&fit=crop';
-  }
-  if (nameLower.includes('dark') || nameLower.includes('contrast')) {
-    // Dark mode
-    return 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=300&h=600&fit=crop';
-  }
+// Category definition for fast filtering
+const CATEGORIES = [
+  'All',
+  'SaaS & AI',
+  'Fintech & Finance',
+  'Fitness & Health',
+  'Lifestyle & Social',
+  'Banner & Feature',
+  'Minimal & Clean',
+];
 
-  // Default / Generic
-  return 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=300&h=600&fit=crop';
-};
-
-function TemplatePreview({ template, isDark, onSelect }: TemplatePreviewProps) {
-  const { canvases } = useMemo(() => {
-    let mockCanvases: CanvasItem[] = [];
-    let mockSettings: Partial<GlobalSettings> = {};
+// Pre-parse templates once at module level so opening the modal takes 0ms
+const PARSED_TEMPLATES: ParsedTemplate[] = TEMPLATES.map((template, index) => {
+  let mockCanvases: CanvasItem[] = [];
+  let mockSettings: Partial<GlobalSettings> = {};
+  try {
     template.apply(
       (c) => { mockCanvases = c; },
       (s) => { mockSettings = s; }
     );
-    return { canvases: mockCanvases, settings: mockSettings };
-  }, [template]);
+  } catch (err) {
+    console.error('Error parsing template:', template.name, err);
+  }
+
+  const nameLower = template.name.toLowerCase();
+  let category = 'Minimal & Clean';
+  if (nameLower.includes('ai') || nameLower.includes('copilot') || nameLower.includes('saas') || nameLower.includes('cloud') || nameLower.includes('cyberpunk') || nameLower.includes('matrix')) {
+    category = 'SaaS & AI';
+  } else if (nameLower.includes('fintech') || nameLower.includes('crypto') || nameLower.includes('card') || nameLower.includes('finance') || nameLower.includes('neoncard') || nameLower.includes('wallet')) {
+    category = 'Fintech & Finance';
+  } else if (nameLower.includes('fitness') || nameLower.includes('health') || nameLower.includes('calorie') || nameLower.includes('workout') || nameLower.includes('yoga') || nameLower.includes('running')) {
+    category = 'Fitness & Health';
+  } else if (nameLower.includes('social') || nameLower.includes('lifestyle') || nameLower.includes('story') || nameLower.includes('aesthetic') || nameLower.includes('photo') || nameLower.includes('travel') || nameLower.includes('food')) {
+    category = 'Lifestyle & Social';
+  } else if (nameLower.includes('banner') || nameLower.includes('kinetic') || nameLower.includes('triple') || nameLower.includes('stack') || nameLower.includes('platano') || nameLower.includes('hero 3d') || nameLower.includes('bento')) {
+    category = 'Banner & Feature';
+  }
+
+  return {
+    index,
+    template,
+    name: template.name,
+    category,
+    canvases: mockCanvases,
+    settings: mockSettings,
+  };
+});
+
+// Ultra-lightweight miniature screen card rendered with pure CSS (0ms runtime overhead, zero network requests)
+const MiniScreenCard = React.memo(function MiniScreenCard({
+  canvas,
+  index,
+  total,
+  isDark,
+}: {
+  canvas: CanvasItem;
+  index: number;
+  total: number;
+  isDark: boolean;
+}) {
+  const isBottomLayout = canvas.layout?.includes('bottom');
+  const isTilt = canvas.layout?.includes('tilt');
+  const isTiltRight = canvas.layout?.includes('tilt-right');
+  const isTiltLeft = canvas.layout?.includes('tilt-left');
+  const isHero = canvas.layout?.includes('hero');
+  const isSplit = canvas.layout === 'split-vertical';
+  const isStack = canvas.layout?.includes('stack') || canvas.layout?.includes('triple');
+
+  let phoneTransformClass = '';
+  if (isTiltRight) phoneTransformClass = 'rotate-3 scale-[0.98] translate-y-1';
+  else if (isTiltLeft) phoneTransformClass = '-rotate-3 scale-[0.98] translate-y-1';
+  else if (isHero) phoneTransformClass = 'scale-[1.02] shadow-xl';
+  else if (isStack) phoneTransformClass = 'scale-[0.95] translate-y-0.5';
 
   return (
-    <div 
+    <div
+      className="w-[84px] h-[154px] rounded-xl overflow-hidden flex flex-col justify-between p-1.5 flex-shrink-0 shadow-md border border-white/10 relative select-none transition-transform group-hover:scale-[1.02]"
+      style={{
+        background: canvas.backgroundColor || (isDark ? '#18181b' : '#f4f4f5'),
+      }}
+    >
+      {/* Top Header Text (if not bottom-aligned) */}
+      {!isBottomLayout && (
+        <div className="z-10 text-center w-full px-0.5 space-y-0.5 mt-0.5">
+          <div
+            className="text-[7.5px] font-extrabold line-clamp-2 leading-[1.15] tracking-tight"
+            style={{ color: canvas.textColor || '#ffffff' }}
+          >
+            {canvas.title || `Screen ${index + 1}`}
+          </div>
+          {canvas.subtitle && (
+            <div
+              className="text-[5.5px] font-medium line-clamp-1 opacity-70 leading-none"
+              style={{ color: canvas.subtitleColor || canvas.textColor || '#ffffff' }}
+            >
+              {canvas.subtitle}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mini Mockup Screen Container */}
+      <div className={`flex-1 flex items-center justify-center my-0.5 relative ${phoneTransformClass}`}>
+        <div className="w-[58px] h-[96px] rounded-[7px] bg-zinc-950 border border-white/20 shadow-lg p-[2px] flex flex-col overflow-hidden relative">
+          {/* Simulated Notch / Dynamic Island */}
+          <div className="w-3.5 h-[2px] rounded-full bg-black mx-auto mb-1 flex-shrink-0" />
+
+          {/* Simulated App Wireframe UI */}
+          <div className="flex-1 rounded-[4px] bg-zinc-900/90 p-1 flex flex-col justify-between overflow-hidden">
+            {/* Header wire */}
+            <div className="flex items-center justify-between">
+              <div className="w-3 h-1 rounded-full bg-white/20" />
+              <div className="w-2 h-1 rounded-full bg-white/10" />
+            </div>
+
+            {/* Central Content Cards */}
+            <div className="space-y-1 my-auto">
+              <div className="w-full h-4 rounded-md bg-gradient-to-r from-blue-500/30 to-indigo-500/30 border border-white/10 flex items-center px-1">
+                <div className="w-2 h-2 rounded-full bg-blue-400/50 mr-1" />
+                <div className="w-5 h-1 rounded bg-white/30" />
+              </div>
+              <div className="w-full h-2.5 rounded bg-white/5 border border-white/5 flex items-center px-1">
+                <div className="w-6 h-0.5 rounded bg-white/20" />
+              </div>
+            </div>
+
+            {/* Bottom Nav Wire */}
+            <div className="flex items-center justify-around pt-0.5 border-t border-white/5">
+              <div className="w-1.5 h-1 rounded-full bg-blue-400/60" />
+              <div className="w-1.5 h-1 rounded-full bg-white/20" />
+              <div className="w-1.5 h-1 rounded-full bg-white/20" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Header Text (if bottom-aligned) */}
+      {isBottomLayout && (
+        <div className="z-10 text-center w-full px-0.5 space-y-0.5 mb-0.5">
+          <div
+            className="text-[7.5px] font-extrabold line-clamp-2 leading-[1.15] tracking-tight"
+            style={{ color: canvas.textColor || '#ffffff' }}
+          >
+            {canvas.title || `Screen ${index + 1}`}
+          </div>
+          {canvas.subtitle && (
+            <div
+              className="text-[5.5px] font-medium line-clamp-1 opacity-70 leading-none"
+              style={{ color: canvas.subtitleColor || canvas.textColor || '#ffffff' }}
+            >
+              {canvas.subtitle}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+});
+
+// Template Card Container
+const TemplateCard = React.memo(function TemplateCard({
+  parsed,
+  isDark,
+  onSelect,
+}: {
+  parsed: ParsedTemplate;
+  isDark: boolean;
+  onSelect: () => void;
+}) {
+  const { name, category, canvases } = parsed;
+
+  return (
+    <div
       onClick={onSelect}
-      className={`group cursor-pointer rounded-2xl border-2 transition-all duration-300 flex flex-col overflow-hidden ${
-        isDark 
-          ? 'border-gray-800 bg-gray-900/40 hover:border-blue-500 hover:bg-gray-800/80' 
-          : 'border-gray-200 bg-gray-50 hover:border-blue-500 hover:bg-gray-100'
+      className={`group cursor-pointer rounded-2xl border-2 transition-all duration-200 flex flex-col overflow-hidden shadow-sm hover:shadow-xl ${
+        isDark
+          ? 'border-gray-800 bg-gray-900/50 hover:border-blue-500 hover:bg-gray-800/80'
+          : 'border-gray-200 bg-white hover:border-blue-500 hover:bg-gray-50'
       }`}
     >
-      <div className="p-4 border-b border-inherit flex items-center justify-between bg-inherit">
-        <h3 className={`font-bold text-sm ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-          {template.name}
-        </h3>
-        <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${
-          isDark ? 'bg-gray-800 text-gray-400' : 'bg-white text-gray-500'
+      {/* Card Header */}
+      <div className={`px-4 py-3 border-b flex items-center justify-between ${
+        isDark ? 'border-gray-800/80 bg-zinc-900/60' : 'border-gray-100 bg-gray-50/70'
+      }`}>
+        <div className="flex flex-col">
+          <h3 className={`font-bold text-sm leading-snug group-hover:text-blue-400 transition-colors ${
+            isDark ? 'text-gray-100' : 'text-gray-900'
+          }`}>
+            {name}
+          </h3>
+          <span className={`text-[10px] font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            {category}
+          </span>
+        </div>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+          isDark
+            ? 'bg-zinc-800 border-zinc-700 text-zinc-300'
+            : 'bg-zinc-100 border-zinc-200 text-zinc-600'
         }`}>
-          {canvases.length} Screens
+          {canvases.length} {canvases.length === 1 ? 'Screen' : 'Screens'}
         </span>
       </div>
-      
-      {/* Preview Container */}
-      <div className={`p-4 h-[240px] flex items-center justify-center overflow-hidden relative ${
-        isDark ? 'bg-black/50' : 'bg-gray-200/50'
+
+      {/* Screen Sequence Preview Container */}
+      <div className={`p-3.5 h-[190px] flex items-center overflow-x-auto scrollbar-none relative ${
+        isDark ? 'bg-black/40' : 'bg-gray-100/60'
       }`}>
-        <div className="flex items-center gap-2 pointer-events-none transform scale-[0.8] origin-center transition-transform group-hover:scale-[0.85]">
-          {canvases.slice(0, 4).map((canvas, i) => (
-            <div key={canvas.id} className="relative">
-              <CanvasEditor 
-                canvas={{...canvas, imageSrc: getTemplateImage(template.name)}} 
-                index={i} 
-                total={canvases.length} 
-                targetWidth={120} 
-              />
-            </div>
+        <div className="flex items-center gap-2.5 mx-auto">
+          {canvases.slice(0, 5).map((canvas, i) => (
+            <MiniScreenCard
+              key={canvas.id || i}
+              canvas={canvas}
+              index={i}
+              total={canvases.length}
+              isDark={isDark}
+            />
           ))}
-          {canvases.length > 4 && (
-            <div className={`absolute right-0 inset-y-0 w-16 bg-gradient-to-l from-${isDark ? 'gray-900' : 'gray-200'} to-transparent z-10 flex items-center justify-end pr-2`}>
-              <span className="text-xs font-bold opacity-50">+{canvases.length - 4}</span>
+          {canvases.length > 5 && (
+            <div className={`w-8 h-[154px] rounded-xl border border-dashed flex items-center justify-center flex-shrink-0 ${
+              isDark ? 'border-gray-700 text-gray-400' : 'border-gray-300 text-gray-500'
+            }`}>
+              <span className="text-[10px] font-bold">+{canvases.length - 5}</span>
             </div>
           )}
         </div>
       </div>
     </div>
   );
-}
+});
 
 export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
   const { loadTemplate, updateGlobalSettings, globalSettings, setActiveTemplateIndex } = useEditorStore();
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
   const isDark = globalSettings.theme !== 'light';
+
+  // Instant in-memory filtering
+  const filteredTemplates = useMemo(() => {
+    return PARSED_TEMPLATES.filter((item) => {
+      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      const matchesSearch =
+        searchQuery.trim() === '' ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.canvases.some((c) =>
+          (c.title || '').toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
 
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-md flex items-center justify-center p-6 sm:p-10 animate-in fade-in duration-200">
-      <div className={`w-full max-w-[90vw] h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden ${
-        isDark ? 'bg-zinc-950 border border-white/10' : 'bg-white border border-black/10'
+    <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-150">
+      <div className={`w-full max-w-[1100px] h-[88vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden border ${
+        isDark ? 'bg-zinc-950 border-gray-800' : 'bg-white border-gray-200'
       }`}>
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b ${
-          isDark ? 'border-gray-800' : 'border-gray-200'
+        <div className={`p-5 sm:p-6 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+          isDark ? 'border-gray-800 bg-zinc-950' : 'border-gray-200 bg-white'
         }`}>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
+            <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/20 flex-shrink-0">
               <IoColorPaletteOutline className="w-6 h-6" />
             </div>
             <div>
-              <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h2 className={`text-xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Template Gallery
               </h2>
-              <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                Choose a pre-designed layout sequence for your screenshots.
+              <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                {PARSED_TEMPLATES.length} pre-designed layout sequences. Choose one to apply instantly.
               </p>
             </div>
           </div>
-          
-          <button 
-            onClick={onClose}
-            className={`p-2.5 rounded-full transition-colors ${
-              isDark ? 'bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black'
-            }`}
-          >
-            <IoClose className="w-6 h-6" />
-          </button>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-64">
+              <IoSearchOutline className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search templates..."
+                className={`w-full pl-9 pr-3 py-1.5 rounded-xl border text-xs outline-none transition-all ${
+                  isDark
+                    ? 'bg-zinc-900 border-zinc-800 text-white placeholder-zinc-500 focus:border-blue-500'
+                    : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                }`}
+              />
+            </div>
+
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-full transition-colors ${
+                isDark ? 'bg-zinc-900 hover:bg-zinc-800 text-gray-400 hover:text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black'
+              }`}
+            >
+              <IoClose className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Category Tabs */}
+        <div className={`px-6 py-2.5 border-b flex items-center gap-1.5 overflow-x-auto scrollbar-none ${
+          isDark ? 'border-gray-800 bg-zinc-900/50' : 'border-gray-100 bg-gray-50/80'
+        }`}>
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                  isSelected
+                    ? isDark
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-blue-600 text-white shadow-sm'
+                    : isDark
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-zinc-800'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60'
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
         </div>
 
         {/* Grid Body */}
-        <div className="flex-1 overflow-y-auto p-8 bg-inherit">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {TEMPLATES.map((template, index) => (
-              <TemplatePreview 
-                key={template.name} 
-                template={template} 
-                isDark={isDark}
-                onSelect={() => {
-                  template.apply(loadTemplate, updateGlobalSettings);
-                  setActiveTemplateIndex(index);
-                  toast.success(`Applied ${template.name} template!`);
-                  onClose();
-                }}
-              />
-            ))}
-          </div>
+        <div className="flex-1 overflow-y-auto p-6 bg-inherit">
+          {filteredTemplates.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-8">
+              <IoColorPaletteOutline className="w-12 h-12 text-gray-500 mb-3 opacity-40" />
+              <p className={`text-base font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                No templates found
+              </p>
+              <p className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                Try adjusting your search query or selecting another category.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {filteredTemplates.map((item) => (
+                <TemplateCard
+                  key={item.name}
+                  parsed={item}
+                  isDark={isDark}
+                  onSelect={() => {
+                    item.template.apply(loadTemplate, updateGlobalSettings);
+                    setActiveTemplateIndex(item.index);
+                    toast.success(`Applied ${item.name} template!`);
+                    onClose();
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>,
