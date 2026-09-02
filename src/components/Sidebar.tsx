@@ -16,16 +16,21 @@ import {
   IoChevronBack,
   IoChevronForward,
   IoGlobeOutline,
-  IoBrushOutline
+  IoBrushOutline,
+  IoFolderOpenOutline,
+  IoLayersOutline,
 } from 'react-icons/io5';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 import { DOODLE_PRESETS, DOODLE_COLOR_PALETTE } from '@/config/doodles';
+import { PANORAMA_PRESETS } from '@/config/panoramas';
+import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 
 import { ExportModal } from './ExportModal';
 import { TranslationModal } from './TranslationModal';
+import { ProjectManagerModal } from './ProjectManagerModal';
 import { CustomDropdown } from './ui/CustomDropdown';
 import { TEMPLATES } from '@/config/templates';
 import { NICHE_CATEGORIES_LIST, generateTemplateForNiche } from '@/config/niches';
@@ -45,7 +50,7 @@ export function Sidebar() {
   const [selectedAsoTone, setSelectedAsoTone] = useState<AsoTone>('high-converting');
   const [nicheQuery, setNicheQuery] = useState('');
   const [asoDescription, setAsoDescription] = useState('');
-
+  const [showProjectModal, setShowProjectModal] = useState(false);
 
   const startResizing = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,7 +86,6 @@ export function Sidebar() {
       window.removeEventListener('mouseup', stopResizing);
     };
   }, [isResizing, resize, stopResizing]);
-  
 
   const { 
     globalSettings, 
@@ -96,7 +100,17 @@ export function Sidebar() {
     clearAllCanvases,
     setIsDraggingGlobal,
     activeTemplateIndex,
-    setActiveTemplateIndex
+    setActiveTemplateIndex,
+    projects,
+    activeProjectId,
+    switchProject,
+    createProject,
+    exportProjectFile,
+    importProjectFile,
+    applyPanoramaToAll,
+    togglePanorama,
+    updateStatusBarGlobal,
+    toggleStatusBarOnAll,
   } = useEditorStore(useShallow((state) => ({
     globalSettings: state.globalSettings,
     updateGlobalSettings: state.updateGlobalSettings,
@@ -110,10 +124,21 @@ export function Sidebar() {
     clearAllCanvases: state.clearAllCanvases,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
     activeTemplateIndex: state.activeTemplateIndex,
-    setActiveTemplateIndex: state.setActiveTemplateIndex
+    setActiveTemplateIndex: state.setActiveTemplateIndex,
+    projects: state.projects,
+    activeProjectId: state.activeProjectId,
+    switchProject: state.switchProject,
+    createProject: state.createProject,
+    exportProjectFile: state.exportProjectFile,
+    importProjectFile: state.importProjectFile,
+    applyPanoramaToAll: state.applyPanoramaToAll,
+    togglePanorama: state.togglePanorama,
+    updateStatusBarGlobal: state.updateStatusBarGlobal,
+    toggleStatusBarOnAll: state.toggleStatusBarOnAll,
   })));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const projectImportInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
@@ -233,6 +258,125 @@ export function Sidebar() {
             </p>
           </div>
         </div>
+
+        {/* Projects & Drafts */}
+        <section>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
+              Project / Drafts
+            </h2>
+            <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${
+              isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-600'
+            }`}>
+              {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <CustomDropdown
+              value={activeProjectId}
+              onChange={(val) => {
+                switchProject(String(val));
+                const target = projects.find(p => p.id === String(val));
+                toast.success(`Opened ${target?.name || 'project'}`);
+              }}
+              options={projects.map((p) => ({ label: p.name, value: p.id }))}
+              isDark={isDark}
+            />
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setShowProjectModal(true)}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  isDark
+                    ? 'bg-zinc-800/80 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
+                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
+                }`}
+              >
+                <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
+                Manage All
+              </button>
+
+              <button
+                onClick={() => {
+                  const newName = prompt('Enter project name:', `App Project ${projects.length + 1}`);
+                  if (newName && newName.trim()) {
+                    createProject(newName.trim());
+                    toast.success(`Created "${newName.trim()}"`);
+                  }
+                }}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  isDark
+                    ? 'bg-zinc-800/80 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
+                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
+                }`}
+              >
+                <IoAddCircleOutline className="w-3.5 h-3.5 text-emerald-400" />
+                New Draft
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-0.5">
+              <input
+                type="file"
+                ref={projectImportInputRef}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      const text = await file.text();
+                      const success = importProjectFile(text);
+                      if (success) {
+                        toast.success('Project imported!');
+                      } else {
+                        toast.error('Invalid project file format.');
+                      }
+                    } catch {
+                      toast.error('Failed to read file.');
+                    }
+                  }
+                  if (e.target) e.target.value = '';
+                }}
+                accept=".launchshot,.json"
+                className="hidden"
+              />
+
+              <button
+                onClick={() => projectImportInputRef.current?.click()}
+                className={`py-1.5 px-2 rounded-lg border text-[11px] font-semibold transition-all flex items-center justify-center gap-1 ${
+                  isDark
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                    : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                }`}
+                title="Import .launchshot project file"
+              >
+                <IoCloudUploadOutline className="w-3 h-3" />
+                Import File
+              </button>
+
+              <button
+                onClick={() => {
+                  exportProjectFile(activeProjectId);
+                  toast.success('Exported project file!');
+                }}
+                className={`py-1.5 px-2 rounded-lg border text-[11px] font-semibold transition-all flex items-center justify-center gap-1 ${
+                  isDark
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                    : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                }`}
+                title="Export .launchshot project file"
+              >
+                <IoDownloadOutline className="w-3 h-3" />
+                Export File
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 
         {/* Drag and Drop Zone */}
         <section>
@@ -955,6 +1099,149 @@ export function Sidebar() {
 
         <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
 
+        {/* Panoramic Multi-Screen Spanning */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              <IoLayersOutline className="w-3.5 h-3.5 text-indigo-400" />
+              Panoramic Spanning
+            </h2>
+            <button
+              type="button"
+              onClick={() => {
+                const nextVal = !(globalSettings.panorama?.enabled);
+                togglePanorama(nextVal);
+                toast.success(nextVal ? "Enabled panoramic spanning across screens!" : "Disabled panoramic mode");
+              }}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${
+                globalSettings.panorama?.enabled ? (isDark ? 'bg-indigo-600' : 'bg-indigo-600') : (isDark ? 'bg-gray-700' : 'bg-gray-300')
+              }`}
+              title="Toggle panoramic background spanning across screens"
+            >
+              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                globalSettings.panorama?.enabled ? 'translate-x-5' : 'translate-x-1'
+              }`} />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            <p className={`text-[11px] leading-relaxed ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
+              Spans a continuous gradient or artwork seamlessly across all {canvases.length} screenshots.
+            </p>
+
+            {/* Panorama Presets */}
+            <div className="space-y-1">
+              <label className={`block text-[11px] font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Panoramic Background Style:
+              </label>
+              <CustomDropdown
+                value={globalSettings.panorama?.presetId || 'aurora-borealis'}
+                onChange={(val) => {
+                  applyPanoramaToAll(String(val));
+                  const preset = PANORAMA_PRESETS.find(p => p.id === String(val));
+                  toast.success(`Applied ${preset?.name || 'panorama'} across all screens!`);
+                }}
+                options={PANORAMA_PRESETS.map((p) => ({ label: p.name, value: p.id }))}
+                isDark={isDark}
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
+        {/* Status Bar Sanitizer */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              <IoPhonePortraitOutline className="w-3.5 h-3.5 text-emerald-400" />
+              Status Bar Sanitizer
+            </h2>
+            <button
+              type="button"
+              onClick={() => {
+                const isEnabled = !(globalSettings.statusBar?.enabled);
+                toggleStatusBarOnAll(isEnabled);
+                toast.success(isEnabled ? "Status bar overlay enabled on all screens!" : "Status bar overlay hidden");
+              }}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${
+                (globalSettings.statusBar?.enabled) ? (isDark ? 'bg-emerald-500' : 'bg-emerald-600') : (isDark ? 'bg-gray-700' : 'bg-gray-300')
+              }`}
+              title="Toggle Clean Status Bar Overlay (9:41, Battery, Wi-Fi, 5G)"
+            >
+              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                (globalSettings.statusBar?.enabled) ? 'translate-x-5' : 'translate-x-1'
+              }`} />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            <p className={`text-[11px] leading-relaxed ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
+              Overlays pixel-perfect Apple/Android status icons (9:41 AM, 100% battery, full 5G).
+            </p>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className={`block text-[11px] font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Time:
+                </label>
+                <input
+                  type="text"
+                  value={globalSettings.statusBar?.time || '9:41'}
+                  onChange={(e) => updateStatusBarGlobal({ time: e.target.value })}
+                  placeholder="9:41"
+                  className={`w-full px-3 py-1.5 rounded-xl border text-xs outline-none ${
+                    isDark ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-[11px] font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Icon Style:
+                </label>
+                <div className={`flex rounded-xl border p-0.5 ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-gray-100 border-gray-200'}`}>
+                  {['light', 'dark'].map((th) => (
+                    <button
+                      key={th}
+                      onClick={() => updateStatusBarGlobal({ theme: th as 'light' | 'dark' })}
+                      className={`flex-1 py-1 text-xs font-bold capitalize rounded-lg transition-all ${
+                        (globalSettings.statusBar?.theme || 'light') === th
+                          ? isDark ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900 shadow-sm'
+                          : isDark ? 'text-zinc-400' : 'text-gray-500'
+                      }`}
+                    >
+                      {th}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-[11px] font-medium opacity-75">
+                <span>Battery Level:</span>
+                <span>{globalSettings.statusBar?.batteryLevel ?? 100}%</span>
+              </div>
+              <input
+                type="range"
+                min="10"
+                max="100"
+                step="5"
+                value={globalSettings.statusBar?.batteryLevel ?? 100}
+                onChange={(e) => updateStatusBarGlobal({ batteryLevel: Number(e.target.value) })}
+                className="w-full accent-emerald-500"
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
         {/* Mesh Gradients & Background Presets */}
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -967,7 +1254,7 @@ export function Sidebar() {
 
           <div className="grid grid-cols-5 gap-2.5">
             {BACKGROUND_PRESETS.map((preset) => {
-              const isSelected = selectedBg === preset.value;
+              const isSelected = selectedBg === preset.value && !globalSettings.panorama?.enabled;
               return (
                 <button
                   key={preset.id}
@@ -1055,6 +1342,7 @@ export function Sidebar() {
       </div>
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
       {showTranslationModal && <TranslationModal onClose={() => setShowTranslationModal(false)} />}
+      {showProjectModal && <ProjectManagerModal onClose={() => setShowProjectModal(false)} />}
       
       {/* Invisible overlay while resizing to capture global mouse events */}
       {isResizing && (

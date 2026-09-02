@@ -7,6 +7,7 @@ import { ExportModal } from '@/components/ExportModal';
 import { StoreContextPreview } from '@/components/StoreContextPreview';
 import { TemplateGalleryModal } from '@/components/TemplateGalleryModal';
 import { TranslationModal } from '@/components/TranslationModal';
+import { ProjectManagerModal } from '@/components/ProjectManagerModal';
 import { IoDownloadOutline, IoGlobeOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
@@ -29,7 +30,10 @@ import {
   IoChevronUp,
   IoChevronDown,
   IoStorefrontOutline,
-  IoColorPaletteOutline
+  IoColorPaletteOutline,
+  IoArrowUndoOutline,
+  IoArrowRedoOutline,
+  IoFolderOpenOutline,
 } from 'react-icons/io5';
 
 import { useShallow } from 'zustand/react/shallow';
@@ -45,7 +49,13 @@ export default function Home() {
     togglePreviewMode,
     isDraggingGlobal,
     setIsDraggingGlobal,
-    updateGlobalSettings
+    updateGlobalSettings,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    projects,
+    activeProjectId,
   } = useEditorStore(useShallow((state) => ({
     canvases: state.canvases,
     addCanvas: state.addCanvas,
@@ -56,7 +66,13 @@ export default function Home() {
     togglePreviewMode: state.togglePreviewMode,
     isDraggingGlobal: state.isDraggingGlobal,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
-    updateGlobalSettings: state.updateGlobalSettings
+    updateGlobalSettings: state.updateGlobalSettings,
+    undo: state.undo,
+    redo: state.redo,
+    canUndo: state.canUndo,
+    canRedo: state.canRedo,
+    projects: state.projects,
+    activeProjectId: state.activeProjectId,
   })));
 
   const [isMounted, setIsMounted] = useState(false);
@@ -64,11 +80,14 @@ export default function Home() {
   const [showStorePreview, setShowStorePreview] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showTranslationModal, setShowTranslationModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const zoom = globalSettings.zoomScale || 0.65;
   const isDark = globalSettings.theme !== 'light';
+
+  const currentProject = projects.find(p => p.id === activeProjectId) || projects[0];
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -116,6 +135,35 @@ export default function Home() {
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, [setIsDraggingGlobal]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger undo/redo if user is typing inside an input or textarea
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (canUndo) {
+          undo();
+          toast.success('Undo', { id: 'undo-toast', duration: 1200 });
+        }
+      } else if (
+        (e.metaKey || e.ctrlKey) &&
+        ((e.shiftKey && e.key.toLowerCase() === 'z') || e.key.toLowerCase() === 'y')
+      ) {
+        e.preventDefault();
+        if (canRedo) {
+          redo();
+          toast.success('Redo', { id: 'redo-toast', duration: 1200 });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, canUndo, canRedo]);
 
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -194,6 +242,8 @@ export default function Home() {
       
       {showTranslationModal && <TranslationModal onClose={() => setShowTranslationModal(false)} />}
 
+      {showProjectModal && <ProjectManagerModal onClose={() => setShowProjectModal(false)} />}
+
       {/* Main Workspace Area */}
       <main className={`flex-1 h-full overflow-hidden flex flex-col relative ${
         isDark ? 'bg-black' : 'bg-[#f8fafc]'
@@ -205,9 +255,58 @@ export default function Home() {
               ? 'bg-zinc-950/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
               : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
           }`}>
-          {/* Quick Jump Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[55%] scrollbar-none h-full">
-            <IoGridOutline className={`w-4 h-4 mr-2 opacity-50 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+          {/* Left: Project Selector, Undo/Redo & Quick Jump Bar */}
+          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[58%] scrollbar-none h-full">
+            {/* Project Pill */}
+            <button
+              onClick={() => setShowProjectModal(true)}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 shadow-sm ${
+                isDark
+                  ? 'bg-zinc-900 border-zinc-700/80 text-zinc-200 hover:bg-zinc-800'
+                  : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
+              }`}
+              title="Manage Projects & Drafts"
+            >
+              <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
+              <span className="max-w-[110px] truncate">{currentProject.name}</span>
+            </button>
+
+            {/* Undo & Redo */}
+            <div className={`flex items-center border rounded-lg p-0.5 ${
+              isDark ? 'bg-gray-900/50 border-gray-800' : 'bg-gray-100 border-gray-200/50'
+            }`}>
+              <button
+                onClick={undo}
+                disabled={!canUndo}
+                className={`p-1.5 rounded-md transition-all ${
+                  !canUndo
+                    ? 'opacity-30 cursor-not-allowed text-gray-500'
+                    : isDark
+                      ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      : 'text-gray-600 hover:bg-white hover:text-gray-900 shadow-sm'
+                }`}
+                title="Undo (Ctrl+Z)"
+              >
+                <IoArrowUndoOutline className="w-3.5 h-3.5" />
+              </button>
+              <div className={`w-px h-3.5 mx-0.5 ${isDark ? 'bg-gray-800' : 'bg-gray-300'}`}></div>
+              <button
+                onClick={redo}
+                disabled={!canRedo}
+                className={`p-1.5 rounded-md transition-all ${
+                  !canRedo
+                    ? 'opacity-30 cursor-not-allowed text-gray-500'
+                    : isDark
+                      ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      : 'text-gray-600 hover:bg-white hover:text-gray-900 shadow-sm'
+                }`}
+                title="Redo (Ctrl+Shift+Z)"
+              >
+                <IoArrowRedoOutline className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <IoGridOutline className={`w-4 h-4 ml-1 mr-1 opacity-50 flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             
             <div className={`flex items-center p-1 rounded-lg ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-gray-100 border border-gray-200/50'}`}>
               {canvases.map((canvas, i) => (

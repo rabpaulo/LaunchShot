@@ -1,6 +1,8 @@
 import React from 'react';
 import { TargetSizeId } from '@/config/sizes';
 import { MockupStyle } from '@/store/useEditorStore';
+import { StatusBarConfig } from '@/config/statusBar';
+import { StatusBarOverlay } from './StatusBarOverlay';
 
 export type DeviceStyle = 'apple' | 'samsung-ultra' | 'samsung-base' | 'android' | 'ipad' | 'android-tablet';
 
@@ -11,6 +13,7 @@ interface MinimalPhoneFrameProps {
   targetSizeId?: TargetSizeId;
   mockupStyle?: MockupStyle;
   showNotch?: boolean;
+  statusBar?: StatusBarConfig;
 }
 
 export function getDeviceStyle(targetSizeId?: TargetSizeId): DeviceStyle {
@@ -29,7 +32,8 @@ export function MinimalPhoneFrame({
   height = 580,
   targetSizeId = 'ios-6.5',
   mockupStyle = 'dark',
-  showNotch = true
+  showNotch = true,
+  statusBar
 }: MinimalPhoneFrameProps) {
   const style = getDeviceStyle(targetSizeId);
 
@@ -97,9 +101,14 @@ export function MinimalPhoneFrame({
             <div className="w-1.5 h-1.5 rounded-full bg-zinc-950/90 border border-zinc-900/40" />
           </div>
         ))}
+
+        {/* Status Bar Overlay */}
+        {statusBar && statusBar.enabled && (
+          <StatusBarOverlay config={statusBar} targetSizeId={targetSizeId} width={width} />
+        )}
         
         {/* Screen Content */}
-        <div className="w-full h-full bg-gray-200 z-10 overflow-hidden">
+        <div className="w-full h-full bg-gray-200 z-10 overflow-hidden relative">
           {children}
         </div>
       </div>
