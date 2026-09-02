@@ -12,6 +12,25 @@ import FileSaver from 'file-saver';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
 
+function downloadBlob(blob: Blob, filename: string) {
+  try {
+    if (typeof saveAs === 'function') {
+      saveAs(blob, filename);
+      return;
+    }
+  } catch {}
+  if (typeof document !== 'undefined') {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+}
+
 export type LayoutType = 
   | 'basic-top' 
   | 'basic-bottom' 
@@ -479,7 +498,7 @@ export const useEditorStore = create<EditorState>()(
 
         const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
         const sanitizedName = (project.name || 'project').toLowerCase().replace(/[^a-z0-9]/g, '-');
-        saveAs(blob, `${sanitizedName}.launchshot`);
+        downloadBlob(blob, `${sanitizedName}.launchshot`);
       },
 
       importProjectFile: (jsonText: string): boolean => {

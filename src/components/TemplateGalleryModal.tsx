@@ -7,8 +7,6 @@ import {
   IoClose,
   IoColorPaletteOutline,
   IoSearchOutline,
-  IoSparklesOutline,
-  IoCheckmark,
 } from 'react-icons/io5';
 import { TEMPLATES, TemplateDefinition } from '@/config/templates';
 import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
@@ -74,20 +72,16 @@ const PARSED_TEMPLATES: ParsedTemplate[] = TEMPLATES.map((template, index) => {
 const MiniScreenCard = React.memo(function MiniScreenCard({
   canvas,
   index,
-  total,
   isDark,
 }: {
   canvas: CanvasItem;
   index: number;
-  total: number;
   isDark: boolean;
 }) {
   const isBottomLayout = canvas.layout?.includes('bottom');
-  const isTilt = canvas.layout?.includes('tilt');
   const isTiltRight = canvas.layout?.includes('tilt-right');
   const isTiltLeft = canvas.layout?.includes('tilt-left');
   const isHero = canvas.layout?.includes('hero');
-  const isSplit = canvas.layout === 'split-vertical';
   const isStack = canvas.layout?.includes('stack') || canvas.layout?.includes('triple');
 
   let phoneTransformClass = '';
@@ -235,7 +229,6 @@ const TemplateCard = React.memo(function TemplateCard({
               key={canvas.id || i}
               canvas={canvas}
               index={i}
-              total={canvases.length}
               isDark={isDark}
             />
           ))}

@@ -8,6 +8,27 @@ import { DEFAULT_LANGUAGE } from '@/config/languages';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
 
+export function downloadBlob(blob: Blob, filename: string) {
+  try {
+    if (typeof saveAs === 'function') {
+      saveAs(blob, filename);
+      return;
+    }
+  } catch {
+    // fallback
+  }
+  if (typeof document !== 'undefined') {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+}
+
 export const exportImages = async (
   canvases: CanvasItem[],
   selectedSizes?: string[],
@@ -28,6 +49,10 @@ export const exportImages = async (
   let currentStep = 0;
 
   try {
+    if (typeof document !== 'undefined' && document.fonts) {
+      await document.fonts.ready;
+    }
+
     for (let lIdx = 0; lIdx < languagesToExport.length; lIdx++) {
       const langCode = languagesToExport[lIdx];
       const langFolder = languagesToExport.length > 1 ? langCode : null;
@@ -45,6 +70,9 @@ export const exportImages = async (
 
         // 3. Wait for layout and typography re-render to settle
         await new Promise((resolve) => setTimeout(resolve, 600));
+        if (typeof document !== 'undefined' && document.fonts) {
+          await document.fonts.ready;
+        }
 
         const pixelRatio = sizeConfig.pixelRatio;
 
@@ -68,6 +96,13 @@ export const exportImages = async (
             const blob = await toBlob(canvasNode, {
               quality: 1,
               pixelRatio,
+              cacheBust: true,
+              filter: (node) => {
+                if (node instanceof HTMLElement && node.classList.contains('no-export')) {
+                  return false;
+                }
+                return true;
+              },
             });
             if (blob) {
               folder.file(`screenshot-${i + 1}.png`, blob);
@@ -107,7 +142,7 @@ export const exportImages = async (
       filename = `screenshots-${sizesToExport[0]}.zip`;
     }
 
-    saveAs(content, filename);
+    downloadBlob(content, filename);
   } else {
     alert('Failed to generate any images.');
   }

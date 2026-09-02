@@ -43,7 +43,7 @@ import {
   DoodleType,
   DoodlePosition
 } from '@/config/doodles';
-import { FLOATING_CARD_PRESETS, CALLOUT_PIN_PRESETS, FloatingCardConfig, CalloutPinConfig } from '@/config/floatingCards';
+import { FLOATING_CARD_PRESETS, CALLOUT_PIN_PRESETS } from '@/config/floatingCards';
 import { getPanoramaSliceStyle } from '@/config/panoramas';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 import { useShallow } from 'zustand/react/shallow';
@@ -1513,6 +1513,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     targetSizeId={globalSettings.targetSize}
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
                     {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -1533,6 +1534,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     targetSizeId={globalSettings.targetSize}
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
                     {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -1558,6 +1560,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     targetSizeId={globalSettings.targetSize}
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
                     {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -1578,6 +1581,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     targetSizeId={globalSettings.targetSize}
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
                     {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -1603,6 +1607,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     targetSizeId={globalSettings.targetSize}
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -1623,6 +1628,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     targetSizeId={globalSettings.targetSize}
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">

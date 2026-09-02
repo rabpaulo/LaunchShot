@@ -26,7 +26,6 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 import { DOODLE_PRESETS, DOODLE_COLOR_PALETTE } from '@/config/doodles';
 import { PANORAMA_PRESETS } from '@/config/panoramas';
-import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 
 import { ExportModal } from './ExportModal';
 import { TranslationModal } from './TranslationModal';

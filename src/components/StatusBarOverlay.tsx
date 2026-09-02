@@ -1,9 +1,5 @@
-'use client';
-
-import React from 'react';
 import { StatusBarConfig } from '@/config/statusBar';
 import { TargetSizeId } from '@/config/sizes';
-import { getDeviceStyle } from './MinimalPhoneFrame';
 
 interface StatusBarOverlayProps {
   config?: StatusBarConfig;
@@ -11,11 +7,8 @@ interface StatusBarOverlayProps {
   width: number;
 }
 
-export function StatusBarOverlay({ config, targetSizeId, width }: StatusBarOverlayProps) {
+export function StatusBarOverlay({ config, width }: StatusBarOverlayProps) {
   if (!config || !config.enabled) return null;
-
-  const deviceStyle = getDeviceStyle(targetSizeId);
-  const isAndroid = deviceStyle.includes('samsung') || deviceStyle.includes('android');
 
   const isLightText = config.theme === 'light';
   const textColorClass = isLightText ? 'text-white' : 'text-black';

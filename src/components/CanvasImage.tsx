@@ -20,10 +20,26 @@ export function CanvasImage({ canvas, className = '' }: CanvasImageProps) {
   const zoom = canvas.imageZoom || 1;
   const rotation = canvas.imageRotation || 0;
   const crop = canvas.imageCrop || { x: 0, y: 0 };
-  
-  // By using Cropper in read-only mode, we perfectly replicate the editor's pixel math!
+  const hasTransform = zoom !== 1 || rotation !== 0 || crop.x !== 0 || crop.y !== 0;
+
+  const isContain = canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain';
+
+  if (!hasTransform) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={canvas.imageSrc}
+        alt=""
+        className={`w-full h-full ${isContain ? 'object-contain' : 'object-cover'} select-none ${className}`}
+        style={{ filter: filterString }}
+        draggable={false}
+      />
+    );
+  }
+
+  // If cropped/rotated, use Cropper in read-only mode to replicate pixel-accurate CSS transforms
   return (
-    <div className={`w-full h-full relative ${className}`}>
+    <div className={`w-full h-full relative select-none ${className}`}>
       <Cropper
         image={canvas.imageSrc}
         crop={crop}
@@ -33,10 +49,10 @@ export function CanvasImage({ canvas, className = '' }: CanvasImageProps) {
         onCropChange={() => {}}
         onZoomChange={() => {}}
         style={{
-          containerStyle: { pointerEvents: 'none' }, // Disable interaction
+          containerStyle: { pointerEvents: 'none' },
           mediaStyle: {
             filter: filterString,
-            objectFit: canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'contain' : 'cover'
+            objectFit: isContain ? 'contain' : 'cover'
           }
         }}
       />

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
-import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose, IoPhonePortraitOutline, IoTabletPortraitOutline } from 'react-icons/io5';
+import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose } from 'react-icons/io5';
 import { CanvasEditor } from './CanvasEditor';
 
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
@@ -136,6 +136,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-28 h-28 bg-gray-200 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm border">
                     {canvases[0]?.appIconSrc && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img src={canvases[0].appIconSrc} alt="App Icon" className="w-full h-full object-cover" />
                     )}
                   </div>
@@ -191,7 +192,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                         aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
                       }}
                     >
-                      <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={240} />
+                      <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={240} isPreviewMode={true} />
                     </div>
                   ))}
                 </div>
@@ -221,6 +222,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                <div className="flex items-center gap-5 mb-6">
                  <div className="w-20 h-20 bg-gray-200 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border">
                    {canvases[0]?.appIconSrc && (
+                     /* eslint-disable-next-line @next/next/no-img-element */
                      <img src={canvases[0].appIconSrc} alt="App Icon" className="w-full h-full object-cover" />
                    )}
                  </div>
@@ -273,7 +275,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                        aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
                      }}
                    >
-                     <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={180} />
+                     <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={180} isPreviewMode={true} />
                    </div>
                  ))}
                </div>

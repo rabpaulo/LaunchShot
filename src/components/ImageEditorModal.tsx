@@ -56,9 +56,8 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
     });
   };
 
-  const onCropComplete = useCallback((_croppedArea: unknown, _croppedAreaPixels: unknown) => {
-    // We don't necessarily need to save croppedAreaPixels unless we are actively cropping the image via canvas, 
-    // but react-easy-crop handles everything via CSS transforms which html-to-image supports beautifully!
+  const onCropComplete = useCallback(() => {
+    // CSS transforms handle cropping rendering
   }, []);
 
   if (typeof document === 'undefined') return null;
