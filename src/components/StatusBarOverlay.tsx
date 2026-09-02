@@ -10,7 +10,7 @@ interface StatusBarOverlayProps {
 export function StatusBarOverlay({ config, width }: StatusBarOverlayProps) {
   if (!config || !config.enabled) return null;
 
-  const isLightText = config.theme === 'light';
+  const isLightText = config.theme === 'light' || config.theme === 'auto';
   const textColorClass = isLightText ? 'text-white' : 'text-black';
   const fillClass = isLightText ? 'fill-white' : 'fill-black';
   const borderClass = isLightText ? 'border-white/80' : 'border-black/80';

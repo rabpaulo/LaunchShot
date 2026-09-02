@@ -38,6 +38,8 @@ export const exportImages = async (
   const store = useEditorStore.getState();
   const originalSize = store.globalSettings.targetSize;
   const originalLanguage = store.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+  const savedPast = store.past;
+  const savedFuture = store.future;
 
   const sizesToExport = selectedSizes && selectedSizes.length > 0 ? selectedSizes : [originalSize];
   const languagesToExport = selectedLanguages && selectedLanguages.length > 0 ? selectedLanguages : [originalLanguage];
@@ -121,9 +123,15 @@ export const exportImages = async (
       }
     }
   } finally {
-    // 4. Restore original store state
+    // 4. Restore original store state without polluting undo/redo history
     store.setActiveLanguage(originalLanguage);
     store.updateGlobalSettings({ targetSize: originalSize });
+    useEditorStore.setState({
+      past: savedPast,
+      future: savedFuture,
+      canUndo: savedPast.length > 0,
+      canRedo: savedFuture.length > 0,
+    });
   }
 
   if (hasImages) {

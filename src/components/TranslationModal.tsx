@@ -34,8 +34,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
   const {
     canvases,
     globalSettings,
-    setActiveLanguage,
-    updateCanvasTranslation,
+    batchUpdateTranslations,
   } = useEditorStore();
 
   const isDark = globalSettings.theme !== 'light';
@@ -220,18 +219,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
 
   // Save changes to store and apply active language
   const handleSaveAndApply = () => {
-    // 1. Commit all translations into the editor store
-    for (const [lang, canvasMap] of Object.entries(localTranslations)) {
-      for (const [canvasId, item] of Object.entries(canvasMap)) {
-        updateCanvasTranslation(canvasId, lang, item);
-      }
-    }
-
-    // 2. Set the active canvas language
-    if (globalSettings.activeLanguage !== selectedLang) {
-      setActiveLanguage(selectedLang);
-    }
-
+    batchUpdateTranslations(localTranslations, selectedLang);
     toast.success(`Saved translations and set ${selectedLangObj.name} as active!`);
     onClose();
   };
@@ -424,7 +412,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
             ) : (
               <button
                 onClick={() => {
-                  setActiveLanguage(selectedLang);
+                  batchUpdateTranslations(localTranslations, selectedLang);
                   toast.success(`Set ${selectedLangObj.name} as active canvas language!`);
                 }}
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${

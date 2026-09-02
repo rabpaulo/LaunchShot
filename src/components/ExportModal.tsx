@@ -15,7 +15,7 @@ interface ExportModalProps {
 export function ExportModal({ onClose }: ExportModalProps) {
   const { canvases, globalSettings } = useEditorStore();
   
-  const [selectedPlatforms, setSelectedPlatforms] = useState<('ios' | 'android')[]>(['ios']);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<('ios' | 'android')[]>(['ios', 'android']);
   const [activeDeviceTab, setActiveDeviceTab] = useState<'iPhone' | 'Samsung Galaxy' | 'Android' | 'Tablet' | 'Header'>('iPhone');
   
   // By default, select the current target size
@@ -76,14 +76,11 @@ export function ExportModal({ onClose }: ExportModalProps) {
   const availableSizes = Object.values(TARGET_SIZES).filter(s => {
     if (s.category !== activeDeviceTab) return false;
     
-    // For specific platforms, filter out incompatible sizes
-    if (activeDeviceTab === 'iPhone' || activeDeviceTab === 'Samsung Galaxy' || activeDeviceTab === 'Android') {
-      if (selectedPlatforms.includes('ios') && !selectedPlatforms.includes('android')) {
-        return s.id.startsWith('ios');
-      }
-      if (selectedPlatforms.includes('android') && !selectedPlatforms.includes('ios')) {
-        return !s.id.startsWith('ios');
-      }
+    if (activeDeviceTab === 'iPhone') {
+      return selectedPlatforms.includes('ios');
+    }
+    if (activeDeviceTab === 'Samsung Galaxy' || activeDeviceTab === 'Android') {
+      return selectedPlatforms.includes('android');
     }
     
     return true;
@@ -150,11 +147,13 @@ export function ExportModal({ onClose }: ExportModalProps) {
                 {['ios', 'android'].map(platform => (
                   <button
                     key={platform}
-                    onClick={() => setSelectedPlatforms(prev => 
-                      prev.includes(platform as "ios" | "android") 
-                        ? prev.filter(p => p !== platform) 
-                        : [...prev, platform as "ios" | "android"]
-                    )}
+                    onClick={() => setSelectedPlatforms(prev => {
+                      if (prev.includes(platform as "ios" | "android")) {
+                        if (prev.length === 1) return prev;
+                        return prev.filter(p => p !== platform);
+                      }
+                      return [...prev, platform as "ios" | "android"];
+                    })}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 font-bold flex items-center justify-center gap-2 transition-all ${
                       selectedPlatforms.includes(platform as "ios" | "android")
                         ? isDark
@@ -233,7 +232,15 @@ export function ExportModal({ onClose }: ExportModalProps) {
                 {['iPhone', 'Samsung Galaxy', 'Android', 'Tablet', 'Header'].map(tab => (
                   <button
                     key={tab}
-                    onClick={() => setActiveDeviceTab(tab as 'iPhone' | 'Samsung Galaxy' | 'Android' | 'Tablet' | 'Header')}
+                    onClick={() => {
+                      const t = tab as 'iPhone' | 'Samsung Galaxy' | 'Android' | 'Tablet' | 'Header';
+                      setActiveDeviceTab(t);
+                      if (t === 'Samsung Galaxy' || t === 'Android') {
+                        setSelectedPlatforms(prev => prev.includes('android') ? prev : [...prev, 'android']);
+                      } else if (t === 'iPhone') {
+                        setSelectedPlatforms(prev => prev.includes('ios') ? prev : [...prev, 'ios']);
+                      }
+                    }}
                     className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                       activeDeviceTab === tab
                         ? isDark

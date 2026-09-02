@@ -372,12 +372,22 @@ export function DoodleItemRenderer({ item, defaultColor }: { item: DoodleItem; d
   const { containerStyle, widthClass } = getPositionStyle(item.position, item.type);
 
   // Apply custom offsets / rotation if specified
+  const transforms: string[] = [];
+  if (containerStyle.transform && containerStyle.transform !== 'none') {
+    transforms.push(containerStyle.transform);
+  }
+  if (item.rotation !== undefined) {
+    transforms.push(`rotate(${item.rotation}deg)`);
+  }
+  if (item.size !== undefined) {
+    transforms.push(`scale(${item.size})`);
+  }
+
   const mergedStyle: React.CSSProperties = {
     ...containerStyle,
-    ...(item.rotation !== undefined ? { transform: `rotate(${item.rotation}deg)` } : {}),
+    transform: transforms.length > 0 ? transforms.join(' ') : undefined,
     ...(item.offsetX !== undefined ? { marginLeft: `${item.offsetX}px` } : {}),
     ...(item.offsetY !== undefined ? { marginTop: `${item.offsetY}px` } : {}),
-    ...(item.size !== undefined ? { transform: `${containerStyle.transform || ''} scale(${item.size})` } : {}),
   };
 
   return (

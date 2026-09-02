@@ -5,9 +5,9 @@ import { DEFAULT_FONT } from '@/config/fonts';
 import type { BadgeConfig } from '@/config/badges';
 import type { DoodleConfig } from '@/config/doodles';
 import { DEFAULT_LANGUAGE } from '@/config/languages';
-import { StatusBarConfig, DEFAULT_STATUS_BAR } from '@/config/statusBar';
-import { PanoramaSettings, PANORAMA_PRESETS } from '@/config/panoramas';
-import { FloatingCardConfig, CalloutPinConfig } from '@/config/floatingCards';
+import { type StatusBarConfig, DEFAULT_STATUS_BAR } from '@/config/statusBar';
+import { type PanoramaSettings, PANORAMA_PRESETS } from '@/config/panoramas';
+import type { FloatingCardConfig, CalloutPinConfig } from '@/config/floatingCards';
 import FileSaver from 'file-saver';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
@@ -191,6 +191,10 @@ interface EditorState {
   updateCanvasTranslation: (id: string, lang: string, data: { title: string; subtitle: string }) => void;
   applyTranslationsForLanguage: (lang: string, items: Array<{ title?: string; subtitle?: string }>) => void;
   applyAllTranslations: (translationsMap: Record<string, Array<{ title: string; subtitle: string }>>) => void;
+  batchUpdateTranslations: (
+    translationsMap: Record<string, Record<string, { title: string; subtitle: string }>>,
+    newActiveLanguage?: string
+  ) => void;
 }
 
 const defaultGlobalSettings: GlobalSettings = {
@@ -282,12 +286,25 @@ function cloneState(canvases: CanvasItem[], globalSettings: GlobalSettings): His
 }
 
 function pushHistory(
-  state: { past: HistorySnapshot[]; future: HistorySnapshot[]; canvases: CanvasItem[]; globalSettings: GlobalSettings },
+  state: {
+    past: HistorySnapshot[];
+    future: HistorySnapshot[];
+    canvases: CanvasItem[];
+    globalSettings: GlobalSettings;
+    projects?: Project[];
+    activeProjectId?: string;
+  },
   newCanvases: CanvasItem[],
   newSettings?: GlobalSettings
 ) {
   const nextSettings = newSettings || state.globalSettings;
   const newPast = [...state.past, cloneState(state.canvases, state.globalSettings)].slice(-30);
+  const updatedProjects = (state.projects || []).map((p) =>
+    p.id === state.activeProjectId
+      ? { ...p, canvases: newCanvases, globalSettings: nextSettings, updatedAt: Date.now() }
+      : p
+  );
+
   return {
     past: newPast,
     future: [],
@@ -295,6 +312,7 @@ function pushHistory(
     canRedo: false,
     canvases: newCanvases,
     globalSettings: nextSettings,
+    projects: updatedProjects,
   };
 }
 
@@ -317,6 +335,11 @@ export const useEditorStore = create<EditorState>()(
           const newPast = state.past.slice(0, state.past.length - 1);
           const currentSnapshot = cloneState(state.canvases, state.globalSettings);
           const newFuture = [currentSnapshot, ...state.future].slice(0, 30);
+          const updatedProjects = (state.projects || []).map((p) =>
+            p.id === state.activeProjectId
+              ? { ...p, canvases: previous.canvases, globalSettings: previous.globalSettings, updatedAt: Date.now() }
+              : p
+          );
 
           return {
             past: newPast,
@@ -325,6 +348,7 @@ export const useEditorStore = create<EditorState>()(
             canRedo: newFuture.length > 0,
             canvases: previous.canvases,
             globalSettings: previous.globalSettings,
+            projects: updatedProjects,
           };
         }),
 
@@ -335,6 +359,11 @@ export const useEditorStore = create<EditorState>()(
           const newFuture = state.future.slice(1);
           const currentSnapshot = cloneState(state.canvases, state.globalSettings);
           const newPast = [...state.past, currentSnapshot].slice(-30);
+          const updatedProjects = (state.projects || []).map((p) =>
+            p.id === state.activeProjectId
+              ? { ...p, canvases: next.canvases, globalSettings: next.globalSettings, updatedAt: Date.now() }
+              : p
+          );
 
           return {
             past: newPast,
@@ -343,16 +372,17 @@ export const useEditorStore = create<EditorState>()(
             canRedo: newFuture.length > 0,
             canvases: next.canvases,
             globalSettings: next.globalSettings,
+            projects: updatedProjects,
           };
         }),
 
       createProject: (name = 'New Project', initialCanvases) =>
         set((state) => {
-          const newId = `project-${crypto.randomUUID()}`;
+          const newId = `project-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)}`;
           const currentCanvases = initialCanvases || [
             {
               ...initialDefaultCanvas,
-              id: crypto.randomUUID(),
+              id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36),
             }
           ];
 
@@ -402,8 +432,8 @@ export const useEditorStore = create<EditorState>()(
           return {
             projects: updatedProjects,
             activeProjectId: projectId,
-            canvases: target.canvases,
-            globalSettings: target.globalSettings,
+            canvases: JSON.parse(JSON.stringify(target.canvases)),
+            globalSettings: JSON.parse(JSON.stringify(target.globalSettings)),
             past: [],
             future: [],
             canUndo: false,
@@ -414,7 +444,14 @@ export const useEditorStore = create<EditorState>()(
       renameProject: (projectId: string, name: string) =>
         set((state) => {
           const updatedProjects = state.projects.map((p) =>
-            p.id === projectId ? { ...p, name, updatedAt: Date.now() } : p
+            p.id === projectId
+              ? {
+                  ...p,
+                  name,
+                  updatedAt: Date.now(),
+                  globalSettings: { ...p.globalSettings, appName: name },
+                }
+              : p
           );
           return {
             projects: updatedProjects,
@@ -430,15 +467,19 @@ export const useEditorStore = create<EditorState>()(
           const target = state.projects.find((p) => p.id === projectId);
           if (!target) return state;
 
-          const duplicateId = `project-${crypto.randomUUID()}`;
+          const duplicateId = `project-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)}`;
+          const isCurrentActive = projectId === state.activeProjectId;
+          const duplicateCanvases = isCurrentActive ? state.canvases : target.canvases;
+          const duplicateSettings = isCurrentActive ? state.globalSettings : target.globalSettings;
+
           const duplicate: Project = {
             ...target,
             id: duplicateId,
             name: `${target.name} (Copy)`,
             createdAt: Date.now(),
             updatedAt: Date.now(),
-            canvases: JSON.parse(JSON.stringify(target.canvases)),
-            globalSettings: JSON.parse(JSON.stringify(target.globalSettings)),
+            canvases: JSON.parse(JSON.stringify(duplicateCanvases)),
+            globalSettings: JSON.parse(JSON.stringify(duplicateSettings)),
           };
 
           return {
@@ -450,15 +491,20 @@ export const useEditorStore = create<EditorState>()(
         set((state) => {
           if (state.projects.length <= 1) return state; // Never delete last project
 
-          const remaining = state.projects.filter((p) => p.id !== projectId);
+          const syncedProjects = state.projects.map((p) =>
+            p.id === state.activeProjectId
+              ? { ...p, canvases: state.canvases, globalSettings: state.globalSettings, updatedAt: Date.now() }
+              : p
+          );
+          const remaining = syncedProjects.filter((p) => p.id !== projectId);
           let nextActiveId = state.activeProjectId;
           let nextCanvases = state.canvases;
           let nextSettings = state.globalSettings;
 
           if (state.activeProjectId === projectId) {
             nextActiveId = remaining[0].id;
-            nextCanvases = remaining[0].canvases;
-            nextSettings = remaining[0].globalSettings;
+            nextCanvases = JSON.parse(JSON.stringify(remaining[0].canvases));
+            nextSettings = JSON.parse(JSON.stringify(remaining[0].globalSettings));
           }
 
           return {
@@ -882,8 +928,14 @@ export const useEditorStore = create<EditorState>()(
           const updatedCanvases = [...newCanvases];
 
           for (let i = 0; i < Math.min(updatedCanvases.length, state.canvases.length); i++) {
-            if (state.canvases[i].imageSrc) {
-              updatedCanvases[i].imageSrc = state.canvases[i].imageSrc;
+            const userCanvas = state.canvases[i];
+            if (userCanvas.imageSrc) {
+              updatedCanvases[i].imageSrc = userCanvas.imageSrc;
+              if (userCanvas.imageCrop) updatedCanvases[i].imageCrop = userCanvas.imageCrop;
+              if (userCanvas.imageZoom) updatedCanvases[i].imageZoom = userCanvas.imageZoom;
+              if (userCanvas.imageRotation) updatedCanvases[i].imageRotation = userCanvas.imageRotation;
+              if (userCanvas.imageFilters) updatedCanvases[i].imageFilters = userCanvas.imageFilters;
+              if (userCanvas.imageFit) updatedCanvases[i].imageFit = userCanvas.imageFit;
             }
           }
 
@@ -892,17 +944,15 @@ export const useEditorStore = create<EditorState>()(
 
             for (let i = updatedCanvases.length; i < state.canvases.length; i++) {
               const userCanvas = state.canvases[i];
-              if (userCanvas.imageSrc) {
-                updatedCanvases.push({
-                  ...userCanvas,
-                  layout: lastTemplateCanvas ? lastTemplateCanvas.layout : userCanvas.layout,
-                  backgroundColor: lastTemplateCanvas ? lastTemplateCanvas.backgroundColor : userCanvas.backgroundColor,
-                  textColor: lastTemplateCanvas ? lastTemplateCanvas.textColor : userCanvas.textColor,
-                  subtitleColor: lastTemplateCanvas ? lastTemplateCanvas.subtitleColor : userCanvas.subtitleColor,
-                  fontFamily: lastTemplateCanvas ? lastTemplateCanvas.fontFamily : userCanvas.fontFamily,
-                  doodle: lastTemplateCanvas ? lastTemplateCanvas.doodle : userCanvas.doodle,
-                });
-              }
+              updatedCanvases.push({
+                ...userCanvas,
+                layout: lastTemplateCanvas ? lastTemplateCanvas.layout : userCanvas.layout,
+                backgroundColor: lastTemplateCanvas ? lastTemplateCanvas.backgroundColor : userCanvas.backgroundColor,
+                textColor: lastTemplateCanvas ? lastTemplateCanvas.textColor : userCanvas.textColor,
+                subtitleColor: lastTemplateCanvas ? lastTemplateCanvas.subtitleColor : userCanvas.subtitleColor,
+                fontFamily: lastTemplateCanvas ? lastTemplateCanvas.fontFamily : userCanvas.fontFamily,
+                doodle: lastTemplateCanvas ? lastTemplateCanvas.doodle : userCanvas.doodle,
+              });
             }
           }
 
@@ -1028,6 +1078,36 @@ export const useEditorStore = create<EditorState>()(
 
           return pushHistory(state, updatedCanvases);
         }),
+
+      batchUpdateTranslations: (translationsMap, newActiveLanguage) =>
+        set((state) => {
+          const currentLang = newActiveLanguage || state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
+
+          const updatedCanvases = state.canvases.map((c) => {
+            const currentTranslations = { ...(c.translations || {}) };
+
+            for (const [lang, map] of Object.entries(translationsMap)) {
+              if (map[c.id]) {
+                currentTranslations[lang] = map[c.id];
+              }
+            }
+
+            const activeTrans = currentTranslations[currentLang];
+
+            return {
+              ...c,
+              title: activeTrans ? activeTrans.title : c.title,
+              subtitle: activeTrans ? activeTrans.subtitle : c.subtitle,
+              translations: currentTranslations,
+            };
+          });
+
+          const nextSettings = newActiveLanguage
+            ? { ...state.globalSettings, activeLanguage: newActiveLanguage }
+            : state.globalSettings;
+
+          return pushHistory(state, updatedCanvases, nextSettings);
+        }),
     }),
     {
       name: 'screenshot-editor-storage',
@@ -1038,6 +1118,51 @@ export const useEditorStore = create<EditorState>()(
         projects: state.projects,
         activeProjectId: state.activeProjectId,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState as Partial<EditorState>) || {};
+        const safeCanvases =
+          Array.isArray(persisted.canvases) && persisted.canvases.length > 0
+            ? persisted.canvases
+            : currentState.canvases;
+        const safeSettings = persisted.globalSettings
+          ? { ...currentState.globalSettings, ...persisted.globalSettings }
+          : currentState.globalSettings;
+        let safeProjects =
+          Array.isArray(persisted.projects) && persisted.projects.length > 0
+            ? persisted.projects
+            : currentState.projects;
+        let safeActiveId = persisted.activeProjectId || currentState.activeProjectId;
+
+        if (!safeProjects || safeProjects.length === 0) {
+          safeProjects = [
+            {
+              id: safeActiveId || 'default-project',
+              name: safeSettings.appName || 'Default Project',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              canvases: safeCanvases,
+              globalSettings: safeSettings,
+            },
+          ];
+        }
+
+        if (!safeProjects.some((p) => p.id === safeActiveId)) {
+          safeActiveId = safeProjects[0].id;
+        }
+
+        return {
+          ...currentState,
+          ...persisted,
+          canvases: safeCanvases,
+          globalSettings: safeSettings,
+          projects: safeProjects,
+          activeProjectId: safeActiveId,
+          past: [],
+          future: [],
+          canUndo: false,
+          canRedo: false,
+        };
+      },
     }
   )
 );

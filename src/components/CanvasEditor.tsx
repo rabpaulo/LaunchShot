@@ -408,10 +408,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     <div 
       id={`card-${canvas.id}`}
       className={`flex flex-col flex-shrink-0 group relative transition-transform duration-200 ${
-        isPreviewMode 
-          ? 'w-screen h-screen items-center justify-center snap-center' 
-          : targetWidth
-            ? 'items-center pointer-events-none snap-center'
+        targetWidth
+          ? 'items-center pointer-events-none snap-center'
+          : isPreviewMode 
+            ? 'w-screen h-screen items-center justify-center snap-center' 
             : 'items-center'
       }`}
     >

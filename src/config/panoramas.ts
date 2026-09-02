@@ -76,18 +76,20 @@ export function getPanoramaSliceStyle(
   index: number,
   totalCanvases: number,
   panorama: PanoramaSettings
-): { background?: string; backgroundSize?: string; backgroundPosition?: string; backgroundImage?: string } {
+): { background?: string; backgroundSize?: string; backgroundPosition?: string; backgroundImage?: string; backgroundRepeat?: string } {
   if (!panorama.enabled || totalCanvases <= 0) return {};
 
   const preset = PANORAMA_PRESETS.find(p => p.id === panorama.presetId) || PANORAMA_PRESETS[0];
   const bg = panorama.customBackground || (panorama.imageSrc ? `url(${panorama.imageSrc})` : preset.background);
+  const isImageOrGradient = bg.startsWith('url') || bg.includes('gradient');
 
   // If there's only 1 canvas, show 100% of the background
   if (totalCanvases === 1) {
     return {
-      background: bg,
+      ...(isImageOrGradient ? { backgroundImage: bg } : { background: bg }),
       backgroundSize: '100% 100%',
       backgroundPosition: 'center center',
+      backgroundRepeat: 'no-repeat',
     };
   }
 
@@ -99,12 +101,14 @@ export function getPanoramaSliceStyle(
       backgroundImage: `url(${panorama.imageSrc})`,
       backgroundSize: `${totalCanvases * 100}% 100%`,
       backgroundPosition: `${posX}% center`,
+      backgroundRepeat: 'no-repeat',
     };
   }
 
   return {
-    background: bg,
+    ...(isImageOrGradient ? { backgroundImage: bg } : { background: bg }),
     backgroundSize: `${totalCanvases * 100}% 100%`,
     backgroundPosition: `${posX}% center`,
+    backgroundRepeat: 'no-repeat',
   };
 }

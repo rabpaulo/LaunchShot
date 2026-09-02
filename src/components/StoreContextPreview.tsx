@@ -192,7 +192,15 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                         aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
                       }}
                     >
-                      <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={240} isPreviewMode={true} />
+                      <CanvasEditor
+                        canvas={canvas}
+                        index={i}
+                        total={canvases.length}
+                        targetWidth={240}
+                        isPreviewMode={true}
+                        nextCanvas={canvases[i + 1]}
+                        nextNextCanvas={canvases[i + 2]}
+                      />
                     </div>
                   ))}
                 </div>
@@ -275,7 +283,15 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                        aspectRatio: `${sizeConfig.logicalWidth} / ${sizeConfig.logicalHeight}` 
                      }}
                    >
-                     <CanvasEditor canvas={canvas} index={i} total={canvases.length} targetWidth={180} isPreviewMode={true} />
+                     <CanvasEditor
+                        canvas={canvas}
+                        index={i}
+                        total={canvases.length}
+                        targetWidth={180}
+                        isPreviewMode={true}
+                        nextCanvas={canvases[i + 1]}
+                        nextNextCanvas={canvases[i + 2]}
+                      />
                    </div>
                  ))}
                </div>

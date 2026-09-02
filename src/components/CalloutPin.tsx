@@ -20,19 +20,26 @@ export function CalloutPin({ pin, onRemove }: CalloutPinProps) {
       case 'bottom-right':
         return 'bottom-24 right-12';
       case 'center':
-        return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+        return 'top-1/2 left-1/2';
       default:
-        return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+        return 'top-1/2 left-1/2';
     }
   };
 
   const accentColor = pin.color || '#3b82f6';
 
+  const transforms: string[] = [];
+  if (pin.position === 'center' || !pin.position) {
+    transforms.push('translate(-50%, -50%)');
+  }
+  if (pin.offsetX) transforms.push(`translateX(${pin.offsetX}px)`);
+  if (pin.offsetY) transforms.push(`translateY(${pin.offsetY}px)`);
+
   return (
     <div
       className={`absolute z-30 flex items-center gap-2 pointer-events-auto transition-transform duration-200 hover:scale-105 ${getPositionClass()}`}
       style={{
-        transform: `${pin.offsetX ? `translateX(${pin.offsetX}px)` : ''} ${pin.offsetY ? `translateY(${pin.offsetY}px)` : ''}`,
+        transform: transforms.length > 0 ? transforms.join(' ') : undefined,
       }}
     >
       {/* Pulse Dot */}

@@ -4,6 +4,25 @@ import FileSaver from 'file-saver';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
 
+function downloadBlob(blob: Blob, filename: string) {
+  try {
+    if (typeof saveAs === 'function') {
+      saveAs(blob, filename);
+      return;
+    }
+  } catch {}
+  if (typeof document !== 'undefined') {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+}
+
 // Built-in offline dictionary for common App Store / showcase keywords
 const OFFLINE_DICTIONARY: Record<string, Record<string, string>> = {
   es: {
@@ -307,7 +326,7 @@ export function exportSingleLanguageJson(
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const sanitizedAppName = appName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  saveAs(blob, `${sanitizedAppName}-translations-${langCode}.json`);
+  downloadBlob(blob, `${sanitizedAppName}-translations-${langCode}.json`);
 }
 
 /**
@@ -333,7 +352,7 @@ export function exportAllLanguagesJson(
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const sanitizedAppName = appName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  saveAs(blob, `${sanitizedAppName}-translations-all.json`);
+  downloadBlob(blob, `${sanitizedAppName}-translations-all.json`);
 }
 
 /**
@@ -347,7 +366,7 @@ export function downloadTranslationTemplate(canvases: CanvasItem[]) {
   }));
 
   const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
-  saveAs(blob, 'launchshot-translation-template.json');
+  downloadBlob(blob, 'launchshot-translation-template.json');
 }
 
 export type ParsedTranslationResult = 
@@ -381,10 +400,12 @@ export function parseUploadedTranslationJson(jsonText: string): ParsedTranslatio
         }));
       }
     }
-    return {
-      type: 'multi',
-      data: multiMap,
-    };
+    if (Object.keys(multiMap).length > 0) {
+      return {
+        type: 'multi',
+        data: multiMap,
+      };
+    }
   }
 
   throw new Error('Unsupported JSON format. Expected an array or a language dictionary object.');

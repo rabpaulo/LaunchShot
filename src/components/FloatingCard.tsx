@@ -54,9 +54,9 @@ export function FloatingCard({ card, onRemove }: FloatingCardProps) {
       case 'bottom-right':
         return 'bottom-12 right-6';
       case 'center-left':
-        return 'top-1/2 left-4 -translate-y-1/2';
+        return 'top-1/2 left-4';
       case 'center-right':
-        return 'top-1/2 right-4 -translate-y-1/2';
+        return 'top-1/2 right-4';
       default:
         return 'top-8 left-6';
     }
@@ -79,11 +79,18 @@ export function FloatingCard({ card, onRemove }: FloatingCardProps) {
     }
   };
 
+  const transforms: string[] = [];
+  if (card.position === 'center-left' || card.position === 'center-right') {
+    transforms.push('translateY(-50%)');
+  }
+  if (card.offsetX) transforms.push(`translateX(${card.offsetX}px)`);
+  if (card.offsetY) transforms.push(`translateY(${card.offsetY}px)`);
+
   return (
     <div
-      className={`absolute z-30 max-w-[220px] rounded-2xl border p-3 flex items-center gap-3 transition-transform duration-200 hover:scale-105 pointer-events-auto ${getPositionClass()} ${getThemeClass()}`}
+      className={`group absolute z-30 max-w-[220px] rounded-2xl border p-3 flex items-center gap-3 transition-transform duration-200 hover:scale-105 pointer-events-auto ${getPositionClass()} ${getThemeClass()}`}
       style={{
-        transform: `${card.offsetX ? `translateX(${card.offsetX}px)` : ''} ${card.offsetY ? `translateY(${card.offsetY}px)` : ''}`,
+        transform: transforms.length > 0 ? transforms.join(' ') : undefined,
       }}
     >
       <div className="p-2 rounded-xl bg-white/10 flex-shrink-0 flex items-center justify-center">

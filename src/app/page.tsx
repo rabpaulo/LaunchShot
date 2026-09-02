@@ -87,7 +87,7 @@ export default function Home() {
   const zoom = globalSettings.zoomScale || 0.65;
   const isDark = globalSettings.theme !== 'light';
 
-  const currentProject = projects.find(p => p.id === activeProjectId) || projects[0];
+  const currentProject = (projects && projects.length > 0 ? (projects.find(p => p.id === activeProjectId) || projects[0]) : null) || { name: 'Default Project', id: 'default-project' };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -268,7 +268,7 @@ export default function Home() {
               title="Manage Projects & Drafts"
             >
               <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
-              <span className="max-w-[110px] truncate">{currentProject.name}</span>
+              <span className="max-w-[110px] truncate">{currentProject?.name || 'Default Project'}</span>
             </button>
 
             {/* Undo & Redo */}

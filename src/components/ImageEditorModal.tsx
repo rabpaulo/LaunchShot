@@ -14,10 +14,10 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
   const updateCanvas = useEditorStore(s => s.updateCanvas);
   const globalSettings = useEditorStore(s => s.globalSettings);
   const sizeConfig = TARGET_SIZES[globalSettings.targetSize as keyof typeof TARGET_SIZES] || TARGET_SIZES['ios-6.5'];
-  const phoneW = sizeConfig.width;
-  const phoneH = sizeConfig.height;
-  // calculate scale to fit the 800px max height of the modal
-  const scale = Math.min(1, 600 / phoneH, 600 / phoneW);
+  const phoneW = sizeConfig.logicalWidth;
+  const phoneH = sizeConfig.logicalHeight;
+  // calculate scale to fit the preview container in the modal
+  const scale = Math.min(1, 550 / phoneH, 380 / phoneW);
   
   const [crop, setCrop] = useState(canvas.imageCrop || { x: 0, y: 0 });
   const [zoom, setZoom] = useState(canvas.imageZoom || 1);
