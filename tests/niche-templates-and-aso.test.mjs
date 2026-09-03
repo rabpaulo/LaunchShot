@@ -99,10 +99,11 @@ test('applyAsoCopy supports all 6 tones and produces structured story arcs', () 
 
 test('TEMPLATES catalog contains >= 20 presets that apply successfully', () => {
   assert.ok(TEMPLATES.length >= 20, `Expected >= 20 templates, got ${TEMPLATES.length}`);
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
 
   for (const template of TEMPLATES) {
     let loadedCanvases = null;
-    let globalUpdates = null; // eslint-disable-line @typescript-eslint/no-unused-vars
+    let globalUpdates = null;
 
     template.apply(
       (canvases) => { loadedCanvases = canvases; },
@@ -110,5 +111,19 @@ test('TEMPLATES catalog contains >= 20 presets that apply successfully', () => {
     );
 
     assert.ok(Array.isArray(loadedCanvases) && loadedCanvases.length > 0, `Template ${template.name} failed to load canvases`);
+    assert.ok(template.style && template.style.trim().length > 0, `Template ${template.name} missing style`);
+    assert.ok(template.logo, `Template ${template.name} missing logo`);
+    assert.ok(template.logo.appName && template.logo.appName.trim().length > 0, `Template ${template.name} missing appName`);
+    assert.ok(template.logo.svgDataUri && template.logo.svgDataUri.startsWith('data:image/svg+xml'), `Template ${template.name} missing valid SVG data URI logo`);
+
+    // Verify application of logo and branding
+    assert.ok(globalUpdates && globalUpdates.appName, `Template ${template.name} did not apply appName`);
+    assert.ok(loadedCanvases[0].appIconSrc, `Template ${template.name} did not set appIconSrc on slide 0`);
+
+    // Emoji rule verification
+    assert.ok(!emojiRegex.test(template.name), `Template name ${template.name} contains emoji`);
+    assert.ok(!emojiRegex.test(template.style), `Template style ${template.style} contains emoji`);
+    assert.ok(!emojiRegex.test(template.logo.appName), `Template appName ${template.logo.appName} contains emoji`);
   }
 });
+

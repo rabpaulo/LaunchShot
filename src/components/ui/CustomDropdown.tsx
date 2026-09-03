@@ -6,6 +6,8 @@ export interface DropdownOption {
   value: string | number;
   category?: string;
   fontFamily?: string; // specific for fonts
+  badge?: string; // optional badge pill
+  iconSrc?: string; // optional logo/icon data URI
 }
 
 interface CustomDropdownProps {
@@ -62,13 +64,24 @@ export function CustomDropdown({
             : 'bg-white border-gray-200 text-gray-800 hover:border-gray-300 focus:ring-2 focus:ring-zinc-300 shadow-sm'
         }`}
       >
-        <span 
-          className="truncate"
-          style={selectedOption?.fontFamily ? { fontFamily: selectedOption.fontFamily } : {}}
-        >
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <IoChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-zinc-400' : 'text-gray-400'}`} />
+        <div className="flex items-center gap-2 truncate min-w-0 flex-1">
+          {selectedOption?.iconSrc && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={selectedOption.iconSrc} alt="" className="w-4 h-4 rounded object-cover flex-shrink-0" />
+          )}
+          <span 
+            className="truncate"
+            style={selectedOption?.fontFamily ? { fontFamily: selectedOption.fontFamily } : {}}
+          >
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          {selectedOption?.badge && (
+            <span className="ml-auto text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 flex-shrink-0">
+              {selectedOption.badge}
+            </span>
+          )}
+        </div>
+        <IoChevronDown className={`w-4 h-4 transition-transform duration-200 ml-1.5 flex-shrink-0 ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-zinc-400' : 'text-gray-400'}`} />
       </button>
 
       {isOpen && (
@@ -102,7 +115,20 @@ export function CustomDropdown({
                     }`}
                     style={opt.fontFamily ? { fontFamily: opt.fontFamily } : {}}
                   >
-                    {opt.label}
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <div className="flex items-center gap-2 truncate min-w-0">
+                        {opt.iconSrc && (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img src={opt.iconSrc} alt="" className="w-4 h-4 rounded object-cover flex-shrink-0" />
+                        )}
+                        <span className="truncate">{opt.label}</span>
+                      </div>
+                      {opt.badge && (
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 flex-shrink-0">
+                          {opt.badge}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -123,7 +149,20 @@ export function CustomDropdown({
                 }`}
                 style={opt.fontFamily ? { fontFamily: opt.fontFamily } : {}}
               >
-                {opt.label}
+                <div className="flex items-center justify-between gap-2 w-full">
+                  <div className="flex items-center gap-2 truncate min-w-0">
+                    {opt.iconSrc && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={opt.iconSrc} alt="" className="w-4 h-4 rounded object-cover flex-shrink-0" />
+                    )}
+                    <span className="truncate">{opt.label}</span>
+                  </div>
+                  {opt.badge && (
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 flex-shrink-0">
+                      {opt.badge}
+                    </span>
+                  )}
+                </div>
               </button>
             ))
           )}

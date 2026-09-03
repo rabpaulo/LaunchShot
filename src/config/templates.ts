@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
 
+import { TEMPLATE_LOGOS, type TemplateLogo } from '@/config/templateLogos';
+
 export interface TemplateDefinition {
   name: string;
+  style: string;
+  category: string;
+  logo: TemplateLogo;
   apply: (
     loadTemplate: (canvases: CanvasItem[]) => void, 
     updateGlobalSettings: (settings: Partial<GlobalSettings>) => void
   ) => void;
 }
 
-export const TEMPLATES: TemplateDefinition[] = [
+const RAW_TEMPLATES: { name: string; apply: (loadTemplate: (canvases: CanvasItem[]) => void, updateGlobalSettings: (settings: Partial<GlobalSettings>) => void) => void }[] = [
   {
     name: 'Aesthetic Modern (5 Screens)',
     apply: (loadTemplate, _updateGlobalSettings) => {
@@ -4151,3 +4156,110 @@ export const TEMPLATES: TemplateDefinition[] = [
     }
   }
 ];
+export const TEMPLATES: TemplateDefinition[] = RAW_TEMPLATES.map((raw) => {
+  const logo = TEMPLATE_LOGOS[raw.name] || {
+    appName: raw.name.replace(/\s*\([^)]*\)/, ''),
+    style: 'Clean Modern',
+    icon: 'star',
+    bgGradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+    accentColor: '#3b82f6',
+    svgDataUri: '',
+  };
+
+  const nameLower = raw.name.toLowerCase();
+  let category = 'Minimal & Clean';
+  if (
+    nameLower.includes('ai') ||
+    nameLower.includes('copilot') ||
+    nameLower.includes('saas') ||
+    nameLower.includes('cloud') ||
+    nameLower.includes('cyberpunk') ||
+    nameLower.includes('matrix') ||
+    nameLower.includes('vpn') ||
+    nameLower.includes('security') ||
+    nameLower.includes('utility') ||
+    nameLower.includes('productivity') ||
+    nameLower.includes('tablet pro')
+  ) {
+    category = 'SaaS & AI';
+  } else if (
+    nameLower.includes('fintech') ||
+    nameLower.includes('crypto') ||
+    nameLower.includes('card') ||
+    nameLower.includes('finance') ||
+    nameLower.includes('neoncard') ||
+    nameLower.includes('wallet') ||
+    nameLower.includes('trust')
+  ) {
+    category = 'Fintech & Finance';
+  } else if (
+    nameLower.includes('fitness') ||
+    nameLower.includes('health') ||
+    nameLower.includes('calorie') ||
+    nameLower.includes('workout') ||
+    nameLower.includes('yoga') ||
+    nameLower.includes('running') ||
+    nameLower.includes('pulse')
+  ) {
+    category = 'Fitness & Health';
+  } else if (
+    nameLower.includes('banner') ||
+    nameLower.includes('kinetic') ||
+    nameLower.includes('triple') ||
+    nameLower.includes('stack') ||
+    nameLower.includes('platano') ||
+    nameLower.includes('hero 3d') ||
+    nameLower.includes('bento') ||
+    nameLower.includes('feature graphic')
+  ) {
+    category = 'Banner & Feature';
+  } else if (
+    nameLower.includes('social') ||
+    nameLower.includes('lifestyle') ||
+    nameLower.includes('story') ||
+    nameLower.includes('aesthetic') ||
+    nameLower.includes('photo') ||
+    nameLower.includes('travel') ||
+    nameLower.includes('food') ||
+    nameLower.includes('dating') ||
+    nameLower.includes('weather') ||
+    nameLower.includes('music') ||
+    nameLower.includes('casual') ||
+    nameLower.includes('gaming') ||
+    nameLower.includes('creative') ||
+    nameLower.includes('education') ||
+    nameLower.includes('commerce') ||
+    nameLower.includes('material')
+  ) {
+    category = 'Lifestyle & Social';
+  }
+
+  return {
+    name: raw.name,
+    style: logo.style,
+    category,
+    logo,
+    apply: (loadTemplate, updateGlobalSettings) => {
+      updateGlobalSettings({
+        appName: logo.appName,
+        companyName: logo.style,
+      });
+      raw.apply(
+        (canvases) => {
+          const canvasesWithLogo = canvases.map((c) => ({
+            ...c,
+            appIconSrc: c.appIconSrc || logo.svgDataUri,
+          }));
+          loadTemplate(canvasesWithLogo);
+        },
+        (settings) => {
+          updateGlobalSettings({
+            appName: logo.appName,
+            companyName: logo.style,
+            ...settings,
+          });
+        }
+      );
+    },
+  };
+});

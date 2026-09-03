@@ -15,6 +15,7 @@ interface ParsedTemplate {
   index: number;
   template: TemplateDefinition;
   name: string;
+  style: string;
   category: string;
   canvases: CanvasItem[];
   settings: Partial<GlobalSettings>;
@@ -44,25 +45,12 @@ const PARSED_TEMPLATES: ParsedTemplate[] = TEMPLATES.map((template, index) => {
     console.error('Error parsing template:', template.name, err);
   }
 
-  const nameLower = template.name.toLowerCase();
-  let category = 'Minimal & Clean';
-  if (nameLower.includes('ai') || nameLower.includes('copilot') || nameLower.includes('saas') || nameLower.includes('cloud') || nameLower.includes('cyberpunk') || nameLower.includes('matrix')) {
-    category = 'SaaS & AI';
-  } else if (nameLower.includes('fintech') || nameLower.includes('crypto') || nameLower.includes('card') || nameLower.includes('finance') || nameLower.includes('neoncard') || nameLower.includes('wallet')) {
-    category = 'Fintech & Finance';
-  } else if (nameLower.includes('fitness') || nameLower.includes('health') || nameLower.includes('calorie') || nameLower.includes('workout') || nameLower.includes('yoga') || nameLower.includes('running')) {
-    category = 'Fitness & Health';
-  } else if (nameLower.includes('social') || nameLower.includes('lifestyle') || nameLower.includes('story') || nameLower.includes('aesthetic') || nameLower.includes('photo') || nameLower.includes('travel') || nameLower.includes('food')) {
-    category = 'Lifestyle & Social';
-  } else if (nameLower.includes('banner') || nameLower.includes('kinetic') || nameLower.includes('triple') || nameLower.includes('stack') || nameLower.includes('platano') || nameLower.includes('hero 3d') || nameLower.includes('bento')) {
-    category = 'Banner & Feature';
-  }
-
   return {
     index,
     template,
     name: template.name,
-    category,
+    style: template.style,
+    category: template.category || 'Minimal & Clean',
     canvases: mockCanvases,
     settings: mockSettings,
   };
@@ -73,10 +61,12 @@ const MiniScreenCard = React.memo(function MiniScreenCard({
   canvas,
   index,
   isDark,
+  accentColor = '#3b82f6',
 }: {
   canvas: CanvasItem;
   index: number;
   isDark: boolean;
+  accentColor?: string;
 }) {
   const isBottomLayout = canvas.layout?.includes('bottom');
   const isTiltRight = canvas.layout?.includes('tilt-right');
@@ -127,15 +117,26 @@ const MiniScreenCard = React.memo(function MiniScreenCard({
           <div className="flex-1 rounded-[4px] bg-zinc-900/90 p-1 flex flex-col justify-between overflow-hidden">
             {/* Header wire */}
             <div className="flex items-center justify-between">
-              <div className="w-3 h-1 rounded-full bg-white/20" />
-              <div className="w-2 h-1 rounded-full bg-white/10" />
+              <div 
+                className="w-3 h-1 rounded-full opacity-80"
+                style={{ background: accentColor }}
+              />
+              <div className="w-2 h-1 rounded-full bg-white/15" />
             </div>
 
             {/* Central Content Cards */}
             <div className="space-y-1 my-auto">
-              <div className="w-full h-4 rounded-md bg-gradient-to-r from-blue-500/30 to-indigo-500/30 border border-white/10 flex items-center px-1">
-                <div className="w-2 h-2 rounded-full bg-blue-400/50 mr-1" />
-                <div className="w-5 h-1 rounded bg-white/30" />
+              <div 
+                className="w-full h-4 rounded-md border border-white/10 flex items-center px-1"
+                style={{
+                  background: `linear-gradient(90deg, ${accentColor}40 0%, ${accentColor}18 100%)`,
+                }}
+              >
+                <div 
+                  className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
+                  style={{ background: accentColor }}
+                />
+                <div className="w-5 h-1 rounded bg-white/40" />
               </div>
               <div className="w-full h-2.5 rounded bg-white/5 border border-white/5 flex items-center px-1">
                 <div className="w-6 h-0.5 rounded bg-white/20" />
@@ -144,7 +145,10 @@ const MiniScreenCard = React.memo(function MiniScreenCard({
 
             {/* Bottom Nav Wire */}
             <div className="flex items-center justify-around pt-0.5 border-t border-white/5">
-              <div className="w-1.5 h-1 rounded-full bg-blue-400/60" />
+              <div 
+                className="w-1.5 h-1 rounded-full"
+                style={{ background: accentColor }}
+              />
               <div className="w-1.5 h-1 rounded-full bg-white/20" />
               <div className="w-1.5 h-1 rounded-full bg-white/20" />
             </div>
@@ -185,7 +189,8 @@ const TemplateCard = React.memo(function TemplateCard({
   isDark: boolean;
   onSelect: () => void;
 }) {
-  const { name, category, canvases } = parsed;
+  const { name, category, canvases, template } = parsed;
+  const { logo, style } = template;
 
   return (
     <div
@@ -196,21 +201,40 @@ const TemplateCard = React.memo(function TemplateCard({
           : 'border-gray-200 bg-white hover:border-blue-500 hover:bg-gray-50'
       }`}
     >
-      {/* Card Header */}
-      <div className={`px-4 py-3 border-b flex items-center justify-between ${
+      {/* Card Header with Unique Logo & Style Badge */}
+      <div className={`px-4 py-3 border-b flex items-center justify-between gap-3 ${
         isDark ? 'border-gray-800/80 bg-zinc-900/60' : 'border-gray-100 bg-gray-50/70'
       }`}>
-        <div className="flex flex-col">
-          <h3 className={`font-bold text-sm leading-snug group-hover:text-blue-400 transition-colors ${
-            isDark ? 'text-gray-100' : 'text-gray-900'
-          }`}>
-            {name}
-          </h3>
-          <span className={`text-[10px] font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            {category}
-          </span>
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Unique Template Logo */}
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md flex-shrink-0 border border-white/15 bg-zinc-900 group-hover:scale-105 transition-transform">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={logo.svgDataUri} 
+              alt={logo.appName} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          <div className="flex flex-col min-w-0">
+            <h3 className={`font-bold text-sm leading-snug truncate group-hover:text-blue-400 transition-colors ${
+              isDark ? 'text-gray-100' : 'text-gray-900'
+            }`}>
+              {name}
+            </h3>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              {/* Unique Style Pill */}
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-400 border border-blue-500/25 whitespace-nowrap">
+                {style}
+              </span>
+              <span className={`text-[10px] font-medium truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                {category}
+              </span>
+            </div>
+          </div>
         </div>
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
           isDark
             ? 'bg-zinc-800 border-zinc-700 text-zinc-300'
             : 'bg-zinc-100 border-zinc-200 text-zinc-600'
@@ -230,6 +254,7 @@ const TemplateCard = React.memo(function TemplateCard({
               canvas={canvas}
               index={i}
               isDark={isDark}
+              accentColor={logo.accentColor}
             />
           ))}
           {canvases.length > 5 && (
@@ -252,15 +277,18 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
 
   const isDark = globalSettings.theme !== 'light';
 
-  // Instant in-memory filtering
+  // Instant in-memory filtering by name, style, app name, and canvas copy
   const filteredTemplates = useMemo(() => {
     return PARSED_TEMPLATES.filter((item) => {
       const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        searchQuery.trim() === '' ||
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        q === '' ||
+        item.name.toLowerCase().includes(q) ||
+        item.style.toLowerCase().includes(q) ||
+        item.template.logo.appName.toLowerCase().includes(q) ||
         item.canvases.some((c) =>
-          (c.title || '').toLowerCase().includes(searchQuery.toLowerCase())
+          (c.title || '').toLowerCase().includes(q)
         );
       return matchesCategory && matchesSearch;
     });

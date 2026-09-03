@@ -510,9 +510,39 @@ export function Sidebar() {
             <CustomDropdown
               value={activeTemplateIndex}
               onChange={(val) => setActiveTemplateIndex(Number(val))}
-              options={TEMPLATES.map((t, idx) => ({ label: t.name, value: idx }))}
+              options={TEMPLATES.map((t, idx) => ({ 
+                label: t.name, 
+                value: idx,
+                badge: t.style,
+                iconSrc: t.logo?.svgDataUri,
+              }))}
               isDark={isDark}
             />
+
+            {/* Template Logo & Style Preview Card */}
+            {TEMPLATES[activeTemplateIndex] && (
+              <div className={`p-2.5 rounded-xl border flex items-center gap-3 transition-all ${
+                isDark ? 'bg-zinc-900/70 border-zinc-800' : 'bg-gray-50 border-gray-200'
+              }`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={TEMPLATES[activeTemplateIndex].logo.svgDataUri}
+                  alt={TEMPLATES[activeTemplateIndex].logo.appName}
+                  className="w-9 h-9 rounded-xl shadow-sm border border-white/10 object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className={`text-xs font-bold truncate ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>
+                    {TEMPLATES[activeTemplateIndex].logo.appName}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 truncate">
+                      {TEMPLATES[activeTemplateIndex].style}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => {
                 const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
