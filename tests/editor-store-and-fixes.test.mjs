@@ -4,6 +4,9 @@ import test from 'node:test';
 import { useEditorStore } from '../src/store/useEditorStore.ts';
 import { getPanoramaSliceStyle } from '../src/config/panoramas.ts';
 import { parseUploadedTranslationJson } from '../src/utils/translator.ts';
+import { isAndroidDevice, isAppleDevice, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE } from '../src/config/sizes.ts';
+import { BADGE_PRESETS, getBadgeStore } from '../src/config/badges.ts';
+import { applyAsoCopy } from '../src/config/aso.ts';
 
 test('store initializes with active project and pushHistory keeps projects in sync', () => {
   const store = useEditorStore.getState();
@@ -272,6 +275,118 @@ test('movable badge supports position presets, offsets, and applyBadgeToAll', as
   );
   const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
   assert.ok(!emojiRegex.test(badgesConfigSource), 'badges config must not contain emojis');
+});
+
+test('isAndroidDevice and isAppleDevice correctly categorize devices', () => {
+  assert.equal(isAndroidDevice('android-tall'), true);
+  assert.equal(isAndroidDevice('samsung-s26'), true);
+  assert.equal(isAndroidDevice('play-feature-graphic'), true);
+  assert.equal(isAndroidDevice('ios-6.5'), false);
+  assert.equal(isAndroidDevice('ios-6.9'), false);
+  assert.equal(isAndroidDevice('ipad-pro-13'), false);
+
+  assert.equal(isAppleDevice('ios-6.5'), true);
+  assert.equal(isAppleDevice('ios-6.9'), true);
+  assert.equal(isAppleDevice('ipad-pro-13'), true);
+  assert.equal(isAppleDevice('android-tall'), false);
+  assert.equal(isAppleDevice('samsung-s26'), false);
+  assert.equal(isAppleDevice('play-feature-graphic'), false);
+});
+
+test('switchToAppStore and switchToPlayStore automatically switch devices bidirectionally', () => {
+  const store = useEditorStore.getState();
+
+  // 1. From Android to App Store -> should become iPhone
+  store.updateGlobalSettings({ targetSize: 'android-tall' });
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, 'android-tall');
+  store.switchToAppStore();
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_IPHONE_SIZE);
+
+  // Calling switchToAppStore when already on iPhone should keep it
+  store.switchToAppStore();
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_IPHONE_SIZE);
+
+  // 2. From iPhone to Play Store -> should become Android
+  store.switchToPlayStore();
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_ANDROID_SIZE);
+
+  // Calling switchToPlayStore when already on Android should keep it
+  store.switchToPlayStore();
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_ANDROID_SIZE);
+
+  // 3. ensurePlatformForStore
+  store.ensurePlatformForStore('app-store');
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_IPHONE_SIZE);
+  store.ensurePlatformForStore('play-store');
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_ANDROID_SIZE);
+});
+
+test('getBadgeStore tags App Store and Google Play badges and store switches platform on applyBadge', () => {
+  const appStoreBadge = BADGE_PRESETS.find(p => p.config.store === 'app-store')?.config;
+  const playStoreBadge = BADGE_PRESETS.find(p => p.config.store === 'play-store')?.config;
+
+  assert.ok(appStoreBadge, 'App Store badge preset must exist');
+  assert.ok(playStoreBadge, 'Play Store badge preset must exist');
+  assert.equal(getBadgeStore(appStoreBadge), 'app-store');
+  assert.equal(getBadgeStore(playStoreBadge), 'play-store');
+
+  const store = useEditorStore.getState();
+
+  // Set target size to Android
+  store.updateGlobalSettings({ targetSize: 'android-tall' });
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, 'android-tall');
+
+  // Applying an App Store badge to all must switch targetSize to iPhone
+  store.applyBadgeToAll(appStoreBadge);
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_IPHONE_SIZE);
+
+  // Applying a Play Store badge to all must switch targetSize to Android
+  store.applyBadgeToAll(playStoreBadge);
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_ANDROID_SIZE);
+
+  // updateBadge single canvas must also switch platform
+  store.updateBadge(useEditorStore.getState().canvases[0].id, appStoreBadge);
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_IPHONE_SIZE);
+  store.updateBadge(useEditorStore.getState().canvases[0].id, playStoreBadge);
+  assert.equal(useEditorStore.getState().globalSettings.targetSize, DEFAULT_ANDROID_SIZE);
+});
+
+test('applyAsoCopy chooses Google Play badges and copy for Android, and App Store badges for iPhone', () => {
+  const store = useEditorStore.getState();
+  const canvases = store.canvases;
+
+  // With Android targetSize
+  const androidCanvases = applyAsoCopy(canvases, 'fitness habits', 'high-converting', 'android-tall');
+  assert.ok(androidCanvases[0].badge?.text.includes('Google Play') || getBadgeStore(androidCanvases[0].badge) === 'play-store');
+
+  // With iPhone targetSize
+  const iosCanvases = applyAsoCopy(canvases, 'fitness habits', 'high-converting', 'ios-6.5');
+  assert.ok(iosCanvases[0].badge?.text.includes('App Store') || getBadgeStore(iosCanvases[0].badge) === 'app-store');
+});
+
+test('UI components contain bidirectional platform switching handlers and no emojis', async () => {
+  const storePreviewSource = await readFile(new URL('../src/components/StoreContextPreview.tsx', import.meta.url), 'utf8');
+  assert.ok(storePreviewSource.includes('switchToAppStore'), 'StoreContextPreview must use switchToAppStore');
+  assert.ok(storePreviewSource.includes('switchToPlayStore'), 'StoreContextPreview must use switchToPlayStore');
+  assert.ok(storePreviewSource.includes('DEFAULT_IPHONE_SIZE'), 'StoreContextPreview must use DEFAULT_IPHONE_SIZE');
+  assert.ok(storePreviewSource.includes('DEFAULT_ANDROID_SIZE'), 'StoreContextPreview must use DEFAULT_ANDROID_SIZE');
+
+  const sidebarSource = await readFile(new URL('../src/components/Sidebar.tsx', import.meta.url), 'utf8');
+  assert.ok(sidebarSource.includes('switchToAppStore'), 'Sidebar must use switchToAppStore');
+  assert.ok(sidebarSource.includes('switchToPlayStore'), 'Sidebar must use switchToPlayStore');
+  assert.ok(sidebarSource.includes('IoLogoApple'), 'Sidebar must render Apple store icon');
+  assert.ok(sidebarSource.includes('IoLogoGooglePlaystore'), 'Sidebar must render Google Play icon');
+
+  const canvasEditorSource = await readFile(new URL('../src/components/CanvasEditor.tsx', import.meta.url), 'utf8');
+  assert.ok(canvasEditorSource.includes('switchToAppStore'), 'CanvasEditor must use switchToAppStore');
+  assert.ok(canvasEditorSource.includes('switchToPlayStore'), 'CanvasEditor must use switchToPlayStore');
+  assert.ok(canvasEditorSource.includes('getBadgeStore'), 'CanvasEditor must use getBadgeStore');
+
+  // Check no emojis in UI files
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+  assert.ok(!emojiRegex.test(storePreviewSource), 'StoreContextPreview must not contain emojis');
+  assert.ok(!emojiRegex.test(sidebarSource), 'Sidebar must not contain emojis');
+  assert.ok(!emojiRegex.test(canvasEditorSource), 'CanvasEditor must not contain emojis');
 });
 
 

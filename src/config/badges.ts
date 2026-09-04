@@ -19,6 +19,16 @@ export interface BadgeConfig {
   position?: BadgePosition;
   offsetX?: number;
   offsetY?: number;
+  store?: 'app-store' | 'play-store';
+}
+
+export function getBadgeStore(badge?: BadgeConfig): 'app-store' | 'play-store' | null {
+  if (!badge) return null;
+  if (badge.store) return badge.store;
+  const combined = `${badge.text || ''} ${badge.subtext || ''}`.toLowerCase();
+  if (combined.includes('app store') || combined.includes('apple')) return 'app-store';
+  if (combined.includes('google play') || combined.includes('play store')) return 'play-store';
+  return null;
 }
 
 export const BADGE_POSITION_OPTIONS: { value: BadgePosition; label: string }[] = [
@@ -41,6 +51,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: '4.9 App Store',
       subtext: '50k+ reviews',
       style: 'pill-glass',
+      store: 'app-store',
     },
   },
   {
@@ -51,6 +62,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: '"Essential App"',
       subtext: 'Featured by Apple',
       style: 'pill-glass',
+      store: 'app-store',
     },
   },
   {
@@ -61,6 +73,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: 'Apple Design Award',
       subtext: 'Winner',
       style: 'pill-solid',
+      store: 'app-store',
     },
   },
   {
@@ -71,6 +84,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: 'App of the Day',
       subtext: 'App Store',
       style: 'pill-solid',
+      store: 'app-store',
     },
   },
   // Google Play Badges
@@ -82,6 +96,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: '4.9 Google Play',
       subtext: '100k+ ratings',
       style: 'pill-glass',
+      store: 'play-store',
     },
   },
   {
@@ -92,6 +107,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: 'Editors\' Choice',
       subtext: 'Google Play',
       style: 'pill-glass',
+      store: 'play-store',
     },
   },
   {
@@ -102,6 +118,7 @@ export const BADGE_PRESETS: { label: string; config: BadgeConfig }[] = [
       text: 'Best of 2024',
       subtext: 'Google Play Winner',
       style: 'pill-solid',
+      store: 'play-store',
     },
   },
   // Social Proof & Community

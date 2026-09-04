@@ -147,13 +147,26 @@ export function ExportModal({ onClose }: ExportModalProps) {
                 {['ios', 'android'].map(platform => (
                   <button
                     key={platform}
-                    onClick={() => setSelectedPlatforms(prev => {
-                      if (prev.includes(platform as "ios" | "android")) {
-                        if (prev.length === 1) return prev;
-                        return prev.filter(p => p !== platform);
-                      }
-                      return [...prev, platform as "ios" | "android"];
-                    })}
+                    onClick={() => {
+                      const p = platform as 'ios' | 'android';
+                      setSelectedPlatforms(prev => {
+                        let next: ('ios' | 'android')[];
+                        if (prev.includes(p)) {
+                          if (prev.length === 1) return prev;
+                          next = prev.filter(item => item !== p);
+                        } else {
+                          next = [...prev, p];
+                        }
+                        if (next.length === 1) {
+                          if (next[0] === 'ios' && (activeDeviceTab === 'Samsung Galaxy' || activeDeviceTab === 'Android')) {
+                            setActiveDeviceTab('iPhone');
+                          } else if (next[0] === 'android' && activeDeviceTab === 'iPhone') {
+                            setActiveDeviceTab('Android');
+                          }
+                        }
+                        return next;
+                      });
+                    }}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 font-bold flex items-center justify-center gap-2 transition-all ${
                       selectedPlatforms.includes(platform as "ios" | "android")
                         ? isDark

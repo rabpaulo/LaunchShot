@@ -2,6 +2,7 @@
 import type { CanvasItem } from '@/store/useEditorStore';
 import { BADGE_PRESETS } from '@/config/badges';
 import { extractKeywords } from '@/utils/keywordExtractor';
+import { isAndroidDevice } from '@/config/sizes';
 
 
 
@@ -178,10 +179,12 @@ export const TONE_FORMULAS: Record<AsoTone, {
 export function applyAsoCopy(
   canvases: CanvasItem[], 
   description?: string, 
-  tone: AsoTone = 'high-converting'
+  tone: AsoTone = 'high-converting',
+  targetSize?: string
 ): CanvasItem[] {
   if (canvases.length === 0) return canvases;
   
+  const isAndroid = isAndroidDevice(targetSize);
   const keywords = description ? extractKeywords(description) : [];
   const kw1 = keywords[0] || '';
   const kw2 = keywords[1] || keywords[0] || '';
@@ -197,41 +200,50 @@ export function applyAsoCopy(
         ...canvas,
         title: copy.title,
         subtitle: copy.subtitle,
-        badge: BADGE_PRESETS[0].config, // Rating
+        badge: isAndroid ? BADGE_PRESETS[4].config : BADGE_PRESETS[0].config, // Rating
       };
     }
 
     // Screen 1: Hook / Positioning
     if (index === 0) {
       const copy = formulas.hook(kw1, kw2);
+      const screen1Badge = isAndroid
+        ? (tone === 'social-proof' ? BADGE_PRESETS[5].config : BADGE_PRESETS[4].config)
+        : (tone === 'social-proof' ? BADGE_PRESETS[2].config : BADGE_PRESETS[0].config);
       return {
         ...canvas,
         title: copy.title,
         subtitle: copy.subtitle,
-        badge: tone === 'social-proof' 
-          ? BADGE_PRESETS[2].config // Apple Design Award
-          : BADGE_PRESETS[0].config // 4.9 App Store
+        badge: screen1Badge
       };
     }
 
     // Last Screen: CTA / Outro
     if (index === total - 1) {
       const copy = formulas.cta(kw1, kw2);
+      let subtitle = copy.subtitle;
+      if (isAndroid && tone === 'apple-minimalist') {
+        subtitle = 'Download free on Google Play.';
+      }
       return {
         ...canvas,
         title: copy.title,
-        subtitle: copy.subtitle,
-        badge: BADGE_PRESETS[3].config // App of the Day
+        subtitle,
+        badge: isAndroid ? BADGE_PRESETS[5].config : BADGE_PRESETS[3].config // Editors Choice vs App of the Day
       };
     }
 
     // Screen 2: Killer Core Feature
     if (index === 1) {
       const copy = formulas.feature1(kw1, kw2);
+      let subtitle = copy.subtitle;
+      if (isAndroid && tone === 'social-proof') {
+        subtitle = 'Featured on Google Play as Editors\' Choice and Best of 2024.';
+      }
       return {
         ...canvas,
         title: copy.title,
-        subtitle: copy.subtitle,
+        subtitle,
         badge: undefined
       };
     }

@@ -19,9 +19,11 @@ import {
   IoBrushOutline,
   IoFolderOpenOutline,
   IoLayersOutline,
+  IoLogoApple,
+  IoLogoGooglePlaystore,
 } from 'react-icons/io5';
 import { processUploadedFiles } from '@/utils/imageProcessor';
-import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
+import { TARGET_SIZES, TargetSizeId, isAndroidDevice, isAppleDevice } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 import { DOODLE_PRESETS, DOODLE_COLOR_PALETTE } from '@/config/doodles';
@@ -110,6 +112,8 @@ export function Sidebar() {
     togglePanorama,
     updateStatusBarGlobal,
     toggleStatusBarOnAll,
+    switchToAppStore,
+    switchToPlayStore,
   } = useEditorStore(useShallow((state) => ({
     globalSettings: state.globalSettings,
     updateGlobalSettings: state.updateGlobalSettings,
@@ -134,6 +138,8 @@ export function Sidebar() {
     togglePanorama: state.togglePanorama,
     updateStatusBarGlobal: state.updateStatusBarGlobal,
     toggleStatusBarOnAll: state.toggleStatusBarOnAll,
+    switchToAppStore: state.switchToAppStore,
+    switchToPlayStore: state.switchToPlayStore,
   })));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -545,10 +551,20 @@ export function Sidebar() {
 
             <button
               onClick={() => {
-                const { loadTemplate, updateGlobalSettings } = useEditorStore.getState();
+                const { loadTemplate, updateGlobalSettings, globalSettings } = useEditorStore.getState();
                 const template = TEMPLATES[activeTemplateIndex];
                 if (template) {
+                  const wasAndroid = isAndroidDevice(globalSettings.targetSize);
                   template.apply(loadTemplate, updateGlobalSettings);
+                  const newSize = useEditorStore.getState().globalSettings.targetSize;
+                  const isNowAndroid = isAndroidDevice(newSize);
+                  if (wasAndroid && !isNowAndroid) {
+                    toast.success(`Loaded ${template.name} and switched to iPhone`);
+                  } else if (!wasAndroid && isNowAndroid) {
+                    toast.success(`Loaded ${template.name} and switched to Android device`);
+                  } else {
+                    toast.success(`Loaded ${template.name} template!`);
+                  }
                 }
               }}
               className={`w-full py-2.5 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
@@ -675,7 +691,14 @@ export function Sidebar() {
                 </label>
                 <CustomDropdown
                   value={selectedAsoTone}
-                  onChange={(val) => setSelectedAsoTone(val as AsoTone)}
+                  onChange={(val) => {
+                    const newTone = val as AsoTone;
+                    setSelectedAsoTone(newTone);
+                    if (newTone === 'apple-minimalist' && isAndroidDevice(globalSettings.targetSize)) {
+                      switchToAppStore();
+                      toast.success('Switched to iPhone for Apple Minimalist tone');
+                    }
+                  }}
                   options={ASO_TONE_OPTIONS.map(tone => ({ label: tone.name, value: tone.id }))}
                   isDark={isDark}
                 />
@@ -694,12 +717,12 @@ export function Sidebar() {
                 }`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    const { canvases, loadTemplate } = useEditorStore.getState();
+                    const { canvases, loadTemplate, globalSettings } = useEditorStore.getState();
                     if (canvases.length === 0) {
                       toast.error("Add or load screenshots first!");
                       return;
                     }
-                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone);
+                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize);
                     loadTemplate(updated);
                     toast.success("Applied ASO copy & badges!");
                   }
@@ -707,12 +730,12 @@ export function Sidebar() {
               />
               <button
                 onClick={() => {
-                  const { canvases, loadTemplate } = useEditorStore.getState();
+                  const { canvases, loadTemplate, globalSettings } = useEditorStore.getState();
                   if (canvases.length === 0) {
                     toast.error("Add or load screenshots first!");
                     return;
                   }
-                  const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone);
+                  const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize);
                   loadTemplate(updated);
                   toast.success("Applied ASO copy & badges!");
                 }}
@@ -891,9 +914,57 @@ export function Sidebar() {
           </div>
           
           <div className="space-y-3">
+            {/* Store Platform Selector */}
+            <div className={`flex rounded-xl border p-0.5 ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-gray-100 border-gray-200'}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isAndroidDevice(globalSettings.targetSize)) {
+                    switchToAppStore();
+                    toast.success('Switched to iPhone for App Store');
+                  }
+                }}
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  isAppleDevice(globalSettings.targetSize)
+                    ? isDark ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm'
+                    : isDark ? 'text-zinc-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                <IoLogoApple className="w-3.5 h-3.5" />
+                <span>App Store</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isAppleDevice(globalSettings.targetSize)) {
+                    switchToPlayStore();
+                    toast.success('Switched to Android device for Google Play');
+                  }
+                }}
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  isAndroidDevice(globalSettings.targetSize)
+                    ? isDark ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm'
+                    : isDark ? 'text-zinc-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                <IoLogoGooglePlaystore className="w-3.5 h-3.5" />
+                <span>Google Play</span>
+              </button>
+            </div>
+
             <CustomDropdown
               value={globalSettings.targetSize || 'ios-6.5'}
-              onChange={(val) => updateGlobalSettings({ targetSize: val as TargetSizeId })}
+              onChange={(val) => {
+                const newSize = val as TargetSizeId;
+                const wasAndroid = isAndroidDevice(globalSettings.targetSize);
+                const isNowAndroid = isAndroidDevice(newSize);
+                updateGlobalSettings({ targetSize: newSize });
+                if (wasAndroid && !isNowAndroid) {
+                  toast.success('Switched to iPhone (App Store)');
+                } else if (!wasAndroid && isNowAndroid) {
+                  toast.success('Switched to Android device (Google Play)');
+                }
+              }}
               options={Object.entries(groupedSizes).flatMap(([category, sizes]) => 
                 sizes.map(s => ({ label: s.name, value: s.id, category }))
               )}
@@ -1212,6 +1283,49 @@ export function Sidebar() {
             <p className={`text-[11px] leading-relaxed ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
               Overlays pixel-perfect Apple/Android status icons (9:41 AM, 100% battery, full 5G).
             </p>
+
+            {/* Platform Selector */}
+            <div className="space-y-1">
+              <label className={`block text-[11px] font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                OS Platform:
+              </label>
+              <div className={`flex rounded-xl border p-0.5 ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-gray-100 border-gray-200'}`}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isAndroidDevice(globalSettings.targetSize)) {
+                      switchToAppStore();
+                      toast.success('Switched to iPhone for iOS status bar');
+                    }
+                  }}
+                  className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    isAppleDevice(globalSettings.targetSize)
+                      ? isDark ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm'
+                      : isDark ? 'text-zinc-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <IoLogoApple className="w-3.5 h-3.5" />
+                  <span>iOS (iPhone)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isAppleDevice(globalSettings.targetSize)) {
+                      switchToPlayStore();
+                      toast.success('Switched to Android device for Android status bar');
+                    }
+                  }}
+                  className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    isAndroidDevice(globalSettings.targetSize)
+                      ? isDark ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm'
+                      : isDark ? 'text-zinc-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <IoLogoGooglePlaystore className="w-3.5 h-3.5" />
+                  <span>Android</span>
+                </button>
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>

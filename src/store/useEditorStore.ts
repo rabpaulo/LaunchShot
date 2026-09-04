@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { type TargetSizeId, DEFAULT_SIZE } from '@/config/sizes';
+import { type TargetSizeId, DEFAULT_SIZE, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE, isAndroidDevice, isAppleDevice } from '@/config/sizes';
 import { DEFAULT_FONT } from '@/config/fonts';
-import type { BadgeConfig } from '@/config/badges';
+import { type BadgeConfig, getBadgeStore } from '@/config/badges';
 import type { DoodleConfig } from '@/config/doodles';
 import { DEFAULT_LANGUAGE } from '@/config/languages';
 import { type StatusBarConfig, DEFAULT_STATUS_BAR } from '@/config/statusBar';
@@ -156,6 +156,9 @@ interface EditorState {
   moveCanvas: (id: string, direction: 'left' | 'right') => void;
   duplicateCanvas: (id: string) => void;
   updateGlobalSettings: (updates: Partial<GlobalSettings>) => void;
+  switchToAppStore: () => void;
+  switchToPlayStore: () => void;
+  ensurePlatformForStore: (store: 'app-store' | 'play-store') => void;
   setZoomScale: (scale: number) => void;
   toggleTheme: () => void;
   applyBackgroundToAll: (bg: string, textColor?: string) => void;
@@ -698,6 +701,51 @@ export const useEditorStore = create<EditorState>()(
           return pushHistory(state, state.canvases, nextSettings);
         }),
 
+      switchToAppStore: () =>
+        set((state) => {
+          const currentSize = state.globalSettings.targetSize;
+          if (isAndroidDevice(currentSize)) {
+            const nextSettings = {
+              ...state.globalSettings,
+              targetSize: DEFAULT_IPHONE_SIZE,
+            };
+            return pushHistory(state, state.canvases, nextSettings);
+          }
+          return state;
+        }),
+
+      switchToPlayStore: () =>
+        set((state) => {
+          const currentSize = state.globalSettings.targetSize;
+          if (isAppleDevice(currentSize)) {
+            const nextSettings = {
+              ...state.globalSettings,
+              targetSize: DEFAULT_ANDROID_SIZE,
+            };
+            return pushHistory(state, state.canvases, nextSettings);
+          }
+          return state;
+        }),
+
+      ensurePlatformForStore: (store) =>
+        set((state) => {
+          const currentSize = state.globalSettings.targetSize;
+          if (store === 'app-store' && isAndroidDevice(currentSize)) {
+            const nextSettings = {
+              ...state.globalSettings,
+              targetSize: DEFAULT_IPHONE_SIZE,
+            };
+            return pushHistory(state, state.canvases, nextSettings);
+          } else if (store === 'play-store' && isAppleDevice(currentSize)) {
+            const nextSettings = {
+              ...state.globalSettings,
+              targetSize: DEFAULT_ANDROID_SIZE,
+            };
+            return pushHistory(state, state.canvases, nextSettings);
+          }
+          return state;
+        }),
+
       setZoomScale: (scale) =>
         set((state) => ({
           globalSettings: { ...state.globalSettings, zoomScale: scale },
@@ -763,27 +811,39 @@ export const useEditorStore = create<EditorState>()(
 
       applyBadgeToAll: (badge) =>
         set((state) => {
+          let nextSettings = state.globalSettings;
+          const badgeStore = getBadgeStore(badge);
+          if (badgeStore === 'app-store' && isAndroidDevice(state.globalSettings.targetSize)) {
+            nextSettings = { ...state.globalSettings, targetSize: DEFAULT_IPHONE_SIZE };
+          } else if (badgeStore === 'play-store' && isAppleDevice(state.globalSettings.targetSize)) {
+            nextSettings = { ...state.globalSettings, targetSize: DEFAULT_ANDROID_SIZE };
+          }
           const nextCanvases = state.canvases.map((c) => ({
             ...c,
             badge: { ...badge },
           }));
-          return pushHistory(state, nextCanvases);
+          return pushHistory(state, nextCanvases, nextSettings);
         }),
 
       updateBadge: (canvasId, badgeUpdates) =>
         set((state) => {
+          const currentBadge = state.canvases.find((c) => c.id === canvasId)?.badge || { enabled: true, icon: 'star', text: '', style: 'pill-glass' };
+          const mergedBadge = { ...currentBadge, ...badgeUpdates };
+          let nextSettings = state.globalSettings;
+          const badgeStore = getBadgeStore(mergedBadge);
+          if (badgeStore === 'app-store' && isAndroidDevice(state.globalSettings.targetSize)) {
+            nextSettings = { ...state.globalSettings, targetSize: DEFAULT_IPHONE_SIZE };
+          } else if (badgeStore === 'play-store' && isAppleDevice(state.globalSettings.targetSize)) {
+            nextSettings = { ...state.globalSettings, targetSize: DEFAULT_ANDROID_SIZE };
+          }
           const nextCanvases = state.canvases.map((c) => {
             if (c.id !== canvasId) return c;
-            const currentBadge = c.badge || { enabled: true, icon: 'star', text: '', style: 'pill-glass' };
             return {
               ...c,
-              badge: {
-                ...currentBadge,
-                ...badgeUpdates,
-              },
+              badge: mergedBadge,
             };
           });
-          return pushHistory(state, nextCanvases);
+          return pushHistory(state, nextCanvases, nextSettings);
         }),
 
       applyAppIconToAll: (appIconSrc) =>

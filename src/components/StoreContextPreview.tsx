@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import toast from 'react-hot-toast';
 import { useEditorStore } from '@/store/useEditorStore';
-import { TARGET_SIZES, TargetSizeId } from '@/config/sizes';
+import { TARGET_SIZES, TargetSizeId, isAndroidDevice, isAppleDevice, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE } from '@/config/sizes';
 import { IoChevronBack, IoShareOutline, IoStar, IoLogoApple, IoLogoGooglePlaystore, IoSearchOutline, IoClose } from 'react-icons/io5';
 import { CanvasEditor } from './CanvasEditor';
 
 export function StoreContextPreview({ onClose }: { onClose: () => void }) {
-  const { canvases, globalSettings, updateGlobalSettings } = useEditorStore();
-  const [storeType, setStoreType] = useState<'app-store' | 'play-store'>('app-store');
+  const { canvases, globalSettings, updateGlobalSettings, switchToAppStore, switchToPlayStore } = useEditorStore();
+  const initialStore = isAndroidDevice(globalSettings.targetSize) ? 'play-store' : 'app-store';
+  const [storeType, setStoreType] = useState<'app-store' | 'play-store'>(initialStore);
   const [previewDevice, setPreviewDevice] = useState<TargetSizeId>(globalSettings.targetSize);
   const [scale, setScale] = useState(1);
 
@@ -21,6 +23,15 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   // Add 16px to account for the border-8 bezel (8px on each side)
   const wrapperW = activeDevice.logicalWidth + 16;
   const wrapperH = activeDevice.logicalHeight + 16;
+
+  useEffect(() => {
+    setPreviewDevice(globalSettings.targetSize);
+    if (isAndroidDevice(globalSettings.targetSize)) {
+      setStoreType('play-store');
+    } else if (isAppleDevice(globalSettings.targetSize)) {
+      setStoreType('app-store');
+    }
+  }, [globalSettings.targetSize]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,9 +57,10 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
           <button 
             onClick={() => {
               setStoreType('app-store');
-              if (previewDevice.includes('android') || previewDevice.includes('samsung') || previewDevice.includes('play')) {
-                setPreviewDevice('ios-6.5');
-                updateGlobalSettings({ targetSize: 'ios-6.5' });
+              if (isAndroidDevice(previewDevice) || isAndroidDevice(globalSettings.targetSize)) {
+                switchToAppStore();
+                setPreviewDevice(DEFAULT_IPHONE_SIZE);
+                toast.success('Switched to iPhone for App Store preview');
               }
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${storeType === 'app-store' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
@@ -58,9 +70,10 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
           <button 
             onClick={() => {
               setStoreType('play-store');
-              if (!previewDevice.includes('android') && !previewDevice.includes('samsung') && !previewDevice.includes('play')) {
-                setPreviewDevice('android-tall');
-                updateGlobalSettings({ targetSize: 'android-tall' });
+              if (isAppleDevice(previewDevice) || isAppleDevice(globalSettings.targetSize)) {
+                switchToPlayStore();
+                setPreviewDevice(DEFAULT_ANDROID_SIZE);
+                toast.success('Switched to Android device for Google Play preview');
               }
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${storeType === 'play-store' ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
@@ -76,6 +89,13 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
               const newSize = e.target.value as TargetSizeId;
               setPreviewDevice(newSize);
               updateGlobalSettings({ targetSize: newSize });
+              if (isAndroidDevice(newSize) && storeType === 'app-store') {
+                setStoreType('play-store');
+                toast.success('Switched to Google Play for Android device');
+              } else if (isAppleDevice(newSize) && storeType === 'play-store') {
+                setStoreType('app-store');
+                toast.success('Switched to App Store for iPhone device');
+              }
             }}
             className="bg-zinc-200 dark:bg-zinc-900 border-none rounded-lg text-sm px-4 py-2 text-gray-900 dark:text-white outline-none cursor-pointer font-medium focus:ring-2 focus:ring-blue-500"
           >

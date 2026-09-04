@@ -34,9 +34,9 @@ import {
 } from 'react-icons/io5';
 import { FastAverageColor } from 'fast-average-color';
 import TextareaAutosize from 'react-textarea-autosize';
-import { TARGET_SIZES } from '@/config/sizes';
+import { TARGET_SIZES, isAndroidDevice, isAppleDevice } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
-import { BADGE_PRESETS, BADGE_POSITION_OPTIONS, BadgeConfig, BadgePosition } from '@/config/badges';
+import { BADGE_PRESETS, BADGE_POSITION_OPTIONS, BadgeConfig, BadgePosition, getBadgeStore } from '@/config/badges';
 import { DoodleAccentGroup, DoodleShape } from './DoodleAccent';
 import {
   DOODLE_PRESETS,
@@ -120,7 +120,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     addFloatingCard,
     removeFloatingCard,
     addCalloutPin,
-    removeCalloutPin
+    removeCalloutPin,
+    switchToAppStore,
+    switchToPlayStore,
   } = useEditorStore(useShallow((state) => ({
     globalSettings: state.globalSettings,
     updateCanvas: state.updateCanvas,
@@ -137,7 +139,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     addFloatingCard: state.addFloatingCard,
     removeFloatingCard: state.removeFloatingCard,
     addCalloutPin: state.addCalloutPin,
-    removeCalloutPin: state.removeCalloutPin
+    removeCalloutPin: state.removeCalloutPin,
+    switchToAppStore: state.switchToAppStore,
+    switchToPlayStore: state.switchToPlayStore,
   })));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
@@ -150,7 +154,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   const [isEditingImage, setIsEditingImage] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
-  const isAndroid = globalSettings.targetSize.includes('samsung') || globalSettings.targetSize.includes('android') || globalSettings.targetSize.includes('play');
+  const isAndroid = isAndroidDevice(globalSettings.targetSize);
 
   const processSingleFile = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -716,6 +720,16 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
       setShowBadgeMenu(false);
       return;
     }
+
+    const badgeStore = getBadgeStore(preset);
+    if (badgeStore === 'app-store' && isAndroidDevice(globalSettings.targetSize)) {
+      switchToAppStore();
+      toast.success('Switched to iPhone for App Store badge');
+    } else if (badgeStore === 'play-store' && isAppleDevice(globalSettings.targetSize)) {
+      switchToPlayStore();
+      toast.success('Switched to Android device for Play Store badge');
+    }
+
     updateCanvas(canvas.id, {
       badge: {
         ...preset,
@@ -1756,6 +1770,47 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               </button>
             </div>
 
+            {/* Status Bar OS Platform */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium opacity-75">OS Platform:</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isAndroid) {
+                      switchToAppStore();
+                      toast.success('Switched to iPhone for iOS status bar');
+                    }
+                  }}
+                  className={`py-1.5 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
+                    !isAndroid
+                      ? isDark ? 'bg-zinc-800 border-zinc-600 text-white' : 'bg-zinc-900 text-white border-zinc-800'
+                      : isDark ? 'border-zinc-800 text-zinc-400 hover:text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <IoLogoApple className="w-3 h-3" />
+                  <span>iOS (iPhone)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!isAndroid) {
+                      switchToPlayStore();
+                      toast.success('Switched to Android device for Android status bar');
+                    }
+                  }}
+                  className={`py-1.5 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
+                    isAndroid
+                      ? isDark ? 'bg-zinc-800 border-zinc-600 text-white' : 'bg-zinc-900 text-white border-zinc-800'
+                      : isDark ? 'border-zinc-800 text-zinc-400 hover:text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <IoLogoGooglePlaystore className="w-3 h-3" />
+                  <span>Android</span>
+                </button>
+              </div>
+            </div>
+
             {/* Time Input */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium opacity-75">Status Bar Time:</label>
@@ -2304,7 +2359,20 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
               {/* Native App Store Badge (Social Graphics) */}
               {canvas.showAppStoreBadge && (
-                <div className={`mt-2 flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 rounded-lg border border-white/20 shadow-md hover:scale-105 transition-transform cursor-pointer w-max ${effectiveTextAlign === 'center' ? 'mx-auto' : ''} ${effectiveTextAlign === 'right' ? 'ml-auto' : ''}`}>
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isAndroid) {
+                      switchToAppStore();
+                      toast.success('Switched to iPhone for App Store');
+                    } else {
+                      switchToPlayStore();
+                      toast.success('Switched to Android device for Google Play');
+                    }
+                  }}
+                  title={isAndroid ? "Click to switch to iPhone (App Store)" : "Click to switch to Android (Google Play)"}
+                  className={`mt-2 flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 rounded-lg border border-white/20 shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer w-max ${effectiveTextAlign === 'center' ? 'mx-auto' : ''} ${effectiveTextAlign === 'right' ? 'ml-auto' : ''}`}
+                >
                   {!isAndroid ? (
                     <>
                       <IoLogoApple className="w-[22px] h-[22px]" />

@@ -31,6 +31,23 @@ export type TargetSizeId =
   // Headers & Banners
   | 'play-feature-graphic';
 
+export const DEFAULT_IPHONE_SIZE: TargetSizeId = 'ios-6.5';
+export const DEFAULT_ANDROID_SIZE: TargetSizeId = 'android-tall';
+
+export function isAndroidDevice(sizeId?: string): boolean {
+  if (!sizeId) return false;
+  return (
+    sizeId.startsWith('samsung-') ||
+    sizeId.startsWith('android-') ||
+    sizeId === 'play-feature-graphic'
+  );
+}
+
+export function isAppleDevice(sizeId?: string): boolean {
+  if (!sizeId) return true;
+  return sizeId.startsWith('ios-') || sizeId.startsWith('ipad-');
+}
+
 export interface TargetSizeConfig {
   id: TargetSizeId;
   name: string;

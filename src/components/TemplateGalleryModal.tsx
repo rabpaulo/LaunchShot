@@ -10,6 +10,7 @@ import {
 } from 'react-icons/io5';
 import { TEMPLATES, TemplateDefinition } from '@/config/templates';
 import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
+import { isAndroidDevice, isAppleDevice } from '@/config/sizes';
 
 interface ParsedTemplate {
   index: number;
@@ -393,9 +394,19 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
                   parsed={item}
                   isDark={isDark}
                   onSelect={() => {
+                    const currentSize = useEditorStore.getState().globalSettings.targetSize;
+                    const wasAndroid = isAndroidDevice(currentSize);
                     item.template.apply(loadTemplate, updateGlobalSettings);
                     setActiveTemplateIndex(item.index);
-                    toast.success(`Applied ${item.name} template!`);
+                    const newSize = useEditorStore.getState().globalSettings.targetSize;
+                    const isNowAndroid = isAndroidDevice(newSize);
+                    if (wasAndroid && !isNowAndroid) {
+                      toast.success(`Applied ${item.name} and switched to iPhone`);
+                    } else if (!wasAndroid && isNowAndroid) {
+                      toast.success(`Applied ${item.name} and switched to Android device`);
+                    } else {
+                      toast.success(`Applied ${item.name} template!`);
+                    }
                     onClose();
                   }}
                 />
