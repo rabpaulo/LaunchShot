@@ -211,3 +211,67 @@ test('applyTextBoxToAll updates textBoxWidth, titleFontSize, subtitleFontSize, a
   }
 });
 
+test('movable badge supports position presets, offsets, and applyBadgeToAll', async () => {
+  const store = useEditorStore.getState();
+  const canvas0 = store.canvases[0];
+
+  // 1. Test updating badge position and offsets on a single canvas
+  store.updateBadge(canvas0.id, {
+    enabled: true,
+    position: 'top-right',
+    offsetX: 25,
+    offsetY: -15,
+  });
+
+  let updatedCanvases = useEditorStore.getState().canvases;
+  assert.equal(updatedCanvases[0].badge?.position, 'top-right');
+  assert.equal(updatedCanvases[0].badge?.offsetX, 25);
+  assert.equal(updatedCanvases[0].badge?.offsetY, -15);
+
+  // 2. Test applyBadgeToAll propagates badge configuration
+  store.applyBadgeToAll({
+    enabled: true,
+    icon: 'trophy',
+    text: 'Best App 2026',
+    subtext: 'Award Winner',
+    style: 'pill-solid',
+    position: 'top-center',
+    offsetX: 10,
+    offsetY: 20,
+  });
+
+  updatedCanvases = useEditorStore.getState().canvases;
+  for (const c of updatedCanvases) {
+    assert.equal(c.badge?.enabled, true);
+    assert.equal(c.badge?.icon, 'trophy');
+    assert.equal(c.badge?.text, 'Best App 2026');
+    assert.equal(c.badge?.subtext, 'Award Winner');
+    assert.equal(c.badge?.style, 'pill-solid');
+    assert.equal(c.badge?.position, 'top-center');
+    assert.equal(c.badge?.offsetX, 10);
+    assert.equal(c.badge?.offsetY, 20);
+  }
+
+  // 3. Verify CanvasEditor implementation has drag handling, HUD, and no-export classes
+  const canvasEditorSource = await readFile(
+    new URL('../src/components/CanvasEditor.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.ok(canvasEditorSource.includes('handleBadgePointerDown'), 'handleBadgePointerDown must be defined');
+  assert.ok(canvasEditorSource.includes('renderMovableBadge'), 'renderMovableBadge must be defined');
+  assert.ok(canvasEditorSource.includes('zoomScale'), 'badge drag must account for zoomScale');
+  assert.ok(canvasEditorSource.includes('cursor-grab'), 'movable badge must indicate grab cursor');
+  assert.ok(canvasEditorSource.includes('no-export'), 'badge HUD/indicators must have no-export class');
+  assert.ok(canvasEditorSource.includes('BADGE_POSITION_OPTIONS'), 'badge position options must be imported and rendered');
+
+  // 4. Verify no emojis in badges config
+  const badgesConfigSource = await readFile(
+    new URL('../src/config/badges.ts', import.meta.url),
+    'utf8'
+  );
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+  assert.ok(!emojiRegex.test(badgesConfigSource), 'badges config must not contain emojis');
+});
+
+

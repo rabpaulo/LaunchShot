@@ -168,6 +168,8 @@ interface EditorState {
   applyDoodlesToAll: (doodle: DoodleConfig) => void;
   applyDoodleColorToAll: (color: string) => void;
   toggleDoodlesOnAll: (enabled: boolean) => void;
+  applyBadgeToAll: (badge: BadgeConfig) => void;
+  updateBadge: (canvasId: string, badgeUpdates: Partial<BadgeConfig>) => void;
   
   // Status Bar Sanitizer
   updateStatusBarGlobal: (updates: Partial<StatusBarConfig>) => void;
@@ -756,6 +758,31 @@ export const useEditorStore = create<EditorState>()(
             ...(subtitleFontSize !== undefined ? { subtitleFontSize } : {}),
             ...(textAlign !== undefined ? { textAlign } : {}),
           }));
+          return pushHistory(state, nextCanvases);
+        }),
+
+      applyBadgeToAll: (badge) =>
+        set((state) => {
+          const nextCanvases = state.canvases.map((c) => ({
+            ...c,
+            badge: { ...badge },
+          }));
+          return pushHistory(state, nextCanvases);
+        }),
+
+      updateBadge: (canvasId, badgeUpdates) =>
+        set((state) => {
+          const nextCanvases = state.canvases.map((c) => {
+            if (c.id !== canvasId) return c;
+            const currentBadge = c.badge || { enabled: true, icon: 'star', text: '', style: 'pill-glass' };
+            return {
+              ...c,
+              badge: {
+                ...currentBadge,
+                ...badgeUpdates,
+              },
+            };
+          });
           return pushHistory(state, nextCanvases);
         }),
 

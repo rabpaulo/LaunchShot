@@ -29,12 +29,14 @@ import {
   IoPhonePortraitOutline,
   IoAdd,
   IoResizeOutline,
+  IoMoveOutline,
+  IoRefreshOutline,
 } from 'react-icons/io5';
 import { FastAverageColor } from 'fast-average-color';
 import TextareaAutosize from 'react-textarea-autosize';
 import { TARGET_SIZES } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
-import { BADGE_PRESETS, BadgeConfig } from '@/config/badges';
+import { BADGE_PRESETS, BADGE_POSITION_OPTIONS, BadgeConfig, BadgePosition } from '@/config/badges';
 import { DoodleAccentGroup, DoodleShape } from './DoodleAccent';
 import {
   DOODLE_PRESETS,
@@ -111,6 +113,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     applyLayoutToAll,
     applyContentToAll,
     applyTextBoxToAll,
+    applyBadgeToAll,
+    updateBadge,
     applyDoodlesToAll,
     setIsDraggingGlobal,
     addFloatingCard,
@@ -126,6 +130,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     applyLayoutToAll: state.applyLayoutToAll,
     applyContentToAll: state.applyContentToAll,
     applyTextBoxToAll: state.applyTextBoxToAll,
+    applyBadgeToAll: state.applyBadgeToAll,
+    updateBadge: state.updateBadge,
     applyDoodlesToAll: state.applyDoodlesToAll,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
     addFloatingCard: state.addFloatingCard,
@@ -140,6 +146,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   const [showStatusBarMenu, setShowStatusBarMenu] = useState(false);
   const [showTextBoxMenu, setShowTextBoxMenu] = useState(false);
   const [isResizingTextBox, setIsResizingTextBox] = useState(false);
+  const [isDraggingBadge, setIsDraggingBadge] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
@@ -506,8 +513,217 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     window.addEventListener('pointerup', onPointerUp);
   };
 
+  const handleBadgePointerDown = (e: React.PointerEvent) => {
+    if (isPreviewMode || targetWidth) return;
+    if ((e.target as HTMLElement).tagName.toLowerCase() === 'input') return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBadge(true);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialOffsetX = canvas.badge?.offsetX || 0;
+    const initialOffsetY = canvas.badge?.offsetY || 0;
+
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'grabbing';
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const deltaX = (moveEvent.clientX - startX) / zoomScale;
+      const deltaY = (moveEvent.clientY - startY) / zoomScale;
+
+      const newOffsetX = Math.round(initialOffsetX + deltaX);
+      const newOffsetY = Math.round(initialOffsetY + deltaY);
+
+      updateCanvas(canvas.id, {
+        badge: {
+          ...canvas.badge!,
+          offsetX: newOffsetX,
+          offsetY: newOffsetY,
+        },
+      });
+    };
+
+    const onPointerUp = () => {
+      setIsDraggingBadge(false);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
+  const getBadgePositionClasses = (position?: BadgePosition) => {
+    switch (position) {
+      case 'top-left':
+        return 'top-6 left-6';
+      case 'top-center':
+        return 'top-6 left-1/2';
+      case 'top-right':
+        return 'top-6 right-6';
+      case 'bottom-left':
+        return 'bottom-8 left-6';
+      case 'bottom-center':
+        return 'bottom-8 left-1/2';
+      case 'bottom-right':
+        return 'bottom-8 right-6';
+      case 'free':
+        return 'top-10 left-1/2';
+      default:
+        return 'top-6 left-1/2';
+    }
+  };
+
+  const renderMovableBadge = (isCanvasAnchored = false) => {
+    if (!canvas.badge?.enabled) return null;
+
+    const isAnchored =
+      isCanvasAnchored ||
+      (canvas.badge.position && canvas.badge.position !== 'inline') ||
+      currentLayout === 'device-only';
+
+    const ox = canvas.badge.offsetX || 0;
+    const oy = canvas.badge.offsetY || 0;
+    const isMoved =
+      ox !== 0 ||
+      oy !== 0 ||
+      (canvas.badge.position !== undefined && canvas.badge.position !== 'inline');
+
+    let transformStyle: string | undefined = undefined;
+    if (
+      isAnchored &&
+      (canvas.badge.position === 'top-center' ||
+        canvas.badge.position === 'bottom-center' ||
+        canvas.badge.position === 'free' ||
+        (!canvas.badge.position && currentLayout === 'device-only'))
+    ) {
+      transformStyle = `translateX(calc(-50% + ${ox}px)) translateY(${oy}px)`;
+    } else if (ox !== 0 || oy !== 0) {
+      transformStyle = `translate(${ox}px, ${oy}px)`;
+    }
+
+    const badgeContent = (
+      <div
+        onPointerDown={handleBadgePointerDown}
+        className={`group/badge relative inline-flex items-center select-none ${
+          isPreviewMode ? '' : 'cursor-grab active:cursor-grabbing'
+        } ${isDraggingBadge ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-black/50 scale-105 z-50' : ''}`}
+        style={{
+          transform: transformStyle,
+          transition: isDraggingBadge ? 'none' : 'transform 0.15s cubic-bezier(0.2, 0, 0, 1)',
+        }}
+        title={isPreviewMode ? undefined : 'Drag badge to reposition anywhere'}
+      >
+        {/* Editor-only Move Indicator & Position HUD (no-export) */}
+        {!isPreviewMode && (
+          <>
+            {/* Outline on hover */}
+            <div
+              className={`absolute -inset-1 rounded-full border transition-all pointer-events-none no-export ${
+                isDraggingBadge
+                  ? 'border-amber-400/80 bg-amber-400/10'
+                  : 'border-transparent group-hover/badge:border-amber-400/40 group-hover/badge:bg-amber-400/5'
+              }`}
+            />
+
+            {/* Floating Drag Handle / Position HUD */}
+            <div
+              className={`absolute -top-7 left-1/2 -translate-x-1/2 no-export ${
+                isDraggingBadge
+                  ? 'opacity-100 scale-100'
+                  : 'opacity-0 group-hover/badge:opacity-100 group-focus-within/badge:opacity-100 scale-95 group-hover/badge:scale-100'
+              } transition-all duration-150 z-50 pointer-events-auto flex items-center gap-1.5 bg-gray-950/95 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold shadow-2xl border border-white/20 whitespace-nowrap`}
+            >
+              <IoMoveOutline className="w-3 h-3 text-amber-400 flex-shrink-0 animate-pulse" />
+              <span>
+                {isMoved ? `(${ox > 0 ? `+${ox}` : ox}, ${oy > 0 ? `+${oy}` : oy})` : 'Drag to move'}
+              </span>
+
+              {isMoved && (
+                <>
+                  <span className="opacity-40">|</span>
+                  <button
+                    type="button"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateCanvas(canvas.id, {
+                        badge: {
+                          ...canvas.badge!,
+                          position: 'inline',
+                          offsetX: 0,
+                          offsetY: 0,
+                        },
+                      });
+                      toast.success('Reset badge position');
+                    }}
+                    className="text-[9px] text-amber-300 hover:text-amber-200 uppercase tracking-wider pl-0.5"
+                    title="Reset badge position"
+                  >
+                    Reset
+                  </button>
+                </>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Actual Badge Sticker */}
+        <BadgeSticker
+          badge={canvas.badge}
+          textColor={canvas.textColor}
+          onChangeText={(newText) =>
+            updateCanvas(canvas.id, { badge: { ...canvas.badge!, text: newText } })
+          }
+          onChangeSubtext={(newSubtext) =>
+            updateCanvas(canvas.id, { badge: { ...canvas.badge!, subtext: newSubtext } })
+          }
+        />
+      </div>
+    );
+
+    if (isAnchored) {
+      return (
+        <div
+          className={`absolute z-30 pointer-events-auto ${getBadgePositionClasses(
+            canvas.badge.position || (currentLayout === 'device-only' ? 'top-center' : 'inline')
+          )}`}
+        >
+          {badgeContent}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className={`mb-1.5 pointer-events-auto w-full flex ${
+          effectiveTextAlign === 'right' ? 'justify-end' :
+          effectiveTextAlign === 'center' ? 'justify-center' : 'justify-start'
+        }`}
+      >
+        {badgeContent}
+      </div>
+    );
+  };
+
   const handleApplyBadge = (preset: BadgeConfig) => {
-    updateCanvas(canvas.id, { badge: preset });
+    if (!preset.enabled) {
+      updateCanvas(canvas.id, { badge: preset });
+      setShowBadgeMenu(false);
+      return;
+    }
+    updateCanvas(canvas.id, {
+      badge: {
+        ...preset,
+        position: canvas.badge?.position ?? 'inline',
+        offsetX: canvas.badge?.offsetX ?? 0,
+        offsetY: canvas.badge?.offsetY ?? 0,
+      },
+    });
     setShowBadgeMenu(false);
   };
 
@@ -825,7 +1041,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
         {/* Badge Selector Popover */}
         {showBadgeMenu && (
-          <div className={`absolute top-12 left-20 z-50 rounded-2xl shadow-2xl border p-3 w-72 flex flex-col gap-2 ${
+          <div className={`absolute top-12 left-20 z-50 rounded-2xl shadow-2xl border p-3.5 w-80 flex flex-col gap-2.5 ${
             isDark ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'
           }`}>
             <div className={`flex items-center justify-between border-b pb-2 ${
@@ -833,7 +1049,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             }`}>
               <span className="text-xs font-bold flex items-center gap-1.5">
                 <IoStar className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                Select Social Proof Badge
+                Social Proof Badge
               </span>
               <button 
                 onClick={() => setShowBadgeMenu(false)}
@@ -843,34 +1059,258 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               </button>
             </div>
 
-            <div 
-              className="space-y-1.5 max-h-56 overflow-y-auto"
-              onWheel={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => handleApplyBadge({ enabled: false, icon: 'none', text: '', style: 'pill-glass' })}
-                className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl font-medium transition-colors ${
-                  isDark ? 'hover:bg-red-950/40 text-red-400' : 'hover:bg-red-50 text-red-600'
-                }`}
+            {canvas.badge?.enabled ? (
+              <div 
+                className="space-y-3 max-h-72 overflow-y-auto pr-0.5"
+                onWheel={(e) => e.stopPropagation()}
               >
-                Remove Badge
-              </button>
+                {/* Position Presets */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-semibold">
+                    <span className="flex items-center gap-1">
+                      <IoMoveOutline className="w-3 h-3 text-amber-400" />
+                      Position
+                    </span>
+                    {(canvas.badge.offsetX || canvas.badge.offsetY || (canvas.badge.position && canvas.badge.position !== 'inline')) ? (
+                      <button
+                        onClick={() => {
+                          updateCanvas(canvas.id, {
+                            badge: {
+                              ...canvas.badge!,
+                              position: 'inline',
+                              offsetX: 0,
+                              offsetY: 0,
+                            },
+                          });
+                          toast.success('Reset badge position');
+                        }}
+                        className="text-[10px] text-amber-500 hover:text-amber-400 flex items-center gap-0.5"
+                      >
+                        <IoRefreshOutline className="w-2.5 h-2.5" />
+                        Reset
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {BADGE_POSITION_OPTIONS.map((pos) => {
+                      const isActive = (canvas.badge?.position || 'inline') === pos.value;
+                      return (
+                        <button
+                          key={pos.value}
+                          onClick={() => {
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                position: pos.value,
+                                offsetX: 0,
+                                offsetY: 0,
+                              },
+                            });
+                          }}
+                          className={`px-2 py-1 text-[11px] rounded-lg font-medium border text-left truncate transition-colors ${
+                            isActive
+                              ? isDark
+                                ? 'bg-amber-950/60 border-amber-500/50 text-amber-300'
+                                : 'bg-amber-50 border-amber-300 text-amber-700'
+                              : isDark
+                                ? 'border-gray-800 hover:border-gray-700 bg-gray-800/40 text-gray-300'
+                                : 'border-gray-200 hover:border-gray-300 bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          {pos.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-              {BADGE_PRESETS.map((p) => (
-                <button
-                  key={p.label}
-                  onClick={() => handleApplyBadge(p.config)}
-                  className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
-                    isDark 
-                      ? 'border-transparent hover:border-gray-700 hover:bg-gray-800 text-gray-200' 
-                      : 'border-transparent hover:border-zinc-100 hover:bg-zinc-50 text-gray-700'
-                  }`}
-                >
-                  <span className="font-semibold">{p.label}</span>
-                  <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{p.config.text}</span>
-                </button>
-              ))}
-            </div>
+                {/* Fine-Tuning Offsets */}
+                <div className="space-y-1.5 pt-1 border-t border-gray-800/20">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-gray-400">
+                    <span>Offsets</span>
+                    <span className="text-[10px] text-gray-500 font-mono">
+                      X: {canvas.badge.offsetX || 0}px | Y: {canvas.badge.offsetY || 0}px
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* X Nudge */}
+                    <div className={`flex items-center justify-between rounded-lg p-1 text-xs border ${
+                      isDark ? 'bg-gray-800/60 border-gray-700/60' : 'bg-gray-50 border-gray-200'
+                    }`}>
+                      <span className="text-[10px] font-semibold px-1 text-gray-400">X</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() =>
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                offsetX: (canvas.badge?.offsetX || 0) - 10,
+                              },
+                            })
+                          }
+                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          title="Nudge Left (-10px)"
+                        >
+                          -
+                        </button>
+                        <button
+                          onClick={() =>
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                offsetX: (canvas.badge?.offsetX || 0) + 10,
+                              },
+                            })
+                          }
+                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          title="Nudge Right (+10px)"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Y Nudge */}
+                    <div className={`flex items-center justify-between rounded-lg p-1 text-xs border ${
+                      isDark ? 'bg-gray-800/60 border-gray-700/60' : 'bg-gray-50 border-gray-200'
+                    }`}>
+                      <span className="text-[10px] font-semibold px-1 text-gray-400">Y</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() =>
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                offsetY: (canvas.badge?.offsetY || 0) - 10,
+                              },
+                            })
+                          }
+                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          title="Nudge Up (-10px)"
+                        >
+                          -
+                        </button>
+                        <button
+                          onClick={() =>
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                offsetY: (canvas.badge?.offsetY || 0) + 10,
+                              },
+                            })
+                          }
+                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          title="Nudge Down (+10px)"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Style Selector */}
+                <div className="space-y-1 pt-1 border-t border-gray-800/20">
+                  <span className="text-[11px] font-semibold text-gray-400">Badge Style</span>
+                  <div className="grid grid-cols-3 gap-1">
+                    {(['pill-glass', 'pill-solid', 'minimal-star'] as const).map((st) => (
+                      <button
+                        key={st}
+                        onClick={() =>
+                          updateCanvas(canvas.id, {
+                            badge: {
+                              ...canvas.badge!,
+                              style: st,
+                            },
+                          })
+                        }
+                        className={`px-1.5 py-1 text-[10px] rounded-lg font-medium border text-center transition-colors ${
+                          canvas.badge?.style === st
+                            ? isDark
+                              ? 'bg-amber-950/60 border-amber-500/50 text-amber-300'
+                              : 'bg-amber-50 border-amber-300 text-amber-700'
+                            : isDark
+                              ? 'border-gray-800 hover:border-gray-700 text-gray-300'
+                              : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                        }`}
+                      >
+                        {st === 'pill-glass' ? 'Frosted' : st === 'pill-solid' ? 'Solid' : 'Minimal'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons: Apply All & Remove */}
+                <div className="pt-2 border-t border-gray-800/20 flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      applyBadgeToAll(canvas.badge!);
+                      toast.success('Applied badge to all screenshots');
+                      setShowBadgeMenu(false);
+                    }}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-xl border text-center transition-colors ${
+                      isDark
+                        ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                        : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                    }`}
+                  >
+                    Apply to All
+                  </button>
+                  <button
+                    onClick={() => handleApplyBadge({ enabled: false, icon: 'none', text: '', style: 'pill-glass' })}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-colors ${
+                      isDark
+                        ? 'text-red-400 border-red-900/40 hover:bg-red-950/40'
+                        : 'text-red-600 border-red-200 hover:bg-red-50'
+                    }`}
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                {/* Presets List Header */}
+                <div className="pt-2 border-t border-gray-800/20">
+                  <span className="text-[11px] font-semibold text-gray-400 block mb-1.5">Switch Preset</span>
+                  <div className="space-y-1">
+                    {BADGE_PRESETS.map((p) => (
+                      <button
+                        key={p.label}
+                        onClick={() => handleApplyBadge(p.config)}
+                        className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
+                          isDark 
+                            ? 'border-transparent hover:border-gray-700 hover:bg-gray-800 text-gray-200' 
+                            : 'border-transparent hover:border-zinc-100 hover:bg-zinc-50 text-gray-700'
+                        }`}
+                      >
+                        <span className="font-semibold">{p.label}</span>
+                        <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{p.config.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* When Badge is disabled: select preset to enable */
+              <div 
+                className="space-y-1.5 max-h-56 overflow-y-auto"
+                onWheel={(e) => e.stopPropagation()}
+              >
+                {BADGE_PRESETS.map((p) => (
+                  <button
+                    key={p.label}
+                    onClick={() => handleApplyBadge(p.config)}
+                    className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
+                      isDark 
+                        ? 'border-transparent hover:border-gray-700 hover:bg-gray-800 text-gray-200' 
+                        : 'border-transparent hover:border-zinc-100 hover:bg-zinc-50 text-gray-700'
+                    }`}
+                  >
+                    <span className="font-semibold">{p.label}</span>
+                    <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{p.config.text}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1621,6 +2061,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             />
           ))}
 
+          {/* Anchored Movable Social Proof Badge */}
+          {canvas.badge?.enabled &&
+            ((canvas.badge.position && canvas.badge.position !== 'inline') ||
+              currentLayout === 'device-only') &&
+            renderMovableBadge(true)}
+
           {/* Background Image Overlay */}
           {canvas.backgroundImageSrc && !globalSettings.panorama?.enabled && (
             <div className="absolute inset-0 bg-black/40 z-0" />
@@ -1770,20 +2216,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 </>
               )}
 
-              {/* Badge Sticker */}
-              {canvas.badge?.enabled && (
-                <div className={`mb-1.5 pointer-events-auto w-full flex ${
-                  effectiveTextAlign === 'right' ? 'justify-end' :
-                  effectiveTextAlign === 'center' ? 'justify-center' : 'justify-start'
-                }`}>
-                  <BadgeSticker 
-                    badge={canvas.badge} 
-                    textColor={canvas.textColor} 
-                    onChangeText={(newText) => updateCanvas(canvas.id, { badge: { ...canvas.badge!, text: newText } })}
-                    onChangeSubtext={(newSubtext) => updateCanvas(canvas.id, { badge: { ...canvas.badge!, subtext: newSubtext } })}
-                  />
-                </div>
-              )}
+              {/* Badge Sticker (Inline Flow) */}
+              {canvas.badge?.enabled &&
+                (!canvas.badge.position || canvas.badge.position === 'inline') &&
+                renderMovableBadge(false)}
 
               {/* Title & Hand-Drawn Doodle Accents */}
               {currentLayout === 'banner-kinetic-stack' ? (

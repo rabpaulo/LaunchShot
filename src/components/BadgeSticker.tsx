@@ -56,6 +56,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onCha
             type="text"
             value={badge.text}
             onChange={handleTextChange}
+            onPointerDown={(e) => e.stopPropagation()}
             className="bg-transparent border-none outline-none focus:ring-1 focus:ring-white/30 rounded px-1 transition-all w-24 text-center"
             style={{ color: textColor }}
           />
@@ -70,6 +71,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onCha
                 type="text"
                 value={badge.subtext}
                 onChange={handleSubtextChange}
+                onPointerDown={(e) => e.stopPropagation()}
                 className="bg-transparent border-none outline-none focus:ring-1 focus:ring-white/30 rounded px-1 transition-all w-24"
                 style={{ color: textColor }}
               />
@@ -91,6 +93,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onCha
             type="text"
             value={badge.text}
             onChange={handleTextChange}
+            onPointerDown={(e) => e.stopPropagation()}
             className="bg-transparent border-none outline-none focus:ring-1 focus:ring-black/10 rounded px-1 text-gray-900 tracking-tight transition-all w-28 text-center"
           />
         ) : (
@@ -103,6 +106,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onCha
                 type="text"
                 value={badge.subtext}
                 onChange={handleSubtextChange}
+                onPointerDown={(e) => e.stopPropagation()}
                 className="bg-transparent border-none outline-none focus:ring-1 focus:ring-black/10 rounded px-1 transition-all w-20 text-gray-500"
               />
             ) : (
@@ -125,6 +129,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onCha
           type="text"
           value={badge.text}
           onChange={handleTextChange}
+          onPointerDown={(e) => e.stopPropagation()}
           className="bg-transparent border-none outline-none focus:ring-1 focus:ring-white/30 rounded px-1 tracking-tight transition-all w-28 text-center"
           style={{ color: textColor }}
         />
@@ -138,6 +143,7 @@ export function BadgeSticker({ badge, textColor = '#ffffff', onChangeText, onCha
               type="text"
               value={badge.subtext}
               onChange={handleSubtextChange}
+              onPointerDown={(e) => e.stopPropagation()}
               className="bg-transparent border-none outline-none focus:ring-1 focus:ring-white/30 rounded px-1 transition-all w-20"
               style={{ color: textColor }}
             />
