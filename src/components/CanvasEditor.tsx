@@ -151,6 +151,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   const [showTextBoxMenu, setShowTextBoxMenu] = useState(false);
   const [isResizingTextBox, setIsResizingTextBox] = useState(false);
   const [isDraggingBadge, setIsDraggingBadge] = useState(false);
+  const [isEditingBadgeX, setIsEditingBadgeX] = useState(false);
+  const [badgeXText, setBadgeXText] = useState('');
+  const [isEditingBadgeY, setIsEditingBadgeY] = useState(false);
+  const [badgeYText, setBadgeYText] = useState('');
   const [isEditingImage, setIsEditingImage] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
@@ -636,11 +640,16 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
             {/* Floating Drag Handle / Position HUD */}
             <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowBadgeMenu(true);
+              }}
               className={`absolute -top-7 left-1/2 -translate-x-1/2 no-export ${
                 isDraggingBadge
                   ? 'opacity-100 scale-100'
                   : 'opacity-0 group-hover/badge:opacity-100 group-focus-within/badge:opacity-100 scale-95 group-hover/badge:scale-100'
-              } transition-all duration-150 z-50 pointer-events-auto flex items-center gap-1.5 bg-gray-950/95 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold shadow-2xl border border-white/20 whitespace-nowrap`}
+              } transition-all duration-150 z-50 pointer-events-auto flex items-center gap-1.5 bg-gray-950/95 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold shadow-2xl border border-white/20 whitespace-nowrap cursor-pointer`}
+              title="Click to open badge coordinates & settings"
             >
               <IoMoveOutline className="w-3 h-3 text-amber-400 flex-shrink-0 animate-pulse" />
               <span>
@@ -1138,22 +1147,29 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   </div>
                 </div>
 
-                {/* Fine-Tuning Offsets */}
-                <div className="space-y-1.5 pt-1 border-t border-gray-800/20">
+                {/* Coordinates & Offsets Inputs */}
+                <div className="space-y-1.5 pt-1.5 border-t border-gray-800/20">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-gray-400">
-                    <span>Offsets</span>
+                    <span className="flex items-center gap-1">
+                      <IoMoveOutline className="w-3 h-3 text-amber-400" />
+                      Coordinates & Offsets
+                    </span>
                     <span className="text-[10px] text-gray-500 font-mono">
                       X: {canvas.badge.offsetX || 0}px | Y: {canvas.badge.offsetY || 0}px
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    {/* X Nudge */}
-                    <div className={`flex items-center justify-between rounded-lg p-1 text-xs border ${
+                    {/* X Position Input */}
+                    <div className={`flex flex-col gap-1 rounded-xl p-2 border ${
                       isDark ? 'bg-gray-800/60 border-gray-700/60' : 'bg-gray-50 border-gray-200'
                     }`}>
-                      <span className="text-[10px] font-semibold px-1 text-gray-400">X</span>
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-gray-400">
+                        <label htmlFor={`badge-x-${canvas.id}`} className="cursor-pointer">X Position</label>
+                        <span className="text-[10px] text-gray-500 font-mono">px</span>
+                      </div>
                       <div className="flex items-center gap-1">
                         <button
+                          type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
                               badge: {
@@ -1162,12 +1178,58 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                               },
                             })
                           }
-                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center font-bold text-xs transition-colors flex-shrink-0 ${
+                            isDark ? 'border-zinc-700 hover:bg-zinc-700 text-zinc-300' : 'border-gray-300 hover:bg-gray-200 text-gray-700'
+                          }`}
                           title="Nudge Left (-10px)"
                         >
                           -
                         </button>
+                        <input
+                          id={`badge-x-${canvas.id}`}
+                          type="number"
+                          value={isEditingBadgeX ? badgeXText : (canvas.badge.offsetX ?? 0)}
+                          onFocus={() => {
+                            setIsEditingBadgeX(true);
+                            setBadgeXText(String(canvas.badge?.offsetX ?? 0));
+                          }}
+                          onChange={(e) => {
+                            setBadgeXText(e.target.value);
+                            const parsed = parseInt(e.target.value, 10);
+                            if (!isNaN(parsed)) {
+                              updateCanvas(canvas.id, {
+                                badge: {
+                                  ...canvas.badge!,
+                                  offsetX: parsed,
+                                },
+                              });
+                            }
+                          }}
+                          onBlur={() => {
+                            setIsEditingBadgeX(false);
+                            const parsed = parseInt(badgeXText, 10);
+                            const finalVal = isNaN(parsed) ? 0 : parsed;
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                offsetX: finalVal,
+                              },
+                            });
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              (e.target as HTMLInputElement).blur();
+                            }
+                          }}
+                          className={`w-full min-w-0 text-center py-1 px-1 rounded-lg border text-xs font-mono font-bold outline-none transition-colors ${
+                            isDark
+                              ? 'bg-zinc-900 border-zinc-700 text-white focus:border-amber-500'
+                              : 'bg-white border-gray-300 text-gray-900 focus:border-amber-500'
+                          }`}
+                          placeholder="0"
+                        />
                         <button
+                          type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
                               badge: {
@@ -1176,7 +1238,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                               },
                             })
                           }
-                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center font-bold text-xs transition-colors flex-shrink-0 ${
+                            isDark ? 'border-zinc-700 hover:bg-zinc-700 text-zinc-300' : 'border-gray-300 hover:bg-gray-200 text-gray-700'
+                          }`}
                           title="Nudge Right (+10px)"
                         >
                           +
@@ -1184,13 +1248,17 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       </div>
                     </div>
 
-                    {/* Y Nudge */}
-                    <div className={`flex items-center justify-between rounded-lg p-1 text-xs border ${
+                    {/* Y Position Input */}
+                    <div className={`flex flex-col gap-1 rounded-xl p-2 border ${
                       isDark ? 'bg-gray-800/60 border-gray-700/60' : 'bg-gray-50 border-gray-200'
                     }`}>
-                      <span className="text-[10px] font-semibold px-1 text-gray-400">Y</span>
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-gray-400">
+                        <label htmlFor={`badge-y-${canvas.id}`} className="cursor-pointer">Y Position</label>
+                        <span className="text-[10px] text-gray-500 font-mono">px</span>
+                      </div>
                       <div className="flex items-center gap-1">
                         <button
+                          type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
                               badge: {
@@ -1199,12 +1267,58 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                               },
                             })
                           }
-                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center font-bold text-xs transition-colors flex-shrink-0 ${
+                            isDark ? 'border-zinc-700 hover:bg-zinc-700 text-zinc-300' : 'border-gray-300 hover:bg-gray-200 text-gray-700'
+                          }`}
                           title="Nudge Up (-10px)"
                         >
                           -
                         </button>
+                        <input
+                          id={`badge-y-${canvas.id}`}
+                          type="number"
+                          value={isEditingBadgeY ? badgeYText : (canvas.badge.offsetY ?? 0)}
+                          onFocus={() => {
+                            setIsEditingBadgeY(true);
+                            setBadgeYText(String(canvas.badge?.offsetY ?? 0));
+                          }}
+                          onChange={(e) => {
+                            setBadgeYText(e.target.value);
+                            const parsed = parseInt(e.target.value, 10);
+                            if (!isNaN(parsed)) {
+                              updateCanvas(canvas.id, {
+                                badge: {
+                                  ...canvas.badge!,
+                                  offsetY: parsed,
+                                },
+                              });
+                            }
+                          }}
+                          onBlur={() => {
+                            setIsEditingBadgeY(false);
+                            const parsed = parseInt(badgeYText, 10);
+                            const finalVal = isNaN(parsed) ? 0 : parsed;
+                            updateCanvas(canvas.id, {
+                              badge: {
+                                ...canvas.badge!,
+                                offsetY: finalVal,
+                              },
+                            });
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              (e.target as HTMLInputElement).blur();
+                            }
+                          }}
+                          className={`w-full min-w-0 text-center py-1 px-1 rounded-lg border text-xs font-mono font-bold outline-none transition-colors ${
+                            isDark
+                              ? 'bg-zinc-900 border-zinc-700 text-white focus:border-amber-500'
+                              : 'bg-white border-gray-300 text-gray-900 focus:border-amber-500'
+                          }`}
+                          placeholder="0"
+                        />
                         <button
+                          type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
                               badge: {
@@ -1213,7 +1327,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                               },
                             })
                           }
-                          className="w-5 h-5 rounded hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center font-bold text-xs"
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center font-bold text-xs transition-colors flex-shrink-0 ${
+                            isDark ? 'border-zinc-700 hover:bg-zinc-700 text-zinc-300' : 'border-gray-300 hover:bg-gray-200 text-gray-700'
+                          }`}
                           title="Nudge Down (+10px)"
                         >
                           +

@@ -389,4 +389,34 @@ test('UI components contain bidirectional platform switching handlers and no emo
   assert.ok(!emojiRegex.test(canvasEditorSource), 'CanvasEditor must not contain emojis');
 });
 
+test('badge coordinates have dedicated X and Y input fields in CanvasEditor', async () => {
+  const canvasEditorSource = await readFile(new URL('../src/components/CanvasEditor.tsx', import.meta.url), 'utf8');
+
+  // Input fields for X and Y position
+  assert.ok(canvasEditorSource.includes('badge-x-'), 'CanvasEditor must have an input field for X position');
+  assert.ok(canvasEditorSource.includes('badge-y-'), 'CanvasEditor must have an input field for Y position');
+  assert.ok(canvasEditorSource.includes('X Position'), 'CanvasEditor must have an X Position label');
+  assert.ok(canvasEditorSource.includes('Y Position'), 'CanvasEditor must have a Y Position label');
+  assert.ok(canvasEditorSource.includes('isEditingBadgeX'), 'CanvasEditor must manage state for editing badge X');
+  assert.ok(canvasEditorSource.includes('isEditingBadgeY'), 'CanvasEditor must manage state for editing badge Y');
+
+  // Ensure store updates offsetX and offsetY accurately
+  const store = useEditorStore.getState();
+  const targetCanvasId = store.canvases[0].id;
+  store.updateCanvas(targetCanvasId, {
+    badge: {
+      enabled: true,
+      icon: 'star',
+      text: 'Coordinates Test',
+      style: 'pill-glass',
+      offsetX: 42,
+      offsetY: -18,
+    },
+  });
+
+  const updatedBadge = useEditorStore.getState().canvases.find(c => c.id === targetCanvasId)?.badge;
+  assert.equal(updatedBadge?.offsetX, 42, 'offsetX must be 42');
+  assert.equal(updatedBadge?.offsetY, -18, 'offsetY must be -18');
+});
+
 
