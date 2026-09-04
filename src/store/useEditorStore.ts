@@ -87,6 +87,10 @@ export type CanvasItem = {
   floatingCards?: FloatingCardConfig[];
   calloutPins?: CalloutPinConfig[];
   translations?: Record<string, { title: string; subtitle: string }>;
+  textBoxWidth?: number;
+  titleFontSize?: number;
+  subtitleFontSize?: number;
+  textAlign?: 'left' | 'center' | 'right';
 };
 
 export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';
@@ -158,6 +162,7 @@ interface EditorState {
   applyFontToAll: (fontFamily: string) => void;
   applyLayoutToAll: (layout: LayoutType) => void;
   applyContentToAll: (title: string, subtitle: string) => void;
+  applyTextBoxToAll: (textBoxWidth?: number, titleFontSize?: number, subtitleFontSize?: number, textAlign?: 'left' | 'center' | 'right') => void;
   applyAppIconToAll: (appIconSrc: string) => void;
   removeAppIconFromAll: () => void;
   applyDoodlesToAll: (doodle: DoodleConfig) => void;
@@ -738,6 +743,18 @@ export const useEditorStore = create<EditorState>()(
               ...(c.translations || {}),
               [currentLang]: { title, subtitle },
             },
+          }));
+          return pushHistory(state, nextCanvases);
+        }),
+
+      applyTextBoxToAll: (textBoxWidth, titleFontSize, subtitleFontSize, textAlign) =>
+        set((state) => {
+          const nextCanvases = state.canvases.map((c) => ({
+            ...c,
+            ...(textBoxWidth !== undefined ? { textBoxWidth } : {}),
+            ...(titleFontSize !== undefined ? { titleFontSize } : {}),
+            ...(subtitleFontSize !== undefined ? { subtitleFontSize } : {}),
+            ...(textAlign !== undefined ? { textAlign } : {}),
           }));
           return pushHistory(state, nextCanvases);
         }),

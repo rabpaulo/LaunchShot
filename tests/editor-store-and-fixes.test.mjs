@@ -186,3 +186,28 @@ test('FloatingCard includes group class and vertical centering for center positi
   // Verify vertical centering translateY(-50%)
   assert.match(floatingCardSource, /transforms\.push\('translateY\(-50%\)'\)/);
 });
+
+test('applyTextBoxToAll updates textBoxWidth, titleFontSize, subtitleFontSize, and textAlign across canvases', () => {
+  const store = useEditorStore.getState();
+  
+  // Set custom text box properties
+  store.applyTextBoxToAll(60, 32, 16, 'center');
+  
+  const updated = useEditorStore.getState().canvases;
+  assert.ok(updated.length > 0);
+  for (const c of updated) {
+    assert.equal(c.textBoxWidth, 60);
+    assert.equal(c.titleFontSize, 32);
+    assert.equal(c.subtitleFontSize, 16);
+    assert.equal(c.textAlign, 'center');
+  }
+
+  // Update a single canvas to different width
+  store.updateCanvas(updated[0].id, { textBoxWidth: 75 });
+  const singleUpdated = useEditorStore.getState().canvases;
+  assert.equal(singleUpdated[0].textBoxWidth, 75);
+  if (singleUpdated.length > 1) {
+    assert.equal(singleUpdated[1].textBoxWidth, 60);
+  }
+});
+

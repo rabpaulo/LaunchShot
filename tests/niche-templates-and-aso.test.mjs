@@ -232,6 +232,7 @@ test('CanvasEditor half-left and half-right layouts maintain non-overlapping geo
 
   // Verify badge alignment
   assert.ok(
+    code.includes("effectiveTextAlign === 'right' ? 'justify-end' :") ||
     code.includes("layoutConfig.textAlign === 'right' ? 'justify-end' :"),
     'Badge wrapper must right-align when text is right-aligned'
   );
@@ -240,6 +241,24 @@ test('CanvasEditor half-left and half-right layouts maintain non-overlapping geo
   assert.ok(
     code.includes('isHalfLayout'),
     'isHalfLayout must be defined'
+  );
+
+  // Verify resizable text box features
+  assert.ok(
+    code.includes('currentTextBoxWidth'),
+    'currentTextBoxWidth must be computed'
+  );
+  assert.ok(
+    code.includes('handleResizeStart'),
+    'handleResizeStart pointer handler must exist'
+  );
+  assert.ok(
+    code.includes('showTextBoxMenu'),
+    'showTextBoxMenu state must exist'
+  );
+  assert.ok(
+    code.includes('applyTextBoxToAll'),
+    'applyTextBoxToAll must be integrated'
   );
 });
 

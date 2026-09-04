@@ -28,6 +28,7 @@ import {
   IoLayersOutline,
   IoPhonePortraitOutline,
   IoAdd,
+  IoResizeOutline,
 } from 'react-icons/io5';
 import { FastAverageColor } from 'fast-average-color';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -109,6 +110,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     duplicateCanvas,
     applyLayoutToAll,
     applyContentToAll,
+    applyTextBoxToAll,
     applyDoodlesToAll,
     setIsDraggingGlobal,
     addFloatingCard,
@@ -123,6 +125,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     duplicateCanvas: state.duplicateCanvas,
     applyLayoutToAll: state.applyLayoutToAll,
     applyContentToAll: state.applyContentToAll,
+    applyTextBoxToAll: state.applyTextBoxToAll,
     applyDoodlesToAll: state.applyDoodlesToAll,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
     addFloatingCard: state.addFloatingCard,
@@ -135,6 +138,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   const [showDoodleMenu, setShowDoodleMenu] = useState(false);
   const [showWidgetMenu, setShowWidgetMenu] = useState(false);
   const [showStatusBarMenu, setShowStatusBarMenu] = useState(false);
+  const [showTextBoxMenu, setShowTextBoxMenu] = useState(false);
+  const [isResizingTextBox, setIsResizingTextBox] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
@@ -402,6 +407,105 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
   const layoutConfig = getLayoutConfig();
 
+  const getDefaultTextBoxWidth = (layout: LayoutType): number => {
+    switch (layout) {
+      case 'half-right':
+      case 'half-left':
+        return 54;
+      case 'banner-stack-right':
+        return 48;
+      case 'banner-kinetic-stack':
+        return 44;
+      case 'og-style-1':
+        return 55;
+      case 'og-style-2':
+        return 50;
+      case 'og-style-3':
+        return 45;
+      case '3d-isometric-right':
+      case '3d-isometric-left':
+        return 65;
+      case 'tilt-right':
+      case 'tilt-left':
+      case 'tilt-right-complement':
+      case 'tilt-left-complement':
+      case 'tilt-bottom-right':
+      case 'tilt-bottom-left':
+        return 80;
+      default:
+        return 100;
+    }
+  };
+
+  const defaultTextBoxWidth = getDefaultTextBoxWidth(currentLayout);
+  const currentTextBoxWidth = canvas.textBoxWidth ?? defaultTextBoxWidth;
+
+  const defaultTitleFontSize = isHalfLayout ? (isCompact ? 22 : 28) : (isCompact ? 28 : 40);
+  const effectiveTitleFontSize = canvas.titleFontSize || defaultTitleFontSize;
+
+  const defaultSubtitleFontSize = isHalfLayout ? (isCompact ? 12 : 15) : (isCompact ? 14 : 18);
+  const effectiveSubtitleFontSize = canvas.subtitleFontSize || defaultSubtitleFontSize;
+
+  const effectiveTextAlign = canvas.textAlign || layoutConfig.textAlign;
+
+  const handleResizeStart = (e: React.PointerEvent, handle: 'left' | 'right' | 'corner') => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizingTextBox(true);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialWidth = currentTextBoxWidth;
+    const initialTitleSize = effectiveTitleFontSize;
+    const initialSubSize = effectiveSubtitleFontSize;
+
+    document.body.style.userSelect = 'none';
+    if (handle === 'corner') {
+      document.body.style.cursor = effectiveTextAlign === 'right' ? 'nesw-resize' : 'nwse-resize';
+    } else {
+      document.body.style.cursor = 'ew-resize';
+    }
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const deltaX = (moveEvent.clientX - startX) / zoomScale;
+      const deltaY = (moveEvent.clientY - startY) / zoomScale;
+
+      if (handle === 'right') {
+        const deltaPct = (deltaX / canvasWidth) * 100;
+        const newWidth = Math.min(100, Math.max(25, Math.round(initialWidth + deltaPct)));
+        updateCanvas(canvas.id, { textBoxWidth: newWidth });
+      } else if (handle === 'left') {
+        const deltaPct = (-deltaX / canvasWidth) * 100;
+        const newWidth = Math.min(100, Math.max(25, Math.round(initialWidth + deltaPct)));
+        updateCanvas(canvas.id, { textBoxWidth: newWidth });
+      } else if (handle === 'corner') {
+        const deltaFont = Math.round(deltaY * 0.15);
+        const newFontSize = Math.min(72, Math.max(16, initialTitleSize + deltaFont));
+        const newSubSize = Math.min(36, Math.max(11, initialSubSize + Math.round(deltaFont * 0.45)));
+
+        const deltaPct = ((deltaX * (effectiveTextAlign === 'right' ? -1 : 1)) / canvasWidth) * 100;
+        const newWidth = Math.min(100, Math.max(25, Math.round(initialWidth + deltaPct)));
+
+        updateCanvas(canvas.id, {
+          textBoxWidth: newWidth,
+          titleFontSize: newFontSize,
+          subtitleFontSize: newSubSize,
+        });
+      }
+    };
+
+    const onPointerUp = () => {
+      setIsResizingTextBox(false);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
   const handleApplyBadge = (preset: BadgeConfig) => {
     updateCanvas(canvas.id, { badge: preset });
     setShowBadgeMenu(false);
@@ -480,6 +584,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             onClick={() => {
               setShowBadgeMenu(!showBadgeMenu);
               setShowDoodleMenu(false);
+              setShowWidgetMenu(false);
+              setShowStatusBarMenu(false);
+              setShowTextBoxMenu(false);
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
               canvas.badge?.enabled
@@ -501,6 +608,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             onClick={() => {
               setShowDoodleMenu(!showDoodleMenu);
               setShowBadgeMenu(false);
+              setShowWidgetMenu(false);
+              setShowStatusBarMenu(false);
+              setShowTextBoxMenu(false);
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
               canvas.doodle?.enabled
@@ -517,6 +627,30 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             <span>Doodles</span>
           </button>
 
+          {/* Resizable Text Box Settings Toggle */}
+          <button
+            onClick={() => {
+              setShowTextBoxMenu(!showTextBoxMenu);
+              setShowBadgeMenu(false);
+              setShowDoodleMenu(false);
+              setShowWidgetMenu(false);
+              setShowStatusBarMenu(false);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
+              canvas.textBoxWidth || canvas.titleFontSize || canvas.subtitleFontSize || canvas.textAlign
+                ? isDark
+                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40 shadow-sm'
+                  : 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm'
+                : isDark
+                  ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
+                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+            }`}
+            title="Resize Text Box & Adjust Typography Size"
+          >
+            <IoResizeOutline className="w-3.5 h-3.5" />
+            <span>Text Box {(canvas.textBoxWidth || canvas.titleFontSize) ? `(${currentTextBoxWidth}%)` : ''}</span>
+          </button>
+
           {/* Floating Widgets Toggle */}
           <button
             onClick={() => {
@@ -524,6 +658,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               setShowBadgeMenu(false);
               setShowDoodleMenu(false);
               setShowStatusBarMenu(false);
+              setShowTextBoxMenu(false);
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
               (canvas.floatingCards && canvas.floatingCards.length > 0) || (canvas.calloutPins && canvas.calloutPins.length > 0)
@@ -547,6 +682,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               setShowBadgeMenu(false);
               setShowDoodleMenu(false);
               setShowWidgetMenu(false);
+              setShowTextBoxMenu(false);
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
               (canvas.statusBar || globalSettings.statusBar)?.enabled
@@ -1247,6 +1383,199 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             </div>
           </div>
         )}
+
+        {/* Resizable Text Box Popover */}
+        {showTextBoxMenu && (
+          <div className={`absolute top-12 left-44 z-50 rounded-2xl shadow-2xl border p-4 w-80 flex flex-col gap-3.5 ${
+            isDark ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'
+          }`}>
+            <div className={`flex items-center justify-between border-b pb-2 ${
+              isDark ? 'border-gray-800' : 'border-gray-100'
+            }`}>
+              <span className="text-xs font-bold flex items-center gap-1.5">
+                <IoResizeOutline className="w-3.5 h-3.5 text-indigo-400" />
+                Text Box Dimensions & Size
+              </span>
+              <button 
+                onClick={() => setShowTextBoxMenu(false)}
+                className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
+              >
+                <IoClose className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Width Slider */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold">Text Box Width:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-indigo-400">{currentTextBoxWidth}%</span>
+                  {canvas.textBoxWidth !== undefined && (
+                    <button
+                      onClick={() => updateCanvas(canvas.id, { textBoxWidth: undefined })}
+                      className="text-[10px] text-gray-400 hover:text-gray-200 underline"
+                    >
+                      Auto
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                type="range"
+                min="25"
+                max="100"
+                step="1"
+                value={currentTextBoxWidth}
+                onChange={(e) => updateCanvas(canvas.id, { textBoxWidth: Number(e.target.value) })}
+                className="w-full accent-indigo-500"
+              />
+              <div className="grid grid-cols-4 gap-1 text-[10px]">
+                {[40, 54, 75, 100].map((pct) => (
+                  <button
+                    key={pct}
+                    onClick={() => updateCanvas(canvas.id, { textBoxWidth: pct })}
+                    className={`py-1 rounded border font-medium transition-all ${
+                      currentTextBoxWidth === pct
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
+                        : isDark ? 'bg-zinc-800 border-zinc-700 text-zinc-300' : 'bg-gray-100 border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Title Font Size */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold">Title Font Size:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-indigo-400">{effectiveTitleFontSize}px</span>
+                  {canvas.titleFontSize !== undefined && (
+                    <button
+                      onClick={() => updateCanvas(canvas.id, { titleFontSize: undefined })}
+                      className="text-[10px] text-gray-400 hover:text-gray-200 underline"
+                    >
+                      Auto
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                type="range"
+                min="16"
+                max="72"
+                step="1"
+                value={effectiveTitleFontSize}
+                onChange={(e) => updateCanvas(canvas.id, { titleFontSize: Number(e.target.value) })}
+                className="w-full accent-indigo-500"
+              />
+              <div className="grid grid-cols-4 gap-1 text-[10px]">
+                {[22, 28, 36, 44].map((sz) => (
+                  <button
+                    key={sz}
+                    onClick={() => updateCanvas(canvas.id, { titleFontSize: sz })}
+                    className={`py-1 rounded border font-medium transition-all ${
+                      effectiveTitleFontSize === sz
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
+                        : isDark ? 'bg-zinc-800 border-zinc-700 text-zinc-300' : 'bg-gray-100 border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {sz}px
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Subtitle Font Size */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold">Subtitle Font Size:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-indigo-400">{effectiveSubtitleFontSize}px</span>
+                  {canvas.subtitleFontSize !== undefined && (
+                    <button
+                      onClick={() => updateCanvas(canvas.id, { subtitleFontSize: undefined })}
+                      className="text-[10px] text-gray-400 hover:text-gray-200 underline"
+                    >
+                      Auto
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                type="range"
+                min="11"
+                max="36"
+                step="1"
+                value={effectiveSubtitleFontSize}
+                onChange={(e) => updateCanvas(canvas.id, { subtitleFontSize: Number(e.target.value) })}
+                className="w-full accent-indigo-500"
+              />
+            </div>
+
+            {/* Text Alignment */}
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold">Alignment:</span>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { value: 'left', label: 'Left' },
+                  { value: 'center', label: 'Center' },
+                  { value: 'right', label: 'Right' },
+                ].map((al) => (
+                  <button
+                    key={al.value}
+                    onClick={() => updateCanvas(canvas.id, { textAlign: al.value as 'left' | 'center' | 'right' })}
+                    className={`py-1 rounded-lg text-xs font-semibold border transition-all ${
+                      effectiveTextAlign === al.value
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
+                        : isDark ? 'bg-zinc-800 border-zinc-700 text-zinc-300' : 'bg-gray-100 border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {al.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Apply to All Screens & Reset */}
+            <div className="flex gap-2 pt-2 border-t border-zinc-800/40">
+              <button
+                onClick={() => {
+                  applyTextBoxToAll(
+                    canvas.textBoxWidth,
+                    canvas.titleFontSize,
+                    canvas.subtitleFontSize,
+                    canvas.textAlign
+                  );
+                  toast.success("Applied text box dimensions to all screens!");
+                }}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                  isDark
+                    ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700'
+                    : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border-zinc-200'
+                }`}
+              >
+                Apply to All Screens
+              </button>
+              <button
+                onClick={() => {
+                  updateCanvas(canvas.id, {
+                    textBoxWidth: undefined,
+                    titleFontSize: undefined,
+                    subtitleFontSize: undefined,
+                    textAlign: undefined,
+                  });
+                  toast.success("Reset to layout defaults");
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border text-amber-400 hover:bg-amber-950/20 border-amber-500/30 transition-colors`}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       )}
 
@@ -1322,14 +1651,130 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
           {/* Responsive Text & Badge Section */}
           {currentLayout !== 'device-only' && (
-            <div className={layoutConfig.textContainerClass}>
-              {/* App Icon removed per user request */}
+            <div 
+              className={`group/textbox relative transition-all ${layoutConfig.textContainerClass}`}
+              style={{
+                width: canvas.textBoxWidth ? `${canvas.textBoxWidth}%` : undefined,
+              }}
+            >
+              {/* Visual selection outline on hover/resizing (no-export) */}
+              {!isPreviewMode && (
+                <div className={`absolute inset-0 rounded-2xl border transition-colors pointer-events-none no-export ${
+                  isResizingTextBox
+                    ? 'border-indigo-500 ring-2 ring-indigo-500/40 bg-indigo-500/5'
+                    : 'border-transparent group-hover/textbox:border-indigo-400/40'
+                }`} />
+              )}
+
+              {/* Interactive Resize Handles & Dimensions HUD (no-export) */}
+              {!isPreviewMode && (
+                <>
+                  {/* Floating HUD on hover or active */}
+                  <div className={`absolute -top-8 left-1/2 -translate-x-1/2 no-export ${
+                    isResizingTextBox ? 'opacity-100' : 'opacity-0 group-hover/textbox:opacity-100 focus-within:opacity-100'
+                  } transition-opacity z-50 pointer-events-auto flex items-center gap-1.5 bg-gray-950/95 backdrop-blur-md text-white px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-2xl border border-white/20 whitespace-nowrap`}>
+                    <IoResizeOutline className="w-3 h-3 text-indigo-400" />
+                    <span>Width: {currentTextBoxWidth}%</span>
+                    <span className="opacity-40">|</span>
+                    <span>Title: {effectiveTitleFontSize}px</span>
+                    
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newW = Math.max(25, currentTextBoxWidth - 5);
+                        updateCanvas(canvas.id, { textBoxWidth: newW });
+                      }}
+                      className="w-4 h-4 rounded hover:bg-white/20 flex items-center justify-center font-bold text-xs"
+                      title="Narrower (-5%)"
+                    >
+                      -
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newW = Math.min(100, currentTextBoxWidth + 5);
+                        updateCanvas(canvas.id, { textBoxWidth: newW });
+                      }}
+                      className="w-4 h-4 rounded hover:bg-white/20 flex items-center justify-center font-bold text-xs"
+                      title="Wider (+5%)"
+                    >
+                      +
+                    </button>
+                    
+                    {(canvas.textBoxWidth || canvas.titleFontSize || canvas.subtitleFontSize || canvas.textAlign) && (
+                      <>
+                        <span className="opacity-40">|</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateCanvas(canvas.id, {
+                              textBoxWidth: undefined,
+                              titleFontSize: undefined,
+                              subtitleFontSize: undefined,
+                              textAlign: undefined,
+                            });
+                            toast.success("Reset text box to layout default");
+                          }}
+                          className="text-[9px] text-amber-300 hover:text-amber-200 uppercase tracking-wider pl-0.5"
+                          title="Reset to layout defaults"
+                        >
+                          Reset
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Right Resize Handle */}
+                  {effectiveTextAlign !== 'right' && (
+                    <div
+                      onPointerDown={(e) => handleResizeStart(e, 'right')}
+                      className={`absolute -right-2.5 top-1/2 -translate-y-1/2 w-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center cursor-ew-resize shadow-2xl z-40 transition-transform hover:scale-110 no-export ${
+                        isResizingTextBox ? 'opacity-100 scale-110' : 'opacity-0 group-hover/textbox:opacity-100 focus-within:opacity-100'
+                      } border border-white/40`}
+                      title="Drag to resize text box width"
+                    >
+                      <div className="w-0.5 h-4 bg-white/80 rounded-full" />
+                    </div>
+                  )}
+
+                  {/* Left Resize Handle */}
+                  {effectiveTextAlign !== 'left' && (
+                    <div
+                      onPointerDown={(e) => handleResizeStart(e, 'left')}
+                      className={`absolute -left-2.5 top-1/2 -translate-y-1/2 w-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center cursor-ew-resize shadow-2xl z-40 transition-transform hover:scale-110 no-export ${
+                        isResizingTextBox ? 'opacity-100 scale-110' : 'opacity-0 group-hover/textbox:opacity-100 focus-within:opacity-100'
+                      } border border-white/40`}
+                      title="Drag to resize text box width"
+                    >
+                      <div className="w-0.5 h-4 bg-white/80 rounded-full" />
+                    </div>
+                  )}
+
+                  {/* Corner Scale Handle */}
+                  <div
+                    onPointerDown={(e) => handleResizeStart(e, 'corner')}
+                    className={`absolute bottom-0 ${
+                      effectiveTextAlign === 'right' ? '-left-2.5' : '-right-2.5'
+                    } translate-y-2.5 w-5 h-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center ${
+                      effectiveTextAlign === 'right' ? 'cursor-nesw-resize' : 'cursor-nwse-resize'
+                    } shadow-2xl z-40 transition-transform hover:scale-125 no-export ${
+                      isResizingTextBox ? 'opacity-100 scale-125' : 'opacity-0 group-hover/textbox:opacity-100 focus-within:opacity-100'
+                    } border-2 border-white`}
+                    title="Drag corner to scale font size & width"
+                  >
+                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                  </div>
+                </>
+              )}
 
               {/* Badge Sticker */}
               {canvas.badge?.enabled && (
                 <div className={`mb-1.5 pointer-events-auto w-full flex ${
-                  layoutConfig.textAlign === 'right' ? 'justify-end' :
-                  layoutConfig.textAlign === 'center' ? 'justify-center' : 'justify-start'
+                  effectiveTextAlign === 'right' ? 'justify-end' :
+                  effectiveTextAlign === 'center' ? 'justify-center' : 'justify-start'
                 }`}>
                   <BadgeSticker 
                     badge={canvas.badge} 
@@ -1378,17 +1823,20 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       value={canvas.title}
                       onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 break-words hyphens-none ${
-                        isHalfLayout 
-                          ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-2')
-                          : (isCompact ? 'text-[28px] mb-1' : 'text-[40px] mb-2')
+                        canvas.titleFontSize
+                          ? 'mb-2'
+                          : isHalfLayout 
+                            ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-2')
+                            : (isCompact ? 'text-[28px] mb-1' : 'text-[40px] mb-2')
                       } ${
                         canvas.gradientText 
                           ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
                           : ''
                       }`}
                       style={{ 
+                        fontSize: canvas.titleFontSize ? `${canvas.titleFontSize}px` : undefined,
                         color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
-                        textAlign: layoutConfig.textAlign 
+                        textAlign: effectiveTextAlign 
                       }}
                       placeholder="Enter Title"
                     />
@@ -1401,13 +1849,16 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       value={canvas.subtitle}
                       onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
-                        isHalfLayout
-                          ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
-                          : (isCompact ? 'text-sm' : 'text-lg sm:text-xl')
+                        canvas.subtitleFontSize
+                          ? ''
+                          : isHalfLayout
+                            ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
+                            : (isCompact ? 'text-sm' : 'text-lg sm:text-xl')
                       }`}
                       style={{
+                        fontSize: canvas.subtitleFontSize ? `${canvas.subtitleFontSize}px` : undefined,
                         color: canvas.subtitleColor || canvas.textColor || '#ffffff',
-                        textAlign: layoutConfig.textAlign
+                        textAlign: effectiveTextAlign
                       }}
                       placeholder="Enter Subtitle"
                     />
@@ -1417,7 +1868,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
               {/* Native App Store Badge (Social Graphics) */}
               {canvas.showAppStoreBadge && (
-                <div className={`mt-2 flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 rounded-lg border border-white/20 shadow-md hover:scale-105 transition-transform cursor-pointer w-max ${layoutConfig.textAlign === 'center' ? 'mx-auto' : ''} ${layoutConfig.textAlign === 'right' ? 'ml-auto' : ''}`}>
+                <div className={`mt-2 flex items-center gap-1.5 bg-black text-white px-3.5 py-1.5 rounded-lg border border-white/20 shadow-md hover:scale-105 transition-transform cursor-pointer w-max ${effectiveTextAlign === 'center' ? 'mx-auto' : ''} ${effectiveTextAlign === 'right' ? 'ml-auto' : ''}`}>
                   {!isAndroid ? (
                     <>
                       <IoLogoApple className="w-[22px] h-[22px]" />
@@ -1442,16 +1893,24 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
           {/* Subtitle Container for split-vertical */}
           {currentLayout === 'split-vertical' && layoutConfig.subtitleContainerClass && (
-            <div className={layoutConfig.subtitleContainerClass}>
+            <div 
+              className={layoutConfig.subtitleContainerClass}
+              style={{
+                width: canvas.textBoxWidth ? `${canvas.textBoxWidth}%` : undefined,
+              }}
+            >
               <TextareaAutosize
                 value={canvas.subtitle}
                 onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
                 className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
-                  isCompact ? 'text-sm' : 'text-xl'
+                  canvas.subtitleFontSize
+                    ? ''
+                    : isCompact ? 'text-sm' : 'text-xl'
                 }`}
                 style={{
+                  fontSize: canvas.subtitleFontSize ? `${canvas.subtitleFontSize}px` : undefined,
                   color: canvas.subtitleColor || canvas.textColor || '#ffffff',
-                  textAlign: layoutConfig.textAlign
+                  textAlign: effectiveTextAlign
                 }}
                 placeholder="Enter Subtitle"
               />

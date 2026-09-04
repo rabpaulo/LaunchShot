@@ -64,6 +64,17 @@ export const FLOATING_CARD_PRESETS: Array<{
     }
   },
   {
+    label: 'Text Box: Floating Note',
+    config: {
+      type: 'feature-chip',
+      title: 'Highlight Feature Note',
+      subtitle: 'Double click to edit copy',
+      icon: 'zap',
+      position: 'bottom-left',
+      theme: 'glass-dark',
+    }
+  },
+  {
     label: 'Review: Game Changer',
     config: {
       type: 'user-review',
