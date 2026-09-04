@@ -189,6 +189,13 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   
   const currentLayout = canvas.layout || 'basic-top';
   const isCompact = canvasHeight < 750;
+  const isHalfLayout = 
+    currentLayout === 'half-right' || 
+    currentLayout === 'half-left' || 
+    currentLayout === 'banner-stack-right' ||
+    currentLayout === 'og-style-1' ||
+    currentLayout === 'og-style-2' ||
+    currentLayout === 'og-style-3';
 
   // Active Font
   const activeFontId = canvas.fontFamily || globalSettings.fontFamily || 'plus-jakarta';
@@ -198,7 +205,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   const getPhoneDimensions = () => {
     let heightFactor = 0.65;
     if (currentLayout === 'device-only') heightFactor = 0.82;
-    else if (currentLayout === 'half-right' || currentLayout === 'half-left') heightFactor = 0.78;
+    else if (currentLayout === 'half-right' || currentLayout === 'half-left') heightFactor = 0.70;
     else if (currentLayout === 'tilt-right' || currentLayout === 'tilt-left') heightFactor = 0.72;
     else if (isCompact) heightFactor = 0.58;
 
@@ -286,16 +293,16 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
         };
       case 'half-right':
         return {
-          containerClass: "relative flex items-center",
-          textContainerClass: `w-[58%] pl-8 pr-2 text-left z-20 flex flex-col justify-center gap-2`,
-          phoneWrapperClass: `absolute top-1/2 -right-16 -translate-y-1/2 z-10`,
+          containerClass: "relative flex items-center justify-start overflow-hidden",
+          textContainerClass: `w-[54%] pl-8 pr-2 text-left z-20 flex flex-col justify-center items-start gap-2.5`,
+          phoneWrapperClass: `absolute top-1/2 right-0 [transform:translate(40%,-50%)] z-10`,
           textAlign: "left" as const,
         };
       case 'half-left':
         return {
-          containerClass: "relative flex items-center justify-end",
-          textContainerClass: `w-[58%] pr-8 pl-2 text-right z-20 flex flex-col justify-center gap-2`,
-          phoneWrapperClass: `absolute top-1/2 -left-16 -translate-y-1/2 z-10`,
+          containerClass: "relative flex items-center justify-end overflow-hidden",
+          textContainerClass: `w-[54%] pr-8 pl-2 text-right z-20 flex flex-col justify-center items-end gap-2.5`,
+          phoneWrapperClass: `absolute top-1/2 left-0 [transform:translate(-40%,-50%)] z-10`,
           textAlign: "right" as const,
         };
             case 'split-vertical':
@@ -1320,7 +1327,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
               {/* Badge Sticker */}
               {canvas.badge?.enabled && (
-                <div className="mb-1 pointer-events-auto">
+                <div className={`mb-1.5 pointer-events-auto w-full flex ${
+                  layoutConfig.textAlign === 'right' ? 'justify-end' :
+                  layoutConfig.textAlign === 'center' ? 'justify-center' : 'justify-start'
+                }`}>
                   <BadgeSticker 
                     badge={canvas.badge} 
                     textColor={canvas.textColor} 
@@ -1367,8 +1377,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     <TextareaAutosize
                       value={canvas.title}
                       onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
-                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 ${
-                        isCompact ? 'text-[28px] mb-1' : 'text-[42px] mb-2'
+                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 break-words hyphens-none ${
+                        isHalfLayout 
+                          ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-2')
+                          : (isCompact ? 'text-[28px] mb-1' : 'text-[40px] mb-2')
                       } ${
                         canvas.gradientText 
                           ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
@@ -1388,8 +1400,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     <TextareaAutosize
                       value={canvas.subtitle}
                       onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
-                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
-                        isCompact ? 'text-sm' : 'text-xl'
+                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
+                        isHalfLayout
+                          ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
+                          : (isCompact ? 'text-sm' : 'text-lg sm:text-xl')
                       }`}
                       style={{
                         color: canvas.subtitleColor || canvas.textColor || '#ffffff',
@@ -1432,7 +1446,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               <TextareaAutosize
                 value={canvas.subtitle}
                 onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
-                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all ${
+                className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
                   isCompact ? 'text-sm' : 'text-xl'
                 }`}
                 style={{

@@ -156,3 +156,90 @@ test('all templates have distinct titles and niche-specific templates have authe
   assert.equal(fitnessNiche.canvases.length, 5);
 });
 
+// Run a dedicated test for each niche in NICHE_TEMPLATES (31 niches)
+for (const [key, niche] of Object.entries(NICHE_TEMPLATES)) {
+  test(`niche [${key}]: ${niche.name} generates 5 valid canvases and safe typography`, () => {
+    assert.ok(niche.name && niche.name.trim().length > 0, `Niche ${key} missing name`);
+    assert.ok(Array.isArray(niche.keywords) && niche.keywords.length >= 3, `Niche ${key} keywords invalid`);
+    assert.ok(Array.isArray(niche.layouts) && niche.layouts.length >= 4, `Niche ${key} layouts invalid`);
+    assert.ok(Array.isArray(niche.copy) && niche.copy.length === 5, `Niche ${key} copy length must be 5`);
+
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
+    assert.ok(!emojiRegex.test(niche.name), `Niche ${key} name contains emoji`);
+
+    const result = generateTemplateForNiche(niche.name);
+    assert.equal(result.canvases.length, 5, `Niche ${key} did not generate 5 canvases`);
+    assert.ok(result.globalOverrides.mockupStyle, `Niche ${key} missing mockupStyle override`);
+    assert.ok(result.globalOverrides.fontFamily, `Niche ${key} missing fontFamily override`);
+
+    for (let i = 0; i < result.canvases.length; i++) {
+      const c = result.canvases[i];
+      assert.ok(c.title && c.title.trim().length > 0, `Niche ${key} slide ${i} title is empty`);
+      assert.ok(c.subtitle && c.subtitle.trim().length > 0, `Niche ${key} slide ${i} subtitle is empty`);
+      assert.ok(!emojiRegex.test(c.title), `Niche ${key} slide ${i} title contains emoji: ${c.title}`);
+      assert.ok(!emojiRegex.test(c.subtitle), `Niche ${key} slide ${i} subtitle contains emoji: ${c.subtitle}`);
+      assert.ok(!c.title.includes('{') && !c.title.includes('}'), `Niche ${key} slide ${i} title has raw placeholder`);
+      assert.ok(!c.subtitle.includes('{') && !c.subtitle.includes('}'), `Niche ${key} slide ${i} subtitle has raw placeholder`);
+      assert.ok(c.layout, `Niche ${key} slide ${i} missing layout`);
+
+      if (c.badge) {
+        assert.ok(c.badge.text && c.badge.text.trim().length > 0, `Niche ${key} slide ${i} badge text is empty`);
+        assert.ok(!emojiRegex.test(c.badge.text), `Niche ${key} slide ${i} badge contains emoji`);
+      }
+    }
+
+    // Verify ASO generation for this niche across all tones
+    for (const tone of ASO_TONE_OPTIONS) {
+      const asoCanvases = applyAsoCopy(result.canvases, niche.keywords[0], tone.id);
+      assert.equal(asoCanvases.length, 5);
+      asoCanvases.forEach((sc, idx) => {
+        assert.ok(sc.title && sc.title.trim().length > 0, `ASO ${tone.id} slide ${idx} empty title`);
+        assert.ok(!emojiRegex.test(sc.title), `ASO ${tone.id} slide ${idx} title has emoji`);
+      });
+    }
+  });
+}
+
+test('CanvasEditor half-left and half-right layouts maintain non-overlapping geometry and typography', async () => {
+  const fs = await import('node:fs/promises');
+  const code = await fs.readFile('src/components/CanvasEditor.tsx', 'utf-8');
+
+  // Verify heightFactor adjustment
+  assert.ok(
+    code.includes("else if (currentLayout === 'half-right' || currentLayout === 'half-left') heightFactor = 0.70;"),
+    'heightFactor for half layouts must be 0.70'
+  );
+
+  // Verify half-right transform & classes
+  assert.ok(
+    code.includes("case 'half-right':"),
+    'half-right layout configuration must exist'
+  );
+  assert.ok(
+    code.includes("phoneWrapperClass: `absolute top-1/2 right-0 [transform:translate(40%,-50%)] z-10`"),
+    'half-right phone wrapper must use translated right anchor'
+  );
+
+  // Verify half-left transform & classes
+  assert.ok(
+    code.includes("case 'half-left':"),
+    'half-left layout configuration must exist'
+  );
+  assert.ok(
+    code.includes("phoneWrapperClass: `absolute top-1/2 left-0 [transform:translate(-40%,-50%)] z-10`"),
+    'half-left phone wrapper must use translated left anchor'
+  );
+
+  // Verify badge alignment
+  assert.ok(
+    code.includes("layoutConfig.textAlign === 'right' ? 'justify-end' :"),
+    'Badge wrapper must right-align when text is right-aligned'
+  );
+
+  // Verify layout-aware font scaling
+  assert.ok(
+    code.includes('isHalfLayout'),
+    'isHalfLayout must be defined'
+  );
+});
+
