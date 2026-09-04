@@ -23,7 +23,6 @@ import {
   IoAdd,
   IoMoonOutline,
   IoSunnyOutline,
-  IoGridOutline,
   IoPhonePortraitOutline,
   IoListOutline,
   IoAlbumsOutline,
@@ -184,13 +183,6 @@ export default function Home() {
     }
   };
 
-  const scrollToCanvas = (id: string) => {
-    const el = document.getElementById(`card-${id}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-  };
-
 
 
   if (!isMounted) {
@@ -255,8 +247,8 @@ export default function Home() {
               ? 'bg-zinc-950/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
               : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
           }`}>
-          {/* Left: Project Selector, Undo/Redo & Quick Jump Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto py-1 max-w-[58%] scrollbar-none h-full">
+          {/* Left: Project Selector & Undo/Redo */}
+          <div className="flex items-center space-x-2.5 h-full">
             {/* Project Pill */}
             <button
               onClick={() => setShowProjectModal(true)}
@@ -268,7 +260,7 @@ export default function Home() {
               title="Manage Projects & Drafts"
             >
               <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
-              <span className="max-w-[110px] truncate">{currentProject?.name || 'Default Project'}</span>
+              <span className="max-w-[140px] truncate">{currentProject?.name || 'Default Project'}</span>
             </button>
 
             {/* Undo & Redo */}
@@ -305,46 +297,9 @@ export default function Home() {
                 <IoArrowRedoOutline className="w-3.5 h-3.5" />
               </button>
             </div>
-
-            <IoGridOutline className={`w-4 h-4 ml-1 mr-1 opacity-50 flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
-            
-            <div className={`flex items-center p-1 rounded-lg ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-gray-100 border border-gray-200/50'}`}>
-              {canvases.map((canvas, i) => (
-                <button
-                  key={canvas.id}
-                  onClick={() => scrollToCanvas(canvas.id)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-2 flex-shrink-0 ${
-                    isDark
-                      ? 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
-                      : 'text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-sm'
-                  }`}
-                >
-                  <span className={`w-3.5 h-3.5 rounded-full text-[9px] flex items-center justify-center font-bold ${
-                    isDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {i + 1}
-                  </span>
-                  <span className="max-w-[90px] truncate">
-                    {canvas.title || `Slide ${i + 1}`}
-                  </span>
-                </button>
-              ))}
-            </div>
-            
-            <button
-              onClick={() => addCanvas()}
-              className={`p-1.5 ml-1 rounded-lg transition-colors ${
-                isDark 
-                  ? 'text-gray-500 hover:bg-gray-800 hover:text-zinc-400' 
-                  : 'text-gray-400 hover:bg-gray-100 hover:text-zinc-600'
-              }`}
-              title="Add New Screenshot"
-            >
-              <IoAdd className="w-4 h-4" />
-            </button>
           </div>
 
-          {/* Theme Toggle, Pan Arrows & Zoom Controls */}
+          {/* Theme Toggle, View Mode & Zoom Controls */}
           <div className="flex items-center space-x-3">
             {/* Dark / Light Theme Toggle */}
             <button
@@ -371,35 +326,6 @@ export default function Home() {
             >
               {globalSettings.viewMode === 'vertical' ? <IoAlbumsOutline className="w-4 h-4" /> : <IoListOutline className="w-4 h-4" />}
             </button>
-            
-            {/* Scroll Jump Arrows */}
-            <div className={`flex items-center border rounded-lg p-0.5 ${
-              isDark ? 'bg-gray-800/50 border-gray-700/80' : 'bg-white border-gray-200 shadow-sm'
-            }`}>
-              <button
-                onClick={() => scrollByAmount(-400)}
-                className={`p-1.5 rounded-md transition-all ${
-                  isDark 
-                    ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-                }`}
-                title={globalSettings.viewMode === 'vertical' ? "Scroll Up" : "Scroll Left"}
-              >
-                {globalSettings.viewMode === 'vertical' ? <IoChevronUp className="w-4 h-4" /> : <IoChevronBack className="w-4 h-4" />}
-              </button>
-              <div className={`w-px h-4 mx-0.5 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-              <button
-                onClick={() => scrollByAmount(400)}
-                className={`p-1.5 rounded-md transition-all ${
-                  isDark 
-                    ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-                }`}
-                title={globalSettings.viewMode === 'vertical' ? "Scroll Down" : "Scroll Right"}
-              >
-                {globalSettings.viewMode === 'vertical' ? <IoChevronDown className="w-4 h-4" /> : <IoChevronForward className="w-4 h-4" />}
-              </button>
-            </div>
 
             {/* Zoom Slider / Controls */}
             <div className={`flex items-center border rounded-lg p-1 space-x-1 ${

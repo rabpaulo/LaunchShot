@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { useShallow } from 'zustand/react/shallow';
 import { useEditorStore } from '@/store/useEditorStore';
 import {
-  IoAddCircleOutline,
   IoDownloadOutline,
   IoCloudUploadOutline,
   IoPhonePortraitOutline,
@@ -17,7 +16,6 @@ import {
   IoChevronForward,
   IoGlobeOutline,
   IoBrushOutline,
-  IoFolderOpenOutline,
   IoLayersOutline,
   IoLogoApple,
   IoLogoGooglePlaystore,
@@ -29,11 +27,8 @@ import { BACKGROUND_PRESETS } from '@/config/backgrounds';
 import { DOODLE_PRESETS, DOODLE_COLOR_PALETTE } from '@/config/doodles';
 import { PANORAMA_PRESETS } from '@/config/panoramas';
 
-import { ExportModal } from './ExportModal';
 import { TranslationModal } from './TranslationModal';
-import { ProjectManagerModal } from './ProjectManagerModal';
 import { CustomDropdown } from './ui/CustomDropdown';
-import { TEMPLATES } from '@/config/templates';
 import { NICHE_CATEGORIES_LIST, generateTemplateForNiche } from '@/config/niches';
 import { ASO_TONE_OPTIONS, AsoTone, applyAsoCopy } from '@/config/aso';
 import { SUPPORTED_LANGUAGES, getLanguageName } from '@/config/languages';
@@ -51,7 +46,6 @@ export function Sidebar() {
   const [selectedAsoTone, setSelectedAsoTone] = useState<AsoTone>('high-converting');
   const [nicheQuery, setNicheQuery] = useState('');
   const [asoDescription, setAsoDescription] = useState('');
-  const [showProjectModal, setShowProjectModal] = useState(false);
 
   const startResizing = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,7 +85,6 @@ export function Sidebar() {
   const { 
     globalSettings, 
     updateGlobalSettings, 
-    addCanvas, 
     canvases,
     applyBackgroundToAll,
     applyFontToAll,
@@ -100,14 +93,6 @@ export function Sidebar() {
     toggleDoodlesOnAll,
     clearAllCanvases,
     setIsDraggingGlobal,
-    activeTemplateIndex,
-    setActiveTemplateIndex,
-    projects,
-    activeProjectId,
-    switchProject,
-    createProject,
-    exportProjectFile,
-    importProjectFile,
     applyPanoramaToAll,
     togglePanorama,
     updateStatusBarGlobal,
@@ -117,7 +102,6 @@ export function Sidebar() {
   } = useEditorStore(useShallow((state) => ({
     globalSettings: state.globalSettings,
     updateGlobalSettings: state.updateGlobalSettings,
-    addCanvas: state.addCanvas,
     canvases: state.canvases,
     applyBackgroundToAll: state.applyBackgroundToAll,
     applyFontToAll: state.applyFontToAll,
@@ -126,14 +110,6 @@ export function Sidebar() {
     toggleDoodlesOnAll: state.toggleDoodlesOnAll,
     clearAllCanvases: state.clearAllCanvases,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
-    activeTemplateIndex: state.activeTemplateIndex,
-    setActiveTemplateIndex: state.setActiveTemplateIndex,
-    projects: state.projects,
-    activeProjectId: state.activeProjectId,
-    switchProject: state.switchProject,
-    createProject: state.createProject,
-    exportProjectFile: state.exportProjectFile,
-    importProjectFile: state.importProjectFile,
     applyPanoramaToAll: state.applyPanoramaToAll,
     togglePanorama: state.togglePanorama,
     updateStatusBarGlobal: state.updateStatusBarGlobal,
@@ -143,11 +119,9 @@ export function Sidebar() {
   })));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const projectImportInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
-  const [showExportModal, setShowExportModal] = useState(false);
   const [showTranslationModal, setShowTranslationModal] = useState(false);
   const [isQuickTranslating, setIsQuickTranslating] = useState(false);
 
@@ -264,125 +238,6 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Projects & Drafts */}
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${
-              isDark ? 'text-gray-500' : 'text-gray-400'
-            }`}>
-              <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
-              Project / Drafts
-            </h2>
-            <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${
-              isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-600'
-            }`}>
-              {projects.length} {projects.length === 1 ? 'project' : 'projects'}
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <CustomDropdown
-              value={activeProjectId}
-              onChange={(val) => {
-                switchProject(String(val));
-                const target = projects.find(p => p.id === String(val));
-                toast.success(`Opened ${target?.name || 'project'}`);
-              }}
-              options={projects.map((p) => ({ label: p.name, value: p.id }))}
-              isDark={isDark}
-            />
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setShowProjectModal(true)}
-                className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                  isDark
-                    ? 'bg-zinc-800/80 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
-                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
-                }`}
-              >
-                <IoFolderOpenOutline className="w-3.5 h-3.5 text-blue-400" />
-                Manage All
-              </button>
-
-              <button
-                onClick={() => {
-                  const newName = prompt('Enter project name:', `App Project ${projects.length + 1}`);
-                  if (newName && newName.trim()) {
-                    createProject(newName.trim());
-                    toast.success(`Created "${newName.trim()}"`);
-                  }
-                }}
-                className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                  isDark
-                    ? 'bg-zinc-800/80 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
-                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
-                }`}
-              >
-                <IoAddCircleOutline className="w-3.5 h-3.5 text-emerald-400" />
-                New Draft
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-0.5">
-              <input
-                type="file"
-                ref={projectImportInputRef}
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    try {
-                      const text = await file.text();
-                      const success = importProjectFile(text);
-                      if (success) {
-                        toast.success('Project imported!');
-                      } else {
-                        toast.error('Invalid project file format.');
-                      }
-                    } catch {
-                      toast.error('Failed to read file.');
-                    }
-                  }
-                  if (e.target) e.target.value = '';
-                }}
-                accept=".launchshot,.json"
-                className="hidden"
-              />
-
-              <button
-                onClick={() => projectImportInputRef.current?.click()}
-                className={`py-1.5 px-2 rounded-lg border text-[11px] font-semibold transition-all flex items-center justify-center gap-1 ${
-                  isDark
-                    ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-                    : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
-                }`}
-                title="Import .launchshot project file"
-              >
-                <IoCloudUploadOutline className="w-3 h-3" />
-                Import File
-              </button>
-
-              <button
-                onClick={() => {
-                  exportProjectFile(activeProjectId);
-                  toast.success('Exported project file!');
-                }}
-                className={`py-1.5 px-2 rounded-lg border text-[11px] font-semibold transition-all flex items-center justify-center gap-1 ${
-                  isDark
-                    ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-                    : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
-                }`}
-                title="Export .launchshot project file"
-              >
-                <IoDownloadOutline className="w-3 h-3" />
-                Export File
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
-
         {/* Drag and Drop Zone */}
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -497,83 +352,6 @@ export function Sidebar() {
               title="Remove App Icon"
             >
               <IoTrashOutline className="w-4 h-4" />
-            </button>
-          </div>
-        </section>
-
-        <div className={`w-full h-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
-
-        {/* Templates */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
-              isDark ? 'text-gray-500' : 'text-gray-400'
-            }`}>
-              Templates
-            </h2>
-          </div>
-          <div className="flex flex-col gap-2">
-            <CustomDropdown
-              value={activeTemplateIndex}
-              onChange={(val) => setActiveTemplateIndex(Number(val))}
-              options={TEMPLATES.map((t, idx) => ({ 
-                label: t.name, 
-                value: idx,
-                badge: t.style,
-                iconSrc: t.logo?.svgDataUri,
-              }))}
-              isDark={isDark}
-            />
-
-            {/* Template Logo & Style Preview Card */}
-            {TEMPLATES[activeTemplateIndex] && (
-              <div className={`p-2.5 rounded-xl border flex items-center gap-3 transition-all ${
-                isDark ? 'bg-zinc-900/70 border-zinc-800' : 'bg-gray-50 border-gray-200'
-              }`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={TEMPLATES[activeTemplateIndex].logo.svgDataUri}
-                  alt={TEMPLATES[activeTemplateIndex].logo.appName}
-                  className="w-9 h-9 rounded-xl shadow-sm border border-white/10 object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className={`text-xs font-bold truncate ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>
-                    {TEMPLATES[activeTemplateIndex].logo.appName}
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 truncate">
-                      {TEMPLATES[activeTemplateIndex].style}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                const { loadTemplate, updateGlobalSettings, globalSettings } = useEditorStore.getState();
-                const template = TEMPLATES[activeTemplateIndex];
-                if (template) {
-                  const wasAndroid = isAndroidDevice(globalSettings.targetSize);
-                  template.apply(loadTemplate, updateGlobalSettings);
-                  const newSize = useEditorStore.getState().globalSettings.targetSize;
-                  const isNowAndroid = isAndroidDevice(newSize);
-                  if (wasAndroid && !isNowAndroid) {
-                    toast.success(`Loaded ${template.name} and switched to iPhone`);
-                  } else if (!wasAndroid && isNowAndroid) {
-                    toast.success(`Loaded ${template.name} and switched to Android device`);
-                  } else {
-                    toast.success(`Loaded ${template.name} template!`);
-                  }
-                }
-              }}
-              className={`w-full py-2.5 px-3 rounded-xl border text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
-                isDark
-                  ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
-                  : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
-              }`}
-            >
-              Load Selected Template
             </button>
           </div>
         </section>
@@ -1421,71 +1199,28 @@ export function Sidebar() {
       </div>
 
       {/* Footer Controls */}
-      <div className={`p-5 border-t space-y-3 shadow-lg ${
+      <div className={`p-4 border-t ${
         isDark ? 'bg-black/95 border-gray-800' : 'bg-white/95 border-gray-200'
       }`}>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to clear all screenshots? This cannot be undone.')) {
-                clearAllCanvases();
-              }
-            }}
-            className={`flex items-center justify-center py-2.5 px-3 border rounded-xl shadow-sm transition-all hover:scale-[1.02] ${
-              isDark
-                ? 'border-gray-700 bg-gray-800/80 text-gray-400 hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50'
-                : 'border-gray-300 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-            }`}
-            title="Clear All Screenshots"
-          >
-            <IoTrashOutline className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={() => addCanvas()}
-            className={`flex-1 flex items-center justify-center py-2.5 px-4 border rounded-xl shadow-sm text-xs font-bold transition-all hover:scale-[1.02] ${
-              isDark
-                ? 'border-gray-700 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white'
-                : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-white hover:shadow-md'
-            }`}
-          >
-            <IoAddCircleOutline className="w-4 h-4 mr-2 opacity-70" />
-            Add Blank
-          </button>
-        </div>
-
         <button
-          onClick={() => useEditorStore.getState().togglePreviewMode()}
-          className={`w-full mb-3 flex items-center justify-center py-2.5 px-4 border rounded-xl shadow-sm text-xs font-bold transition-all hover:scale-[1.02] ${
+          onClick={() => {
+            if (window.confirm('Are you sure you want to clear all screenshots? This cannot be undone.')) {
+              clearAllCanvases();
+            }
+          }}
+          className={`w-full flex items-center justify-center py-2 px-3 border rounded-xl shadow-sm text-xs font-semibold transition-all ${
             isDark
-              ? 'border-gray-700 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white'
-              : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-white hover:shadow-md'
+              ? 'border-gray-800 bg-gray-900/60 text-gray-400 hover:bg-red-950/40 hover:text-red-400 hover:border-red-900/50'
+              : 'border-gray-200 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
           }`}
+          title="Clear All Screenshots"
         >
-          <svg className="w-4 h-4 mr-2 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-          Enter Preview Mode
-        </button>
-        
-        <button
-          disabled={canvases.length === 0}
-          onClick={() => setShowExportModal(true)}
-          className={`w-full flex items-center justify-center py-3 px-4 rounded-xl shadow-lg shadow-zinc-600/30 text-xs font-extrabold transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 ${
-            canvases.length === 0 
-              ? 'bg-zinc-400 opacity-50 cursor-not-allowed' 
-              : (isDark ? 'bg-white text-zinc-900 hover:bg-gray-100' : 'bg-zinc-900 text-white hover:bg-zinc-800')
-          }`}
-        >
-          <IoDownloadOutline className="w-4 h-4 mr-2" />
-          Export All ({canvases.length})
+          <IoTrashOutline className="w-3.5 h-3.5 mr-2" />
+          Clear All Screenshots
         </button>
       </div>
       </div>
-      {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
       {showTranslationModal && <TranslationModal onClose={() => setShowTranslationModal(false)} />}
-      {showProjectModal && <ProjectManagerModal onClose={() => setShowProjectModal(false)} />}
       
       {/* Invisible overlay while resizing to capture global mouse events */}
       {isResizing && (
