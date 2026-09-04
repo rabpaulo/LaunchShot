@@ -127,3 +127,32 @@ test('TEMPLATES catalog contains >= 20 presets that apply successfully', () => {
   }
 });
 
+test('all templates have distinct titles and niche-specific templates have authentic copy', () => {
+  const seenSequences = new Map();
+
+  for (const template of TEMPLATES) {
+    let loadedCanvases = [];
+    template.apply((canvases) => { loadedCanvases = canvases; }, () => {});
+
+    const sequenceKey = loadedCanvases.map((c) => c.title).join(' | ');
+    assert.ok(
+      !seenSequences.has(sequenceKey),
+      `Template "${template.name}" has duplicate titles matching "${seenSequences.get(sequenceKey)}"`
+    );
+    seenSequences.set(sequenceKey, template.name);
+  }
+
+  // Verify fitness niche template in TEMPLATES
+  const fitnessPulse = TEMPLATES.find((t) => t.name === 'Play Store Fitness Pulse (5 Screens)');
+  assert.ok(fitnessPulse, 'Play Store Fitness Pulse must exist');
+  let pulseCanvases = [];
+  fitnessPulse.apply((c) => { pulseCanvases = c; }, () => {});
+  assert.equal(pulseCanvases[0].title, 'Track Every Heartbeat');
+  assert.ok(pulseCanvases.some((c) => c.title.includes('Intervals') || c.title.includes('Recovery')));
+
+  // Verify Fitness & Workout in NICHE_TEMPLATES
+  const fitnessNiche = generateTemplateForNiche('Fitness & Workout');
+  assert.equal(fitnessNiche.matchedNicheName, 'Fitness & Workout');
+  assert.equal(fitnessNiche.canvases.length, 5);
+});
+

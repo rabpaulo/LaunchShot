@@ -143,8 +143,8 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
   },
 
   fitness: {
-    name: 'Fitness & Strength',
-    keywords: ['fitness', 'workout', 'gym', 'health', 'exercise', 'weight', 'run', 'lifting', 'muscle', 'crossfit', 'bodybuilding', 'coach', 'trainer'],
+    name: 'Fitness & Workout',
+    keywords: ['fitness', 'workout', 'gym', 'health', 'exercise', 'weight', 'run', 'lifting', 'muscle', 'crossfit', 'bodybuilding', 'coach', 'trainer', 'strength', 'cardio'],
     theme: {
       fontFamily: 'outfit',
       colors: ['#000000', '#111111', 'linear-gradient(135deg, #18181b 0%, #09090b 100%)', '#1c1917', '#0f172a'],
