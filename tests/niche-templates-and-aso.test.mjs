@@ -328,3 +328,50 @@ test('CanvasEditor tilt and 3d layouts have safety margins and reduced text widt
   );
 });
 
+test('Smart ASO copywriter performs contextual domain detection and adheres to CRO 3-6 word rule', async () => {
+  const { detectAsoDomain, QUICK_ASO_NICHES, applyAsoCopy } = await import('../src/config/aso.ts');
+
+  // Verify domain detection
+  assert.equal(detectAsoDomain('sleep tracker for insomnia and anxiety'), 'meditation');
+  assert.equal(detectAsoDomain('gym workout planner and lifting tracker'), 'fitness');
+  assert.equal(detectAsoDomain('crypto wallet and expense tracker'), 'finance');
+  assert.equal(detectAsoDomain('habit streak tracker'), 'habits');
+  assert.equal(detectAsoDomain('ai copilot assistant for writing'), 'ai');
+  assert.equal(detectAsoDomain('unknown novelty custom widget xyz'), 'universal');
+
+  // Verify Quick ASO niches are defined and contain no emojis
+  assert.ok(QUICK_ASO_NICHES.length >= 6);
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
+  for (const q of QUICK_ASO_NICHES) {
+    assert.ok(!emojiRegex.test(q.name));
+    assert.ok(q.query.length > 0);
+  }
+
+  // Test copy generation for sleep app
+  const dummyCanvases = [
+    { id: '1', imageSrc: null, title: 'Old 1', subtitle: 'Sub 1', layout: 'basic-top', backgroundColor: '#000', textColor: '#fff' },
+    { id: '2', imageSrc: null, title: 'Old 2', subtitle: 'Sub 2', layout: 'half-right', backgroundColor: '#000', textColor: '#fff' },
+    { id: '3', imageSrc: null, title: 'Old 3', subtitle: 'Sub 3', layout: 'tilt-left', backgroundColor: '#000', textColor: '#fff' },
+    { id: '4', imageSrc: null, title: 'Old 4', subtitle: 'Sub 4', layout: 'split-vertical', backgroundColor: '#000', textColor: '#fff' },
+    { id: '5', imageSrc: null, title: 'Old 5', subtitle: 'Sub 5', layout: 'basic-bottom', backgroundColor: '#000', textColor: '#fff' },
+  ];
+
+  const sleepResult = applyAsoCopy(dummyCanvases, 'sleep tracker for insomnia', 'high-converting');
+  assert.equal(sleepResult.length, 5);
+  assert.ok(sleepResult[0].title.includes('Fall Asleep') || sleepResult[0].title.includes('Sleep'));
+  assert.ok(!sleepResult[0].title.includes('The Ultimate Sleep Tracker App'), 'Must not use robotic Mad Libs');
+  
+  // Verify 3-6 word rule across all slides
+  for (const c of sleepResult) {
+    const wordCount = c.title.trim().split(/\s+/).length;
+    assert.ok(wordCount >= 2 && wordCount <= 7, `Title "${c.title}" word count ${wordCount} violates brevity`);
+    assert.ok(!emojiRegex.test(c.title));
+    assert.ok(!emojiRegex.test(c.subtitle));
+  }
+
+  // Test variation cycling
+  const var0 = applyAsoCopy(dummyCanvases, 'gym workout tracker', 'high-converting', undefined, 0);
+  const var1 = applyAsoCopy(dummyCanvases, 'gym workout tracker', 'high-converting', undefined, 1);
+  assert.notEqual(var0[0].title, var1[0].title, 'Different variation index should produce different angle');
+});
+

@@ -19,6 +19,7 @@ import {
   IoLayersOutline,
   IoLogoApple,
   IoLogoGooglePlaystore,
+  IoRefreshOutline,
 } from 'react-icons/io5';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { TARGET_SIZES, TargetSizeId, isAndroidDevice, isAppleDevice } from '@/config/sizes';
@@ -30,7 +31,7 @@ import { PANORAMA_PRESETS } from '@/config/panoramas';
 import { TranslationModal } from './TranslationModal';
 import { CustomDropdown } from './ui/CustomDropdown';
 import { NICHE_CATEGORIES_LIST, generateTemplateForNiche } from '@/config/niches';
-import { ASO_TONE_OPTIONS, AsoTone, applyAsoCopy } from '@/config/aso';
+import { ASO_TONE_OPTIONS, AsoTone, applyAsoCopy, QUICK_ASO_NICHES, detectAsoDomain } from '@/config/aso';
 import { SUPPORTED_LANGUAGES, getLanguageName } from '@/config/languages';
 import {
   exportSingleLanguageJson,
@@ -46,6 +47,7 @@ export function Sidebar() {
   const [selectedAsoTone, setSelectedAsoTone] = useState<AsoTone>('high-converting');
   const [nicheQuery, setNicheQuery] = useState('');
   const [asoDescription, setAsoDescription] = useState('');
+  const [asoVariationIndex, setAsoVariationIndex] = useState(0);
 
   const startResizing = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -455,17 +457,27 @@ export function Sidebar() {
             {/* Smart ASO Copywriter */}
             <div className="mt-4 border-t border-dashed pt-4 border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center justify-between mb-2">
-                <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
-                  isDark ? 'text-gray-500' : 'text-gray-400'
-                }`}>
-                  Smart ASO Copywriter
-                </h2>
+                <div className="flex items-center gap-1.5">
+                  <h2 className={`text-[10px] font-bold uppercase tracking-widest ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    Smart ASO Copywriter
+                  </h2>
+                  <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
+                    isDark ? 'bg-blue-950/80 text-blue-400 border border-blue-800/60' : 'bg-blue-50 text-blue-700 border border-blue-200'
+                  }`}>
+                    CRO
+                  </span>
+                </div>
+                <span className={`text-[10px] font-medium ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                  3-6 Word Rule
+                </span>
               </div>
 
               {/* Tone of Voice Selector */}
               <div className="mb-2">
                 <label className={`block text-[11px] font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Copywriting Persona & Tone:
+                  Conversion Persona & Arc:
                 </label>
                 <CustomDropdown
                   value={selectedAsoTone}
@@ -480,6 +492,40 @@ export function Sidebar() {
                   options={ASO_TONE_OPTIONS.map(tone => ({ label: tone.name, value: tone.id }))}
                   isDark={isDark}
                 />
+                <p className={`mt-1 text-[10px] leading-tight ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                  {ASO_TONE_OPTIONS.find(t => t.id === selectedAsoTone)?.description}
+                </p>
+              </div>
+
+              {/* Quick Niche Inspiration Chips */}
+              <div className="mb-2">
+                <label className={`block text-[10px] font-semibold tracking-wide uppercase mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                  Quick Prompts:
+                </label>
+                <div className="flex flex-wrap gap-1">
+                  {QUICK_ASO_NICHES.map((niche) => (
+                    <button
+                      key={niche.id}
+                      type="button"
+                      onClick={() => {
+                        setAsoDescription(niche.query);
+                        const { canvases, loadTemplate, globalSettings } = useEditorStore.getState();
+                        if (canvases.length > 0) {
+                          const updated = applyAsoCopy(canvases, niche.query, selectedAsoTone, globalSettings.targetSize, 0);
+                          loadTemplate(updated);
+                          toast.success(`Applied ${niche.name} ASO copy!`);
+                        }
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md font-medium transition-all ${
+                        isDark 
+                          ? 'bg-zinc-800/90 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700/50' 
+                          : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 hover:text-zinc-900 border border-zinc-200'
+                      }`}
+                    >
+                      {niche.name}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <input
@@ -487,7 +533,7 @@ export function Sidebar() {
                 id="aso-desc-input"
                 value={asoDescription}
                 onChange={(e) => setAsoDescription(e.target.value)}
-                placeholder="Optional: App description (e.g. sleep tracker for insomnia)"
+                placeholder="Describe your app (e.g. sleep tracker for insomnia)"
                 className={`w-full mb-2 border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs transition-colors ${
                   isDark 
                     ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
@@ -500,32 +546,84 @@ export function Sidebar() {
                       toast.error("Add or load screenshots first!");
                       return;
                     }
-                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize);
+                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize, asoVariationIndex);
                     loadTemplate(updated);
                     toast.success("Applied ASO copy & badges!");
                   }
                 }}
               />
-              <button
-                onClick={() => {
-                  const { canvases, loadTemplate, globalSettings } = useEditorStore.getState();
-                  if (canvases.length === 0) {
-                    toast.error("Add or load screenshots first!");
-                    return;
-                  }
-                  const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize);
-                  loadTemplate(updated);
-                  toast.success("Applied ASO copy & badges!");
-                }}
-                className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 ${
-                  isDark
-                    ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
-                    : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
-                }`}
-              >
-                <IoSparklesOutline className="w-4 h-4 text-blue-400" />
-                Apply ASO Copy & Badges
-              </button>
+
+              {/* Action Buttons: Apply & Regenerate Variation */}
+              <div className="flex items-center gap-1.5 mb-2">
+                <button
+                  onClick={() => {
+                    const { canvases, loadTemplate, globalSettings } = useEditorStore.getState();
+                    if (canvases.length === 0) {
+                      toast.error("Add or load screenshots first!");
+                      return;
+                    }
+                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize, asoVariationIndex);
+                    loadTemplate(updated);
+                    toast.success("Applied ASO copy & badges!");
+                  }}
+                  className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.01] flex items-center justify-center gap-1.5 ${
+                    isDark
+                      ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
+                      : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                  }`}
+                >
+                  <IoSparklesOutline className="w-3.5 h-3.5 text-blue-400" />
+                  Apply ASO Copy
+                </button>
+
+                <button
+                  type="button"
+                  title="Cycle to alternative conversion angle"
+                  onClick={() => {
+                    const { canvases, loadTemplate, globalSettings } = useEditorStore.getState();
+                    if (canvases.length === 0) {
+                      toast.error("Add or load screenshots first!");
+                      return;
+                    }
+                    const nextVar = asoVariationIndex + 1;
+                    setAsoVariationIndex(nextVar);
+                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize, nextVar);
+                    loadTemplate(updated);
+                    toast.success(`Generated variation angle #${(nextVar % 3) + 1}!`);
+                  }}
+                  className={`py-2 px-2.5 rounded-xl border text-xs font-medium transition-all hover:scale-[1.02] flex items-center justify-center gap-1 ${
+                    isDark
+                      ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                      : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
+                  }`}
+                >
+                  <IoRefreshOutline className="w-3.5 h-3.5" />
+                  <span>New Angle</span>
+                </button>
+              </div>
+
+              {/* Story Arc Visual Roadmap */}
+              <div className={`p-2 rounded-lg border text-[10px] leading-normal ${
+                isDark ? 'bg-zinc-900/40 border-zinc-800/80 text-zinc-400' : 'bg-zinc-50 border-zinc-200 text-zinc-600'
+              }`}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-[10px] text-zinc-300">5-Screen Conversion Arc:</span>
+                  <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-blue-500/10 text-blue-400">
+                    {detectAsoDomain(asoDescription) === 'universal' ? 'Dynamic' : detectAsoDomain(asoDescription).toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-1 text-[9px] text-zinc-500">
+                  <span>1. Hook</span>
+                  <span>&rarr;</span>
+                  <span>2. Pain</span>
+                  <span>&rarr;</span>
+                  <span>3. Workflow</span>
+                  <span>&rarr;</span>
+                  <span>4. Trust</span>
+                  <span>&rarr;</span>
+                  <span>5. CTA</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>

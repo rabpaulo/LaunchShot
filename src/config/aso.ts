@@ -3,8 +3,15 @@ import type { CanvasItem } from '@/store/useEditorStore';
 import { BADGE_PRESETS } from '@/config/badges';
 import { extractKeywords } from '@/utils/keywordExtractor';
 import { isAndroidDevice } from '@/config/sizes';
+import {
+  ASO_DOMAINS,
+  UNIVERSAL_ASO_TONES,
+  detectAsoDomain,
+  synthesizeCustomAsoStoryArc,
+  type AsoStoryArc
+} from '@/config/asoKnowledge';
 
-
+export { detectAsoDomain } from '@/config/asoKnowledge';
 
 export type AsoTone = 
   | 'high-converting' 
@@ -21,15 +28,34 @@ export interface AsoToneOption {
 }
 
 export const ASO_TONE_OPTIONS: AsoToneOption[] = [
-  { id: 'high-converting', name: 'High Converting (Hook & Power)', description: 'Punchy, action-driven, high-converting value props' },
-  { id: 'apple-minimalist', name: 'Apple Minimalist (Short & Sleek)', description: '2-4 word poetic headlines with refined clarity' },
-  { id: 'feature-tech', name: 'Feature & Tech Utility', description: 'Clear capabilities, speed, specs, and offline reliability' },
-  { id: 'social-proof', name: 'Social Proof & Accolades', description: 'Ratings, design awards, and community milestones' },
-  { id: 'problem-solution', name: 'Problem to Transformation', description: 'Highlight user pain points then deliver instant relief' },
-  { id: 'playful-vibrant', name: 'Playful & Vibrant', description: 'Fun, engaging, conversational, and energetic' },
+  { id: 'high-converting', name: 'High Converting (Hook & Outcome)', description: 'Punchy 3-5 word benefit headlines that maximize App Store CRO' },
+  { id: 'apple-minimalist', name: 'Apple Minimalist (Short & Sleek)', description: '2-3 word poetic editorial headlines with keynote clarity' },
+  { id: 'feature-tech', name: 'Feature & Power Utility', description: 'Clear capabilities, sub-50ms speed, and offline reliability' },
+  { id: 'social-proof', name: 'Social Proof & Authority', description: 'Verified ratings, design awards, and community milestones' },
+  { id: 'problem-solution', name: 'Problem to Transformation', description: 'Names relatable user friction then delivers instant relief' },
+  { id: 'playful-vibrant', name: 'Playful & Vibrant', description: 'Fun, gamified, conversational energy that delights users' },
 ];
 
+export interface QuickAsoNiche {
+  id: string;
+  name: string;
+  query: string;
+}
 
+export const QUICK_ASO_NICHES: QuickAsoNiche[] = [
+  { id: 'fitness', name: 'Gym & Workout', query: 'gym workout planner and lifting tracker' },
+  { id: 'meditation', name: 'Sleep & Anxiety', query: 'sleep tracker and calm soundscapes for insomnia' },
+  { id: 'finance', name: 'Budget & Crypto', query: 'budget expense tracker and crypto portfolio' },
+  { id: 'productivity', name: 'Tasks & Notes', query: 'minimal markdown notes and daily to-do planner' },
+  { id: 'nutrition', name: 'Macros & Diet', query: 'calorie counter and intermittent fasting tracker' },
+  { id: 'education', name: 'Language Tutor', query: 'language flashcards and vocabulary spaced repetition' },
+  { id: 'habits', name: 'Daily Habits', query: 'daily habit streaks and goal tracker' },
+  { id: 'ai', name: 'AI Copilot', query: 'smart ai writing assistant and prompt generator' },
+];
+
+/**
+ * Legacy formulas map preserved for backwards compatibility
+ */
 export const TONE_FORMULAS: Record<AsoTone, {
   hook: (kw1: string, kw2: string) => { title: string; subtitle: string };
   feature1: (kw1: string, kw2: string) => { title: string; subtitle: string };
@@ -44,13 +70,13 @@ export const TONE_FORMULAS: Record<AsoTone, {
     }),
     feature1: (kw1, kw2) => ({
       title: kw1 ? `Supercharge Your ${kw1}` : 'Supercharge Your Workflow',
-      subtitle: `Unlock powerful automation and intelligent insights in seconds.`
+      subtitle: 'Unlock powerful automation and intelligent insights in seconds.'
     }),
     feature2: (kw1, kw2) => ({
       title: kw1 ? `Track & Optimize ${kw2}` : 'Deep Real-Time Analytics',
       subtitle: 'Visualize your progress with beautiful, high-clarity metrics.'
     }),
-    trust: (kw1) => ({
+    trust: () => ({
       title: '100% Private & Blazing Fast',
       subtitle: 'Bank-grade encryption, zero tracking, and complete offline access.'
     }),
@@ -90,7 +116,7 @@ export const TONE_FORMULAS: Record<AsoTone, {
     }),
     feature1: (kw1) => ({
       title: kw1 ? `Automate Your ${kw1}` : 'Automate Everything',
-      subtitle: 'Sub-100ms response times with smart keyboard shortcuts and widgets.'
+      subtitle: 'Sub-50ms response times with smart keyboard shortcuts and widgets.'
     }),
     feature2: (kw1, kw2) => ({
       title: kw1 ? `Multi-Format ${kw2} Export` : 'Seamless Cloud Sync',
@@ -176,98 +202,121 @@ export const TONE_FORMULAS: Record<AsoTone, {
   }
 };
 
+/**
+ * High-Converting Smart ASO Copywriter Engine
+ * Follows industry-standard 2026 conversion rate optimization (CRO) guidelines:
+ * - Strictly 3-6 word headlines for thumbnail legibility in App Store & Google Play
+ * - Benefit-led outcomes rather than static feature descriptions
+ * - 5-Screen conversion arc: Hook -> Pain Relieved -> Core Flow -> Privacy/Speed -> Social Proof/CTA
+ * - Contextual domain intelligence across fitness, sleep, finance, productivity, etc.
+ * - Platform-specific badging (Google Play rating/editorial vs Apple App Store)
+ */
 export function applyAsoCopy(
   canvases: CanvasItem[], 
   description?: string, 
   tone: AsoTone = 'high-converting',
-  targetSize?: string
+  targetSize?: string,
+  variationIndex: number = 0
 ): CanvasItem[] {
   if (canvases.length === 0) return canvases;
   
   const isAndroid = isAndroidDevice(targetSize);
   const keywords = description ? extractKeywords(description) : [];
-  const kw1 = keywords[0] || '';
-  const kw2 = keywords[1] || keywords[0] || '';
-  const formulas = TONE_FORMULAS[tone] || TONE_FORMULAS['high-converting'];
+  const detectedDomain = detectAsoDomain(description);
+  
+  // Resolve the 5-screen conversion story arc
+  let arc: AsoStoryArc;
+  
+  if (detectedDomain !== 'universal' && ASO_DOMAINS[detectedDomain]) {
+    const domainArcs = ASO_DOMAINS[detectedDomain].tones[tone] || ASO_DOMAINS[detectedDomain].tones['high-converting'];
+    const arcIndex = Math.abs(variationIndex) % domainArcs.length;
+    arc = domainArcs[arcIndex];
+  } else if (keywords.length > 0) {
+    arc = synthesizeCustomAsoStoryArc(keywords, tone, variationIndex);
+  } else {
+    const universalArcs = UNIVERSAL_ASO_TONES[tone] || UNIVERSAL_ASO_TONES['high-converting'];
+    const arcIndex = Math.abs(variationIndex) % universalArcs.length;
+    arc = universalArcs[arcIndex];
+  }
+
+  // Device-specific badges
+  const hookBadge = isAndroid
+    ? (tone === 'social-proof' ? BADGE_PRESETS[5].config : BADGE_PRESETS[4].config)
+    : (tone === 'social-proof' ? BADGE_PRESETS[2].config : BADGE_PRESETS[0].config);
+
+  const trustBadge = BADGE_PRESETS[10].config; // Privacy & Security shield
+  
+  const ctaBadge = isAndroid
+    ? BADGE_PRESETS[5].config // Google Play Editors' Choice
+    : BADGE_PRESETS[3].config; // Apple Editors' Choice
+
+  const total = canvases.length;
 
   return canvases.map((canvas, index) => {
-    const total = canvases.length;
-    
     // Single canvas
     if (total === 1) {
-      const copy = formulas.hook(kw1, kw2);
       return {
         ...canvas,
-        title: copy.title,
-        subtitle: copy.subtitle,
-        badge: isAndroid ? BADGE_PRESETS[4].config : BADGE_PRESETS[0].config, // Rating
+        title: arc.hook.title,
+        subtitle: arc.hook.subtitle,
+        badge: hookBadge,
       };
     }
 
-    // Screen 1: Hook / Positioning
+    // Screen 1: The Hook / Primary Value Prop
     if (index === 0) {
-      const copy = formulas.hook(kw1, kw2);
-      const screen1Badge = isAndroid
-        ? (tone === 'social-proof' ? BADGE_PRESETS[5].config : BADGE_PRESETS[4].config)
-        : (tone === 'social-proof' ? BADGE_PRESETS[2].config : BADGE_PRESETS[0].config);
       return {
         ...canvas,
-        title: copy.title,
-        subtitle: copy.subtitle,
-        badge: screen1Badge
+        title: arc.hook.title,
+        subtitle: arc.hook.subtitle,
+        badge: hookBadge,
       };
     }
 
-    // Last Screen: CTA / Outro
+    // Last Screen: CTA / The Close
     if (index === total - 1) {
-      const copy = formulas.cta(kw1, kw2);
-      let subtitle = copy.subtitle;
+      let subtitle = arc.cta.subtitle;
       if (isAndroid && tone === 'apple-minimalist') {
         subtitle = 'Download free on Google Play.';
       }
       return {
         ...canvas,
-        title: copy.title,
+        title: arc.cta.title,
         subtitle,
-        badge: isAndroid ? BADGE_PRESETS[5].config : BADGE_PRESETS[3].config // Editors Choice vs App of the Day
+        badge: ctaBadge,
       };
     }
 
-    // Screen 2: Killer Core Feature
+    // Screen 2: The Pain Point Relieved / Key Feature
     if (index === 1) {
-      const copy = formulas.feature1(kw1, kw2);
-      let subtitle = copy.subtitle;
+      let subtitle = arc.pain.subtitle;
       if (isAndroid && tone === 'social-proof') {
-        subtitle = 'Featured on Google Play as Editors\' Choice and Best of 2024.';
+        subtitle = "Featured on Google Play as Editors' Choice and Best of 2024.";
       }
       return {
         ...canvas,
-        title: copy.title,
+        title: arc.pain.title,
         subtitle,
-        badge: undefined
+        badge: undefined,
       };
     }
 
     // Penultimate screen or Slide 4: Trust / Security / Speed
     if (index === total - 2 || index === 3) {
-      const copy = formulas.trust(kw1, kw2);
       return {
         ...canvas,
-        title: copy.title,
-        subtitle: copy.subtitle,
-        badge: BADGE_PRESETS[10].config // Privacy & Security badge
+        title: arc.superpower.title,
+        subtitle: arc.superpower.subtitle,
+        badge: trustBadge,
       };
     }
 
-    // Middle Screens: Secondary features & Depth
-    const kwCurrent = keywords[((index - 1) % Math.max(1, keywords.length))] || kw2;
-    const copy = formulas.feature2(kwCurrent, kw1);
+    // Middle Screens: Core Workflow & Transformation
     return {
       ...canvas,
-      title: copy.title,
-      subtitle: copy.subtitle,
-      badge: undefined
+      title: arc.feature.title,
+      subtitle: arc.feature.subtitle,
+      badge: undefined,
     };
   });
 }
-
