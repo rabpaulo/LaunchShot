@@ -262,3 +262,69 @@ test('CanvasEditor half-left and half-right layouts maintain non-overlapping geo
   );
 });
 
+test('all niches and templates maintain 100% consistent background colors across all screens', () => {
+  // 1. Verify all niches in NICHE_TEMPLATES generate uniform backgrounds
+  for (const [key, niche] of Object.entries(NICHE_TEMPLATES)) {
+    const result = generateTemplateForNiche(niche.name);
+    const bgs = result.canvases.map((c) => c.backgroundColor);
+    const uniqueBgs = new Set(bgs);
+    assert.equal(
+      uniqueBgs.size,
+      1,
+      `Niche ${key} (${niche.name}) has inconsistent screen backgrounds: ${JSON.stringify(bgs)}`
+    );
+  }
+
+  // 2. Verify all categories in NICHE_CATEGORIES_LIST generate uniform backgrounds
+  for (const cat of NICHE_CATEGORIES_LIST) {
+    const result = generateTemplateForNiche(cat.query);
+    const bgs = result.canvases.map((c) => c.backgroundColor);
+    const uniqueBgs = new Set(bgs);
+    assert.equal(
+      uniqueBgs.size,
+      1,
+      `Category ${cat.name} has inconsistent screen backgrounds: ${JSON.stringify(bgs)}`
+    );
+  }
+
+  // 3. Verify specifically Fitness & Workout has uniform background across all slides
+  const fitness = generateTemplateForNiche('Fitness & Workout');
+  const fitnessBgs = fitness.canvases.map((c) => c.backgroundColor);
+  assert.equal(new Set(fitnessBgs).size, 1, `Fitness & Workout backgrounds must be uniform: ${JSON.stringify(fitnessBgs)}`);
+
+  // 4. Verify all TEMPLATES catalog presets have uniform backgrounds across their screens
+  for (const template of TEMPLATES) {
+    let loadedCanvases = [];
+    template.apply(
+      (canvases) => { loadedCanvases = canvases; },
+      () => {}
+    );
+    const bgs = loadedCanvases.map((c) => c.backgroundColor);
+    const uniqueBgs = new Set(bgs);
+    assert.equal(
+      uniqueBgs.size,
+      1,
+      `Template "${template.name}" has inconsistent screen backgrounds: ${JSON.stringify(bgs)}`
+    );
+  }
+});
+
+test('CanvasEditor tilt and 3d layouts have safety margins and reduced text widths to prevent phone overlap', async () => {
+  const fs = await import('node:fs/promises');
+  const code = await fs.readFile('src/components/CanvasEditor.tsx', 'utf-8');
+
+  // Verify tilt layouts use safe 60% text box width
+  assert.ok(
+    code.includes("case 'tilt-right':") &&
+    code.includes("return 60;"),
+    'tilt-right layout must default to 60% text box width'
+  );
+
+  // Verify half layouts default to 50%
+  assert.ok(
+    code.includes("case 'half-right':") &&
+    code.includes("return 50;"),
+    'half layouts must default to 50% text box width'
+  );
+});
+

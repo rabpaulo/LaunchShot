@@ -250,12 +250,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
   // Compute adaptive phone frame dimensions
   const getPhoneDimensions = () => {
-    let heightFactor = 0.65;
+    let heightFactor = 0.62;
     if (currentLayout === 'device-only') heightFactor = 0.82;
     else if (currentLayout === 'half-right' || currentLayout === 'half-left') heightFactor = 0.70;
-    else if (currentLayout === 'tilt-right' || currentLayout === 'tilt-left') heightFactor = 0.72;
-    else if (isMultiScreen) heightFactor = 0.68;
-    else if (isCompact) heightFactor = 0.58;
+    else if (currentLayout === 'tilt-right' || currentLayout === 'tilt-left' || currentLayout === 'tilt-right-complement' || currentLayout === 'tilt-left-complement') heightFactor = 0.68;
+    else if (currentLayout === 'tilt-bottom-right' || currentLayout === 'tilt-bottom-left') heightFactor = 0.66;
+    else if (currentLayout === 'split-vertical') heightFactor = 0.52;
+    else if (isMultiScreen) heightFactor = 0.66;
+    else if (isCompact) heightFactor = 0.54;
 
     const phoneH = Math.round(canvasHeight * heightFactor);
     
@@ -285,122 +287,122 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     switch (currentLayout) {
       case 'basic-top':
         return {
-          containerClass: "flex flex-col justify-between items-center",
-          textContainerClass: `w-full px-6 pt-8 pb-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2`,
-          phoneWrapperClass: "w-full flex justify-center items-end flex-1 overflow-hidden relative",
+          containerClass: "flex flex-col justify-between items-center overflow-hidden",
+          textContainerClass: `w-full px-6 pt-7 pb-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-1.5`,
+          phoneWrapperClass: "w-full flex justify-center items-start flex-1 overflow-hidden relative pt-3",
           textAlign: "center" as const,
         };
       case 'basic-bottom':
         return {
-          containerClass: "flex flex-col-reverse justify-between items-center",
-          textContainerClass: `w-full px-6 pb-8 pt-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2`,
-          phoneWrapperClass: "w-full flex justify-center items-start flex-1 overflow-hidden relative pt-4",
+          containerClass: "flex flex-col-reverse justify-between items-center overflow-hidden",
+          textContainerClass: `w-full px-6 pb-7 pt-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-1.5`,
+          phoneWrapperClass: "w-full flex justify-center items-end flex-1 overflow-hidden relative pb-3",
           textAlign: "center" as const,
         };
       case 'tilt-right':
         return {
-          containerClass: "relative",
-          textContainerClass: `absolute top-0 left-0 w-[80%] pt-8 px-8 text-left z-20 flex flex-col items-start gap-2`,
-          phoneWrapperClass: "absolute -bottom-8 -right-8 rotate-12 origin-bottom-right z-10",
+          containerClass: "relative overflow-hidden",
+          textContainerClass: `absolute top-0 left-0 w-[60%] pt-8 px-7 text-left z-20 flex flex-col items-start gap-2`,
+          phoneWrapperClass: "absolute -bottom-16 -right-10 rotate-[12deg] origin-bottom-right z-10",
           textAlign: "left" as const,
         };
       case 'tilt-right-complement':
         return {
-          containerClass: "relative",
-          textContainerClass: `absolute top-0 right-0 w-[80%] pt-8 px-8 text-right z-20 flex flex-col items-end gap-2`,
-          phoneWrapperClass: "absolute -bottom-8 -left-[152px] rotate-12 origin-bottom-left z-10",
+          containerClass: "relative overflow-hidden",
+          textContainerClass: `absolute top-0 right-0 w-[60%] pt-8 px-7 text-right z-20 flex flex-col items-end gap-2`,
+          phoneWrapperClass: "absolute -bottom-16 -left-[160px] rotate-[12deg] origin-bottom-left z-10",
           textAlign: "right" as const,
         };
       case 'tilt-left':
         return {
-          containerClass: "relative",
-          textContainerClass: `absolute top-0 right-0 w-[80%] pt-8 px-8 text-right z-20 flex flex-col items-end gap-2`,
-          phoneWrapperClass: "absolute -bottom-8 -left-8 -rotate-12 origin-bottom-left z-10",
+          containerClass: "relative overflow-hidden",
+          textContainerClass: `absolute top-0 right-0 w-[60%] pt-8 px-7 text-right z-20 flex flex-col items-end gap-2`,
+          phoneWrapperClass: "absolute -bottom-16 -left-10 -rotate-[12deg] origin-bottom-left z-10",
           textAlign: "right" as const,
         };
       case 'tilt-left-complement':
         return {
-          containerClass: "relative",
-          textContainerClass: `absolute top-0 left-0 w-[80%] pt-8 px-8 text-left z-20 flex flex-col items-start gap-2`,
-          phoneWrapperClass: "absolute -bottom-8 -right-[152px] -rotate-12 origin-bottom-right z-10",
+          containerClass: "relative overflow-hidden",
+          textContainerClass: `absolute top-0 left-0 w-[60%] pt-8 px-7 text-left z-20 flex flex-col items-start gap-2`,
+          phoneWrapperClass: "absolute -bottom-16 -right-[160px] -rotate-[12deg] origin-bottom-right z-10",
           textAlign: "left" as const,
         };
       case 'tilt-bottom-right':
         return {
-          containerClass: "relative",
-          textContainerClass: `absolute bottom-0 left-0 w-[80%] pb-12 px-8 text-left z-20 flex flex-col items-start gap-0`,
-          phoneWrapperClass: "absolute -top-8 -right-8 rotate-12 origin-top-right z-10",
+          containerClass: "relative overflow-hidden",
+          textContainerClass: `absolute bottom-0 left-0 w-[60%] pb-10 px-7 text-left z-20 flex flex-col items-start gap-2`,
+          phoneWrapperClass: "absolute -top-16 -right-10 rotate-[12deg] origin-top-right z-10",
           textAlign: "left" as const,
         };
       case 'tilt-bottom-left':
         return {
-          containerClass: "relative",
-          textContainerClass: `absolute bottom-0 right-0 w-[80%] pb-12 px-8 text-right z-20 flex flex-col items-end gap-0`,
-          phoneWrapperClass: "absolute -top-8 -left-8 -rotate-12 origin-top-left z-10",
+          containerClass: "relative overflow-hidden",
+          textContainerClass: `absolute bottom-0 right-0 w-[60%] pb-10 px-7 text-right z-20 flex flex-col items-end gap-2`,
+          phoneWrapperClass: "absolute -top-16 -left-10 -rotate-[12deg] origin-top-left z-10",
           textAlign: "right" as const,
         };
       case 'half-right':
         return {
           containerClass: "relative flex items-center justify-start overflow-hidden",
-          textContainerClass: `w-[54%] pl-8 pr-2 text-left z-20 flex flex-col justify-center items-start gap-2.5`,
+          textContainerClass: `w-[50%] pl-8 pr-2 text-left z-20 flex flex-col justify-center items-start gap-2.5`,
           phoneWrapperClass: `absolute top-1/2 right-0 [transform:translate(40%,-50%)] z-10`,
           textAlign: "left" as const,
         };
       case 'half-left':
         return {
           containerClass: "relative flex items-center justify-end overflow-hidden",
-          textContainerClass: `w-[54%] pr-8 pl-2 text-right z-20 flex flex-col justify-center items-end gap-2.5`,
+          textContainerClass: `w-[50%] pr-8 pl-2 text-right z-20 flex flex-col justify-center items-end gap-2.5`,
           phoneWrapperClass: `absolute top-1/2 left-0 [transform:translate(-40%,-50%)] z-10`,
           textAlign: "right" as const,
         };
-            case 'split-vertical':
+      case 'split-vertical':
         return {
-          containerClass: "flex flex-col justify-between items-center",
-          textContainerClass: "w-full px-6 pt-8 pb-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2",
-          subtitleContainerClass: "w-full px-6 pb-8 pt-2 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-2",
+          containerClass: "flex flex-col justify-between items-center overflow-hidden",
+          textContainerClass: "w-full px-6 pt-6 pb-1 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-1.5",
+          subtitleContainerClass: "w-full px-6 pb-6 pt-1 text-center z-20 flex-shrink-0 flex flex-col items-center justify-center gap-1.5",
           phoneWrapperClass: "w-full flex justify-center items-center flex-1 overflow-hidden relative",
           textAlign: "center" as const,
         };
       case '3d-isometric-right':
         return {
-          containerClass: "relative [perspective:2000px]",
-          textContainerClass: "absolute top-0 left-0 w-[65%] pt-12 px-8 text-left z-20 flex flex-col items-start gap-2",
-          phoneWrapperClass: "absolute -bottom-16 -right-24 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.85)] shadow-[20px_40px_60px_rgba(0,0,0,0.5)] transition-transform duration-300",
+          containerClass: "relative [perspective:2000px] overflow-hidden",
+          textContainerClass: "absolute top-0 left-0 w-[58%] pt-8 px-7 text-left z-20 flex flex-col items-start gap-2",
+          phoneWrapperClass: "absolute -bottom-20 -right-20 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.82)] shadow-[20px_40px_60px_rgba(0,0,0,0.5)] transition-transform duration-300",
           textAlign: "left" as const,
         };
       case '3d-isometric-left':
         return {
-          containerClass: "relative [perspective:2000px]",
-          textContainerClass: "absolute top-0 right-0 w-[65%] pt-12 px-8 text-right z-20 flex flex-col items-end gap-2",
-          phoneWrapperClass: "absolute -bottom-16 -left-24 z-10 [transform:rotateX(15deg)_rotateY(35deg)_rotateZ(-10deg)_scale(0.85)] shadow-[-20px_40px_60px_rgba(0,0,0,0.5)] transition-transform duration-300",
+          containerClass: "relative [perspective:2000px] overflow-hidden",
+          textContainerClass: "absolute top-0 right-0 w-[58%] pt-8 px-7 text-right z-20 flex flex-col items-end gap-2",
+          phoneWrapperClass: "absolute -bottom-20 -left-20 z-10 [transform:rotateX(15deg)_rotateY(35deg)_rotateZ(-10deg)_scale(0.82)] shadow-[-20px_40px_60px_rgba(0,0,0,0.5)] transition-transform duration-300",
           textAlign: "right" as const,
         };
       case 'og-style-1':
         return {
-          containerClass: "relative flex items-center bg-white",
-          textContainerClass: "w-[55%] pl-12 pr-4 text-left z-20 flex flex-col justify-center items-start gap-4",
-          phoneWrapperClass: "absolute top-1/2 -right-8 -translate-y-1/2 z-10 scale-[1.1]",
+          containerClass: "relative flex items-center bg-white overflow-hidden",
+          textContainerClass: "w-[50%] pl-10 pr-3 text-left z-20 flex flex-col justify-center items-start gap-3",
+          phoneWrapperClass: "absolute top-1/2 -right-8 -translate-y-1/2 z-10 scale-[1.05]",
           textAlign: "left" as const,
         };
       case 'og-style-2':
         return {
           containerClass: "relative flex items-center overflow-hidden",
-          textContainerClass: "w-[50%] pl-14 pr-4 text-left z-20 flex flex-col justify-center items-start gap-6",
-          phoneWrapperClass: "absolute -bottom-24 -right-12 z-10 scale-[1.3] [transform:rotate(-15deg)]",
+          textContainerClass: "w-[48%] pl-10 pr-3 text-left z-20 flex flex-col justify-center items-start gap-4",
+          phoneWrapperClass: "absolute -bottom-24 -right-12 z-10 scale-[1.2] [transform:rotate(-15deg)]",
           textAlign: "left" as const,
         };
       case 'og-style-3':
         return {
           containerClass: "relative flex items-center overflow-hidden [perspective:2000px]",
-          textContainerClass: "w-[45%] pl-12 pr-4 text-left z-20 flex flex-col justify-center items-start gap-6",
-          phoneWrapperClass: "absolute top-1/2 -right-16 -translate-y-1/2 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.9)]",
+          textContainerClass: "w-[45%] pl-10 pr-3 text-left z-20 flex flex-col justify-center items-start gap-4",
+          phoneWrapperClass: "absolute top-1/2 -right-16 -translate-y-1/2 z-10 [transform:rotateX(15deg)_rotateY(-35deg)_rotateZ(10deg)_scale(0.88)]",
           textAlign: "left" as const,
         };
       case 'hero-3d-center':
         return {
-          containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-12 [perspective:2000px]",
-          textContainerClass: "w-[80%] text-center z-20 drop-shadow-2xl flex flex-col justify-center items-center gap-6",
-          phoneWrapperClass: "absolute bottom-[-15%] z-10 [transform:rotateX(30deg)_rotateY(0deg)_scale(1.15)] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:[transform:rotateX(20deg)_scale(1.15)]",
+          containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-10 [perspective:2000px]",
+          textContainerClass: "w-[85%] text-center z-20 drop-shadow-2xl flex flex-col justify-center items-center gap-2",
+          phoneWrapperClass: "absolute bottom-[-18%] z-10 [transform:rotateX(25deg)_rotateY(0deg)_scale(1.08)] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:[transform:rotateX(18deg)_scale(1.08)]",
           textAlign: "center" as const,
         };
       case 'multi-screen-right':
@@ -434,14 +436,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
       case 'banner-stack-right':
         return {
           containerClass: "relative flex items-center overflow-hidden",
-          textContainerClass: "w-[48%] pl-12 pr-4 text-left z-30 flex flex-col justify-center items-start gap-4",
+          textContainerClass: "w-[48%] pl-10 pr-3 text-left z-30 flex flex-col justify-center items-start gap-3",
           phoneWrapperClass: "absolute top-1/2 right-4 -translate-y-1/2 z-30 scale-100",
           textAlign: "left" as const,
         };
       case 'banner-triple-bottom':
         return {
-          containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-12",
-          textContainerClass: "w-[80%] text-center z-30 drop-shadow-2xl flex flex-col justify-center items-center gap-4",
+          containerClass: "relative flex flex-col items-center justify-start overflow-hidden pt-10",
+          textContainerClass: "w-[80%] text-center z-30 drop-shadow-2xl flex flex-col justify-center items-center gap-3",
           phoneWrapperClass: "absolute bottom-[-10%] z-30 scale-100",
           textAlign: "center" as const,
         };
@@ -454,16 +456,16 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
         };
       case 'hero-center':
         return {
-          containerClass: "flex flex-col items-center justify-start overflow-hidden pt-12 relative",
-          textContainerClass: "w-[90%] text-center z-20 flex flex-col justify-center items-center gap-0 pt-4",
-          phoneWrapperClass: "absolute bottom-[-15%] z-10 scale-[1.3]",
+          containerClass: "flex flex-col items-center justify-start overflow-hidden pt-10 relative",
+          textContainerClass: "w-[85%] text-center z-20 flex flex-col justify-center items-center gap-1.5 pt-2",
+          phoneWrapperClass: "absolute bottom-[-20%] z-10 scale-[1.12]",
           textAlign: "center" as const,
         };
       default:
         return {
-          containerClass: "flex flex-col justify-between items-center",
-          textContainerClass: `w-full px-6 pt-8 pb-2 text-center z-20 flex-shrink-0 gap-2`,
-          phoneWrapperClass: "w-full flex justify-center items-end flex-1 overflow-hidden relative",
+          containerClass: "flex flex-col justify-between items-center overflow-hidden",
+          textContainerClass: `w-full px-6 pt-7 pb-2 text-center z-20 flex-shrink-0 gap-1.5`,
+          phoneWrapperClass: "w-full flex justify-center items-start flex-1 overflow-hidden relative pt-3",
           textAlign: "center" as const,
         };
     }
@@ -479,27 +481,30 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
         return 88;
       case 'half-right':
       case 'half-left':
-        return 54;
+        return 50;
       case 'banner-stack-right':
         return 48;
       case 'banner-kinetic-stack':
         return 44;
       case 'og-style-1':
-        return 55;
-      case 'og-style-2':
         return 50;
+      case 'og-style-2':
+        return 48;
       case 'og-style-3':
         return 45;
       case '3d-isometric-right':
       case '3d-isometric-left':
-        return 65;
+        return 58;
       case 'tilt-right':
       case 'tilt-left':
       case 'tilt-right-complement':
       case 'tilt-left-complement':
       case 'tilt-bottom-right':
       case 'tilt-bottom-left':
-        return 80;
+        return 60;
+      case 'hero-center':
+      case 'hero-3d-center':
+        return 85;
       default:
         return 100;
     }
@@ -508,10 +513,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   const defaultTextBoxWidth = getDefaultTextBoxWidth(currentLayout);
   const currentTextBoxWidth = canvas.textBoxWidth ?? defaultTextBoxWidth;
 
-  const defaultTitleFontSize = isHalfLayout ? (isCompact ? 22 : 28) : (isCompact ? 28 : 40);
+  const defaultTitleFontSize = isHalfLayout 
+    ? (isCompact ? 20 : 26) 
+    : (isMultiScreen ? (isCompact ? 22 : 28) : (isCompact ? 24 : 32));
   const effectiveTitleFontSize = canvas.titleFontSize || defaultTitleFontSize;
 
-  const defaultSubtitleFontSize = isHalfLayout ? (isCompact ? 12 : 15) : (isCompact ? 14 : 18);
+  const defaultSubtitleFontSize = isHalfLayout 
+    ? (isCompact ? 12 : 14) 
+    : (isCompact ? 13 : 16);
   const effectiveSubtitleFontSize = canvas.subtitleFontSize || defaultSubtitleFontSize;
 
   const effectiveTextAlign = canvas.textAlign || layoutConfig.textAlign;
@@ -2484,12 +2493,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 break-words hyphens-none ${
                         canvas.titleFontSize
-                          ? 'mb-2'
+                          ? 'mb-1.5'
                           : isMultiScreen
-                            ? (isCompact ? 'text-[24px] mb-1' : 'text-[32px] mb-1.5')
+                            ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-1.5')
                             : isHalfLayout 
-                              ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-2')
-                              : (isCompact ? 'text-[28px] mb-1' : 'text-[40px] mb-2')
+                              ? (isCompact ? 'text-[20px] mb-1' : 'text-[26px] mb-1.5')
+                              : (isCompact ? 'text-[24px] mb-1' : 'text-[32px] mb-1.5')
                       } ${
                         canvas.gradientText 
                           ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
@@ -2510,14 +2519,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     <TextareaAutosize
                       value={canvas.subtitle}
                       onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
-                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
+                      className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
                         canvas.subtitleFontSize
                           ? ''
                           : isMultiScreen
-                            ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
+                            ? (isCompact ? 'text-xs' : 'text-sm')
                             : isHalfLayout
-                              ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
-                              : (isCompact ? 'text-sm' : 'text-lg sm:text-xl')
+                              ? (isCompact ? 'text-[11px]' : 'text-xs sm:text-sm')
+                              : (isCompact ? 'text-xs' : 'text-sm sm:text-base')
                       }`}
                       style={{
                         fontSize: canvas.subtitleFontSize ? `${canvas.subtitleFontSize}px` : undefined,

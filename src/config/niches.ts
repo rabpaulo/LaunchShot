@@ -8,6 +8,8 @@ export interface NicheCopyItem {
   badge?: BadgeConfig;
   doodle?: DoodleConfig;
   layout?: LayoutType;
+  backgroundColor?: string;
+  textColor?: string;
 }
 
 export interface NicheTemplate {
@@ -69,13 +71,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['ai', 'gpt', 'llm', 'chatgpt', 'bot', 'assistant', 'prompt', 'generate', 'copilot', 'smart', 'intelligence', 'claude', 'gemini'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: [
-        'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)',
-        'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
-        'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
-        '#090d16',
-        'radial-gradient(circle at 50% 50%, #4338ca 0%, #1e1b4b 80%, #000000 100%)'
-      ],
+      colors: ['radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)', 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)', 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)', 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)', 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)'],
       mockupStyle: 'glass',
     },
     layouts: ['hero-3d-center', 'half-right', 'basic-top', 'tilt-left', 'basic-bottom'],
@@ -111,7 +107,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['finance', 'bank', 'money', 'budget', 'crypto', 'invest', 'trading', 'wallet', 'stocks', 'expense', 'wealth', 'fintech', 'accounting'],
     theme: {
       fontFamily: 'inter',
-      colors: ['#0a2216', '#090d16', '#0f172a', '#1e293b', '#042f2e'],
+      colors: ['#0a2216', '#0a2216', '#0a2216', '#0a2216', '#0a2216'],
       mockupStyle: 'dark',
     },
     layouts: ['banner-stack-right', 'half-right', '3d-isometric-right', 'split-vertical', 'basic-bottom'],
@@ -147,7 +143,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['fitness', 'workout', 'gym', 'health', 'exercise', 'weight', 'run', 'lifting', 'muscle', 'crossfit', 'bodybuilding', 'coach', 'trainer', 'strength', 'cardio'],
     theme: {
       fontFamily: 'outfit',
-      colors: ['#000000', '#111111', 'linear-gradient(135deg, #18181b 0%, #09090b 100%)', '#1c1917', '#0f172a'],
+      colors: ['#09090b', '#09090b', '#09090b', '#09090b', '#09090b'],
       mockupStyle: 'clay-dark',
     },
     layouts: ['basic-top', 'tilt-right', 'tilt-left', 'half-left', 'basic-bottom'],
@@ -183,7 +179,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['nutrition', 'calorie', 'macros', 'diet', 'meal', 'food log', 'keto', 'fasting', 'protein', 'counter', 'healthy', 'recipes'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: ['#064e3b', '#0f766e', '#134e4a', '#047857', '#065f46'],
+      colors: ['#064e3b', '#064e3b', '#064e3b', '#064e3b', '#064e3b'],
       mockupStyle: 'light',
     },
     layouts: ['basic-top', 'half-right', 'tilt-left', 'split-vertical', 'basic-bottom'],
@@ -219,13 +215,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['meditation', 'sleep', 'calm', 'mindful', 'breathe', 'relax', 'zen', 'focus', 'anxiety', 'insomnia', 'soundscape', 'peace'],
     theme: {
       fontFamily: 'outfit',
-      colors: [
-        '#1e1b4b',
-        '#312e81',
-        '#172554',
-        '#0f172a',
-        'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #000000 100%)'
-      ],
+      colors: ['#1e1b4b', '#1e1b4b', '#1e1b4b', '#1e1b4b', '#1e1b4b'],
       mockupStyle: 'dark',
     },
     layouts: ['hero-3d-center', 'tilt-right', 'half-left', '3d-isometric-right', 'basic-bottom'],
@@ -261,7 +251,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['productivity', 'todo', 'task', 'notes', 'calendar', 'focus', 'work', 'project', 'planner', 'organize', 'kanban', 'notion'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: ['#ffffff', '#f8fafc', '#f1f5f9', '#ffffff', '#f8fafc'],
+      colors: ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff'],
       mockupStyle: 'light',
     },
     layouts: ['basic-top', 'split-vertical', 'half-right', 'tilt-left', 'basic-bottom'],
@@ -297,7 +287,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['habit', 'routine', 'streak', 'atomic', 'discipline', 'goals', 'morning routine', 'self care', 'habits', 'tracker'],
     theme: {
       fontFamily: 'outfit',
-      colors: ['#090d16', '#1e1b4b', '#312e81', '#0f172a', '#18181b'],
+      colors: ['#090d16', '#090d16', '#090d16', '#090d16', '#090d16'],
       mockupStyle: 'clay-dark',
     },
     layouts: ['basic-top', 'tilt-right', 'half-left', '3d-isometric-right', 'basic-bottom'],
@@ -332,13 +322,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['dating', 'love', 'meet', 'chat', 'match', 'romance', 'singles', 'relationship', 'crush', 'partner', 'flirt', 'tinder', 'hinge'],
     theme: {
       fontFamily: 'poppins',
-      colors: [
-        'linear-gradient(135deg, #fd297b 0%, #ff5864 50%, #ff655b 100%)',
-        'linear-gradient(135deg, #ec4899 0%, #db2777 50%, #9d174d 100%)',
-        '#be185d',
-        '#9d174d',
-        'linear-gradient(135deg, #fda4af 0%, #e11d48 100%)'
-      ],
+      colors: ['linear-gradient(135deg, #fd297b 0%, #ff5864 50%, #ff655b 100%)', 'linear-gradient(135deg, #fd297b 0%, #ff5864 50%, #ff655b 100%)', 'linear-gradient(135deg, #fd297b 0%, #ff5864 50%, #ff655b 100%)', 'linear-gradient(135deg, #fd297b 0%, #ff5864 50%, #ff655b 100%)', 'linear-gradient(135deg, #fd297b 0%, #ff5864 50%, #ff655b 100%)'],
       mockupStyle: 'glass',
     },
     layouts: ['tilt-right', 'half-right', '3d-isometric-left', 'split-vertical', 'basic-bottom'],
@@ -374,7 +358,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['shop', 'store', 'buy', 'ecommerce', 'fashion', 'clothes', 'sale', 'retail', 'sneakers', 'streetwear', 'drops', 'boutique'],
     theme: {
       fontFamily: 'playfair',
-      colors: ['#ffffff', '#fafafa', '#f5f5f5', '#111827', '#ffffff'],
+      colors: ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff'],
       mockupStyle: 'clay-light',
     },
     layouts: ['og-style-1', 'half-right', 'tilt-left', 'split-vertical', 'basic-bottom'],
@@ -410,13 +394,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['travel', 'flight', 'hotel', 'vacation', 'trip', 'book', 'explore', 'map', 'itinerary', 'airbnb', 'passport', 'airline'],
     theme: {
       fontFamily: 'montserrat',
-      colors: [
-        '#0284c7',
-        '#0369a1',
-        '#075985',
-        '#0c4a6e',
-        'linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #075985 100%)'
-      ],
+      colors: ['#0284c7', '#0284c7', '#0284c7', '#0284c7', '#0284c7'],
       mockupStyle: 'glass',
     },
     layouts: ['basic-top', 'half-right', 'tilt-right', '3d-isometric-left', 'basic-bottom'],
@@ -452,13 +430,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['food', 'recipe', 'cook', 'delivery', 'eat', 'restaurant', 'meal', 'grocery', 'pizza', 'burger', 'dining', 'takeout'],
     theme: {
       fontFamily: 'poppins',
-      colors: [
-        '#ea580c',
-        '#c2410c',
-        '#9a3412',
-        '#7c2d12',
-        'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
-      ],
+      colors: ['#ea580c', '#ea580c', '#ea580c', '#ea580c', '#ea580c'],
       mockupStyle: 'clay-light',
     },
     layouts: ['half-right', 'tilt-right', 'split-vertical', 'tilt-left', 'basic-bottom'],
@@ -493,13 +465,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['social', 'network', 'chat', 'message', 'friends', 'community', 'connect', 'share', 'feed', 'post', 'dm', 'discord'],
     theme: {
       fontFamily: 'inter',
-      colors: [
-        '#2563eb',
-        '#1d4ed8',
-        '#1e40af',
-        '#1e3a8a',
-        'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
-      ],
+      colors: ['#2563eb', '#2563eb', '#2563eb', '#2563eb', '#2563eb'],
       mockupStyle: 'dark',
     },
     layouts: ['basic-top', 'half-right', '3d-isometric-right', 'basic-top', 'basic-bottom'],
@@ -535,13 +501,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['education', 'learn', 'course', 'study', 'school', 'language', 'student', 'teach', 'flashcard', 'vocabulary', 'exam', 'duolingo'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: [
-        '#059669',
-        '#047857',
-        '#065f46',
-        '#064e3b',
-        'linear-gradient(135deg, #10b981 0%, #047857 100%)'
-      ],
+      colors: ['#059669', '#059669', '#059669', '#059669', '#059669'],
       mockupStyle: 'glass',
     },
     layouts: ['basic-top', 'tilt-right', 'half-left', 'split-vertical', 'basic-bottom'],
@@ -577,7 +537,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['music', 'audio', 'podcast', 'stream', 'songs', 'sound', 'beats', 'dj', 'album', 'playlist', 'listen', 'spotify'],
     theme: {
       fontFamily: 'outfit',
-      colors: ['#121212', '#18181b', 'linear-gradient(135deg, #18181b 0%, #27272a 100%)', '#09090b', '#000000'],
+      colors: ['#121212', '#121212', '#121212', '#121212', '#121212'],
       mockupStyle: 'dark',
     },
     layouts: ['basic-top', 'half-right', '3d-isometric-left', 'tilt-right', 'basic-bottom'],
@@ -613,13 +573,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['photo', 'video', 'camera', 'editor', 'filter', 'preset', 'reels', 'tiktok', 'crop', 'retouch', 'cinematic', 'vsco', 'capcut'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: [
-        '#000000',
-        '#090d16',
-        '#18181b',
-        '#27272a',
-        'radial-gradient(circle at 50% 0%, #334155 0%, #000000 100%)'
-      ],
+      colors: ['#09090b', '#09090b', '#09090b', '#09090b', '#09090b'],
       mockupStyle: 'glass',
     },
     layouts: ['hero-3d-center', 'tilt-left', 'half-right', 'split-vertical', 'basic-bottom'],
@@ -655,7 +609,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['gaming', 'game', 'play', 'stream', 'esports', 'arcade', 'multiplayer', 'rpg', 'stats', 'builds', 'clash', 'twitch'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: ['#000000', '#09090b', '#18181b', '#1e1b4b', '#000000'],
+      colors: ['#09090b', '#09090b', '#09090b', '#09090b', '#09090b'],
       mockupStyle: 'clay-dark',
     },
     layouts: ['3d-isometric-right', '3d-isometric-left', 'basic-top', 'half-right', 'basic-bottom'],
@@ -690,7 +644,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['news', 'reader', 'article', 'magazine', 'journal', 'headline', 'read', 'briefing', 'press', 'daily', 'reuters'],
     theme: {
       fontFamily: 'playfair',
-      colors: ['#ffffff', '#f8fafc', '#f1f5f9', '#ffffff', '#f8fafc'],
+      colors: ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff'],
       mockupStyle: 'light',
     },
     layouts: ['basic-top', 'half-right', 'split-vertical', 'tilt-left', 'basic-bottom'],
@@ -726,7 +680,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['realestate', 'house', 'home', 'rent', 'buy', 'property', 'apartment', 'mortgage', 'realtor', 'listings', 'condo', 'zillow'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: ['#0f766e', '#0f645c', '#115e59', '#134e4a', '#042f2e'],
+      colors: ['#0f766e', '#0f766e', '#0f766e', '#0f766e', '#0f766e'],
       mockupStyle: 'glass',
     },
     layouts: ['basic-top', 'half-right', '3d-isometric-right', 'tilt-left', 'basic-bottom'],
@@ -761,7 +715,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['vpn', 'security', 'privacy', 'password', 'proxy', 'encrypt', 'vault', 'cyber', 'adblock', 'shield', 'private', '1password'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: ['#090d16', '#0f172a', '#1e293b', '#022c22', '#000000'],
+      colors: ['#090d16', '#090d16', '#090d16', '#090d16', '#090d16'],
       mockupStyle: 'dark',
     },
     layouts: ['hero-3d-center', 'tilt-right', 'half-left', '3d-isometric-right', 'basic-bottom'],
@@ -798,7 +752,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['health', 'medical', 'doctor', 'symptom', 'vitals', 'telehealth', 'cycle', 'blood pressure', 'heart rate', 'clinic', 'oura', 'flo'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: ['#0284c7', '#0369a1', '#0f766e', '#115e59', '#082f49'],
+      colors: ['#0284c7', '#0284c7', '#0284c7', '#0284c7', '#0284c7'],
       mockupStyle: 'glass',
     },
     layouts: ['basic-top', 'half-right', 'split-vertical', 'tilt-left', 'basic-bottom'],
@@ -834,7 +788,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['parenting', 'baby', 'child', 'kids', 'diaper', 'feeding', 'nursing', 'newborn', 'milestone', 'nap', 'huckleberry'],
     theme: {
       fontFamily: 'poppins',
-      colors: ['#fce7f3', '#d1fae5', '#e0f2fe', '#fef3c7', '#f3e8ff'],
+      colors: ['#fce7f3', '#fce7f3', '#fce7f3', '#fce7f3', '#fce7f3'],
       mockupStyle: 'clay-light',
     },
     layouts: ['basic-top', 'tilt-right', 'half-left', 'split-vertical', 'basic-bottom'],
@@ -870,7 +824,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['pet', 'dog', 'puppy', 'cat', 'vet', 'training', 'bark', 'clicker', 'walk', 'vaccine', 'grooming', 'rover'],
     theme: {
       fontFamily: 'poppins',
-      colors: ['#ea580c', '#d97706', '#059669', '#0284c7', '#7c2d12'],
+      colors: ['#ea580c', '#ea580c', '#ea580c', '#ea580c', '#ea580c'],
       mockupStyle: 'clay-light',
     },
     layouts: ['tilt-right', 'half-right', 'tilt-left', 'split-vertical', 'basic-bottom'],
@@ -905,7 +859,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['smarthome', 'iot', 'homekit', 'lights', 'camera', 'automation', 'thermostat', 'security', 'matter', 'sensor', 'philips'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: ['#090d16', '#1e293b', '#334155', '#0f172a', '#000000'],
+      colors: ['#090d16', '#090d16', '#090d16', '#090d16', '#090d16'],
       mockupStyle: 'dark',
     },
     layouts: ['hero-3d-center', 'half-right', '3d-isometric-left', 'split-vertical', 'basic-bottom'],
@@ -941,7 +895,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['books', 'reading', 'audiobook', 'summary', 'literature', 'library', 'author', 'ebook', 'kindle', 'novel', 'blinkist'],
     theme: {
       fontFamily: 'playfair',
-      colors: ['#1c1917', '#292524', '#44403c', '#57534e', '#18181b'],
+      colors: ['#1c1917', '#1c1917', '#1c1917', '#1c1917', '#1c1917'],
       mockupStyle: 'light',
     },
     layouts: ['basic-top', 'half-right', 'tilt-left', 'split-vertical', 'basic-bottom'],
@@ -977,7 +931,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['weather', 'hiking', 'trails', 'radar', 'forecast', 'outdoor', 'mountain', 'gps', 'rain', 'storm', 'camping', 'alltrails'],
     theme: {
       fontFamily: 'montserrat',
-      colors: ['#0284c7', '#0369a1', '#075985', '#0f172a', '#0c4a6e'],
+      colors: ['#0284c7', '#0284c7', '#0284c7', '#0284c7', '#0284c7'],
       mockupStyle: 'glass',
     },
     layouts: ['basic-top', 'half-right', '3d-isometric-right', 'tilt-left', 'basic-bottom'],
@@ -1013,7 +967,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['events', 'tickets', 'concert', 'nightlife', 'festival', 'gigs', 'party', 'dj', 'club', 'venue', 'dice'],
     theme: {
       fontFamily: 'outfit',
-      colors: ['#000000', 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)', '#18181b', '#312e81', '#090d16'],
+      colors: ['#09090b', '#09090b', '#09090b', '#09090b', '#09090b'],
       mockupStyle: 'dark',
     },
     layouts: ['basic-top', 'half-right', 'tilt-right', 'split-vertical', 'basic-bottom'],
@@ -1049,7 +1003,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['automotive', 'car', 'ev', 'charging', 'mileage', 'drive', 'vehicle', 'fuel', 'trips', 'parking', 'mechanic', 'plugshare'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: ['#090d16', '#1e293b', '#0f172a', '#042f2e', '#000000'],
+      colors: ['#090d16', '#090d16', '#090d16', '#090d16', '#090d16'],
       mockupStyle: 'dark',
     },
     layouts: ['hero-3d-center', 'half-right', 'split-vertical', 'tilt-left', 'basic-bottom'],
@@ -1084,7 +1038,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['mentalhealth', 'journal', 'mood', 'therapy', 'cbt', 'diary', 'emotions', 'mind', 'wellness', 'reflection', 'day one'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: ['#312e81', '#1e1b4b', '#4338ca', '#0f172a', '#3730a3'],
+      colors: ['#312e81', '#312e81', '#312e81', '#312e81', '#312e81'],
       mockupStyle: 'glass',
     },
     layouts: ['basic-top', 'half-right', 'tilt-left', 'split-vertical', 'basic-bottom'],
@@ -1120,7 +1074,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['astrology', 'horoscope', 'zodiac', 'natal', 'tarot', 'cosmos', 'birth chart', 'stars', 'planets', 'synastry', 'costar'],
     theme: {
       fontFamily: 'space-grotesk',
-      colors: ['#09090b', '#18181b', '#2e1065', '#0f172a', '#000000'],
+      colors: ['#09090b', '#09090b', '#09090b', '#09090b', '#09090b'],
       mockupStyle: 'dark',
     },
     layouts: ['hero-3d-center', 'tilt-right', 'half-left', '3d-isometric-right', 'basic-bottom'],
@@ -1155,7 +1109,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['business', 'invoice', 'crm', 'client', 'sales', 'freelance', 'accounting', 'estimates', 'billing', 'receipts', 'quickbooks'],
     theme: {
       fontFamily: 'plus-jakarta',
-      colors: ['#0f172a', '#1e293b', '#334155', '#475569', '#0f172a'],
+      colors: ['#0f172a', '#0f172a', '#0f172a', '#0f172a', '#0f172a'],
       mockupStyle: 'light',
     },
     layouts: ['banner-stack-right', 'half-right', 'split-vertical', 'tilt-left', 'basic-bottom'],
@@ -1191,7 +1145,7 @@ export const NICHE_TEMPLATES: Record<string, NicheTemplate> = {
     keywords: ['utilities', 'scanner', 'tools', 'pdf', 'document', 'ocr', 'convert', 'qr', 'speedtest', 'calculator', 'camscanner'],
     theme: {
       fontFamily: 'inter',
-      colors: ['#090d16', '#1e293b', '#0f172a', '#18181b', '#000000'],
+      colors: ['#090d16', '#090d16', '#090d16', '#090d16', '#090d16'],
       mockupStyle: 'dark',
     },
     layouts: ['basic-top', 'half-right', 'split-vertical', 'tilt-left', 'basic-bottom'],
@@ -1228,7 +1182,7 @@ const defaultTemplate: NicheTemplate = {
   keywords: [],
   theme: {
     fontFamily: 'plus-jakarta',
-    colors: ['#0f172a', '#1e293b', '#334155', '#475569', '#0f172a'],
+    colors: ['#0f172a', '#0f172a', '#0f172a', '#0f172a', '#0f172a'],
     mockupStyle: 'dark',
   },
   layouts: ['basic-top', 'tilt-right', 'tilt-left', 'split-vertical', 'basic-bottom'],
@@ -1365,8 +1319,8 @@ export function generateTemplateForNiche(nicheInput: string): {
   };
 
   const canvases: CanvasItem[] = selectedNiche.copy.map((copyItem, index) => {
-    const colorIndex = index % selectedNiche.theme.colors.length;
-    const bgColor = selectedNiche.theme.colors[colorIndex];
+    const primaryBg = selectedNiche.theme.colors[0];
+    const bgColor = copyItem.backgroundColor || primaryBg;
     
     // Check if background is light
     const isLightText = 
@@ -1378,7 +1332,13 @@ export function generateTemplateForNiche(nicheInput: string): {
       bgColor === '#fce7f3' ||
       bgColor === '#d1fae5' ||
       bgColor === '#e0f2fe' ||
-      bgColor === '#fef3c7';
+      bgColor === '#fef3c7' ||
+      bgColor === '#fef08a' ||
+      bgColor === '#fed843' ||
+      bgColor === '#fed7aa' ||
+      bgColor.includes('255, 255, 255') ||
+      bgColor.includes('#ffffff') ||
+      bgColor.includes('#f8fafc');
 
     return {
       id: crypto.randomUUID(),
@@ -1387,7 +1347,7 @@ export function generateTemplateForNiche(nicheInput: string): {
       subtitle: copyItem.subtitle,
       layout: copyItem.layout || layouts[index % layouts.length],
       backgroundColor: bgColor,
-      textColor: isLightText ? '#0f172a' : '#ffffff',
+      textColor: copyItem.textColor || (isLightText ? '#0f172a' : '#ffffff'),
       fontFamily: selectedNiche.theme.fontFamily,
       badge: copyItem.badge ? { ...copyItem.badge } : undefined,
       doodle: copyItem.doodle || getDefaultDoodleForSlide(index),
