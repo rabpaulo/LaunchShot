@@ -500,6 +500,7 @@ export default function Home() {
               index={index} 
               total={canvases.length} 
               isPreviewMode={isPreviewMode}
+              prevCanvas={canvases[index - 1]}
               nextCanvas={canvases[index + 1]}
               nextNextCanvas={canvases[index + 2]}
             />

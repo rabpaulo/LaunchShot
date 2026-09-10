@@ -10,7 +10,7 @@ import {
 } from 'react-icons/io5';
 import { TEMPLATES, TemplateDefinition } from '@/config/templates';
 import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
-import { isAndroidDevice, isAppleDevice } from '@/config/sizes';
+import { isAndroidDevice } from '@/config/sizes';
 
 interface ParsedTemplate {
   index: number;
@@ -74,6 +74,7 @@ const MiniScreenCard = React.memo(function MiniScreenCard({
   const isTiltLeft = canvas.layout?.includes('tilt-left');
   const isHero = canvas.layout?.includes('hero');
   const isStack = canvas.layout?.includes('stack') || canvas.layout?.includes('triple');
+  const isMultiScreen = canvas.layout?.startsWith('multi-screen');
 
   let phoneTransformClass = '';
   if (isTiltRight) phoneTransformClass = 'rotate-3 scale-[0.98] translate-y-1';
@@ -109,53 +110,114 @@ const MiniScreenCard = React.memo(function MiniScreenCard({
       )}
 
       {/* Mini Mockup Screen Container */}
-      <div className={`flex-1 flex items-center justify-center my-0.5 relative ${phoneTransformClass}`}>
-        <div className="w-[58px] h-[96px] rounded-[7px] bg-zinc-950 border border-white/20 shadow-lg p-[2px] flex flex-col overflow-hidden relative">
-          {/* Simulated Notch / Dynamic Island */}
-          <div className="w-3.5 h-[2px] rounded-full bg-black mx-auto mb-1 flex-shrink-0" />
-
-          {/* Simulated App Wireframe UI */}
-          <div className="flex-1 rounded-[4px] bg-zinc-900/90 p-1 flex flex-col justify-between overflow-hidden">
-            {/* Header wire */}
-            <div className="flex items-center justify-between">
-              <div 
-                className="w-3 h-1 rounded-full opacity-80"
-                style={{ background: accentColor }}
-              />
-              <div className="w-2 h-1 rounded-full bg-white/15" />
+      {isMultiScreen ? (
+        <div className="flex-1 w-full relative overflow-hidden flex items-center justify-center my-0.5">
+          {/* Mini Left Phone */}
+          <div
+            className={`w-[40px] h-[66px] rounded-[5px] bg-zinc-950 border border-white/20 shadow-md p-[1.5px] flex flex-col overflow-hidden absolute ${
+              canvas.layout === 'multi-screen-left'
+                ? 'top-1 -left-4 z-10 scale-[0.88]'
+                : 'top-1 left-0 z-10 scale-[0.88]'
+            }`}
+          >
+            <div className="w-2.5 h-[1.5px] rounded-full bg-black mx-auto mb-0.5" />
+            <div className="flex-1 rounded-[3px] bg-zinc-900/90 p-0.5 flex flex-col justify-between">
+              <div className="w-2.5 h-0.5 rounded-full" style={{ background: accentColor }} />
+              <div className="w-full h-2.5 rounded bg-white/10" />
+              <div className="w-full h-1 rounded bg-white/5" />
             </div>
+          </div>
 
-            {/* Central Content Cards */}
-            <div className="space-y-1 my-auto">
-              <div 
-                className="w-full h-4 rounded-md border border-white/10 flex items-center px-1"
-                style={{
-                  background: `linear-gradient(90deg, ${accentColor}40 0%, ${accentColor}18 100%)`,
-                }}
-              >
-                <div 
-                  className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
-                  style={{ background: accentColor }}
-                />
-                <div className="w-5 h-1 rounded bg-white/40" />
-              </div>
-              <div className="w-full h-2.5 rounded bg-white/5 border border-white/5 flex items-center px-1">
-                <div className="w-6 h-0.5 rounded bg-white/20" />
-              </div>
+          {/* Mini Right Phone */}
+          <div
+            className={`w-[40px] h-[66px] rounded-[5px] bg-zinc-950 border border-white/20 shadow-md p-[1.5px] flex flex-col overflow-hidden absolute ${
+              canvas.layout === 'multi-screen-right'
+                ? 'top-1 -right-4 z-10 scale-[0.88]'
+                : 'top-1 right-0 z-10 scale-[0.88]'
+            }`}
+          >
+            <div className="w-2.5 h-[1.5px] rounded-full bg-black mx-auto mb-0.5" />
+            <div className="flex-1 rounded-[3px] bg-zinc-900/90 p-0.5 flex flex-col justify-between">
+              <div className="w-2.5 h-0.5 rounded-full" style={{ background: accentColor }} />
+              <div className="w-full h-2.5 rounded bg-white/10" />
+              <div className="w-full h-1 rounded bg-white/5" />
             </div>
+          </div>
 
-            {/* Bottom Nav Wire */}
-            <div className="flex items-center justify-around pt-0.5 border-t border-white/5">
-              <div 
-                className="w-1.5 h-1 rounded-full"
-                style={{ background: accentColor }}
-              />
-              <div className="w-1.5 h-1 rounded-full bg-white/20" />
-              <div className="w-1.5 h-1 rounded-full bg-white/20" />
+          {/* Mini Foreground Phone */}
+          <div
+            className={`w-[46px] h-[76px] rounded-[6px] bg-zinc-950 border border-white/25 shadow-xl p-[2px] flex flex-col overflow-hidden absolute z-20 ${
+              canvas.layout === 'multi-screen-right'
+                ? 'bottom-[-6px] left-[20px]'
+                : canvas.layout === 'multi-screen-left'
+                ? 'bottom-[-6px] right-[20px]'
+                : 'bottom-[-6px] left-1/2 -translate-x-1/2'
+            }`}
+          >
+            <div className="w-3 h-[2px] rounded-full bg-black mx-auto mb-0.5" />
+            <div className="flex-1 rounded-[3px] bg-zinc-900/90 p-0.5 flex flex-col justify-between">
+              <div className="flex justify-between items-center">
+                <div className="w-2.5 h-0.5 rounded-full" style={{ background: accentColor }} />
+                <div className="w-1.5 h-0.5 rounded-full bg-white/20" />
+              </div>
+              <div className="w-full h-3 rounded bg-white/10" />
+              <div className="w-full h-1.5 rounded bg-white/5" />
+              <div className="flex justify-around pt-0.5 border-t border-white/5">
+                <div className="w-1 h-0.5 rounded-full" style={{ background: accentColor }} />
+                <div className="w-1 h-0.5 rounded-full bg-white/20" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className={`flex-1 flex items-center justify-center my-0.5 relative ${phoneTransformClass}`}>
+          <div className="w-[58px] h-[96px] rounded-[7px] bg-zinc-950 border border-white/20 shadow-lg p-[2px] flex flex-col overflow-hidden relative">
+            {/* Simulated Notch / Dynamic Island */}
+            <div className="w-3.5 h-[2px] rounded-full bg-black mx-auto mb-1 flex-shrink-0" />
+
+            {/* Simulated App Wireframe UI */}
+            <div className="flex-1 rounded-[4px] bg-zinc-900/90 p-1 flex flex-col justify-between overflow-hidden">
+              {/* Header wire */}
+              <div className="flex items-center justify-between">
+                <div 
+                  className="w-3 h-1 rounded-full opacity-80"
+                  style={{ background: accentColor }}
+                />
+                <div className="w-2 h-1 rounded-full bg-white/15" />
+              </div>
+
+              {/* Central Content Cards */}
+              <div className="space-y-1 my-auto">
+                <div 
+                  className="w-full h-4 rounded-md border border-white/10 flex items-center px-1"
+                  style={{
+                    background: `linear-gradient(90deg, ${accentColor}40 0%, ${accentColor}18 100%)`,
+                  }}
+                >
+                  <div 
+                    className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
+                    style={{ background: accentColor }}
+                  />
+                  <div className="w-5 h-1 rounded bg-white/40" />
+                </div>
+                <div className="w-full h-2.5 rounded bg-white/5 border border-white/5 flex items-center px-1">
+                  <div className="w-6 h-0.5 rounded bg-white/20" />
+                </div>
+              </div>
+
+              {/* Bottom Nav Wire */}
+              <div className="flex items-center justify-around pt-0.5 border-t border-white/5">
+                <div 
+                  className="w-1.5 h-1 rounded-full"
+                  style={{ background: accentColor }}
+                />
+                <div className="w-1.5 h-1 rounded-full bg-white/20" />
+                <div className="w-1.5 h-1 rounded-full bg-white/20" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Header Text (if bottom-aligned) */}
       {isBottomLayout && (

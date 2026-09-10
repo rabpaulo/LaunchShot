@@ -59,6 +59,7 @@ interface CanvasEditorProps {
   total: number;
   isPreviewMode?: boolean;
   targetWidth?: number;
+  prevCanvas?: CanvasItem;
   nextCanvas?: CanvasItem;
   nextNextCanvas?: CanvasItem;
 }
@@ -79,6 +80,9 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'hero-3d-center', label: 'Hero 3D Center (Perspective)' },
   { value: '3d-isometric-right', label: '3D Isometric Right' },
   { value: '3d-isometric-left', label: '3D Isometric Left' },
+  { value: 'multi-screen-right', label: 'Multi-Screen Bleed Right (3 Phones)' },
+  { value: 'multi-screen-left', label: 'Multi-Screen Bleed Left (3 Phones)' },
+  { value: 'multi-screen-center', label: 'Multi-Screen Center Trio (3 Phones)' },
   { value: 'banner-kinetic-stack', label: 'Kinetic Repeating Banner (3 Phones)' },
   { value: 'banner-stack-right', label: 'Banner Stacked Right' },
   { value: 'banner-triple-bottom', label: 'Banner Triple Bottom' },
@@ -103,7 +107,7 @@ function getContrastColor(hex: string) {
   return yiq >= 128 ? '#000000' : '#ffffff';
 }
 
-export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth, nextCanvas, nextNextCanvas }: CanvasEditorProps) {
+export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth, prevCanvas, nextCanvas, nextNextCanvas }: CanvasEditorProps) {
   const { 
     globalSettings, 
     updateCanvas, 
@@ -114,7 +118,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     applyContentToAll,
     applyTextBoxToAll,
     applyBadgeToAll,
-    updateBadge,
     applyDoodlesToAll,
     setIsDraggingGlobal,
     addFloatingCard,
@@ -133,7 +136,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     applyContentToAll: state.applyContentToAll,
     applyTextBoxToAll: state.applyTextBoxToAll,
     applyBadgeToAll: state.applyBadgeToAll,
-    updateBadge: state.updateBadge,
     applyDoodlesToAll: state.applyDoodlesToAll,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
     addFloatingCard: state.addFloatingCard,
@@ -159,29 +161,39 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
   const isDark = globalSettings.theme !== 'light';
   const isAndroid = isAndroidDevice(globalSettings.targetSize);
+  const uploadSlotRef = useRef<'primary' | 'secondary' | 'tertiary'>('primary');
 
-  const processSingleFile = async (file: File) => {
+  const processSingleFile = async (file: File, slot: 'primary' | 'secondary' | 'tertiary' = 'primary') => {
     if (!file || !file.type.startsWith('image/')) return;
     const url = URL.createObjectURL(file);
-    try {
-      const color = await fac.getColorAsync(url);
-      updateCanvas(canvas.id, { 
-        imageSrc: url,
-        backgroundColor: color.hex,
-        textColor: getContrastColor(color.hex),
-      });
-      toast.success("Screenshot replaced successfully!");
-    } catch {
-      updateCanvas(canvas.id, { imageSrc: url });
-      toast.success("Screenshot replaced successfully!");
+    if (slot === 'primary') {
+      try {
+        const color = await fac.getColorAsync(url);
+        updateCanvas(canvas.id, { 
+          imageSrc: url,
+          backgroundColor: color.hex,
+          textColor: getContrastColor(color.hex),
+        });
+        toast.success("Screenshot replaced successfully!");
+      } catch {
+        updateCanvas(canvas.id, { imageSrc: url });
+        toast.success("Screenshot replaced successfully!");
+      }
+    } else if (slot === 'secondary') {
+      updateCanvas(canvas.id, { secondaryImageSrc: url });
+      toast.success("Secondary screen updated!");
+    } else if (slot === 'tertiary') {
+      updateCanvas(canvas.id, { tertiaryImageSrc: url });
+      toast.success("Tertiary screen updated!");
     }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      await processSingleFile(file);
+      await processSingleFile(file, uploadSlotRef.current);
     }
+    if (e.target) e.target.value = '';
   };
 
   const handlePhoneDrop = async (e: React.DragEvent) => {
@@ -193,12 +205,23 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
       const files = Array.from(e.dataTransfer.files);
       
       // Process the first file for this specific canvas
-      await processSingleFile(files[0]);
+      await processSingleFile(files[0], uploadSlotRef.current);
       
       // If there are more files, process them globally (fills empty canvases or appends)
-      if (files.length > 1) {
+      if (files.length > 1 && uploadSlotRef.current === 'primary') {
         await processUploadedFiles(files.slice(1));
       }
+    }
+  };
+
+  const handleSpecificPhoneDrop = async (e: React.DragEvent, slot: 'primary' | 'secondary' | 'tertiary') => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingGlobal(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
+      await processSingleFile(files[0], slot);
     }
   };
 
@@ -209,6 +232,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   
   const currentLayout = canvas.layout || 'basic-top';
   const isCompact = canvasHeight < 750;
+  const isMultiScreen = 
+    currentLayout === 'multi-screen-right' || 
+    currentLayout === 'multi-screen-left' || 
+    currentLayout === 'multi-screen-center';
   const isHalfLayout = 
     currentLayout === 'half-right' || 
     currentLayout === 'half-left' || 
@@ -227,6 +254,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     if (currentLayout === 'device-only') heightFactor = 0.82;
     else if (currentLayout === 'half-right' || currentLayout === 'half-left') heightFactor = 0.70;
     else if (currentLayout === 'tilt-right' || currentLayout === 'tilt-left') heightFactor = 0.72;
+    else if (isMultiScreen) heightFactor = 0.68;
     else if (isCompact) heightFactor = 0.58;
 
     const phoneH = Math.round(canvasHeight * heightFactor);
@@ -375,6 +403,27 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           phoneWrapperClass: "absolute bottom-[-15%] z-10 [transform:rotateX(30deg)_rotateY(0deg)_scale(1.15)] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:[transform:rotateX(20deg)_scale(1.15)]",
           textAlign: "center" as const,
         };
+      case 'multi-screen-right':
+        return {
+          containerClass: "relative flex flex-col justify-between items-center overflow-hidden",
+          textContainerClass: "w-full px-6 pt-7 pb-1 text-center z-30 flex-shrink-0 flex flex-col items-center justify-center gap-1.5",
+          phoneWrapperClass: "w-full flex-1 relative overflow-hidden flex items-center justify-center",
+          textAlign: "center" as const,
+        };
+      case 'multi-screen-left':
+        return {
+          containerClass: "relative flex flex-col justify-between items-center overflow-hidden",
+          textContainerClass: "w-full px-6 pt-7 pb-1 text-center z-30 flex-shrink-0 flex flex-col items-center justify-center gap-1.5",
+          phoneWrapperClass: "w-full flex-1 relative overflow-hidden flex items-center justify-center",
+          textAlign: "center" as const,
+        };
+      case 'multi-screen-center':
+        return {
+          containerClass: "relative flex flex-col justify-between items-center overflow-hidden",
+          textContainerClass: "w-full px-6 pt-7 pb-1 text-center z-30 flex-shrink-0 flex flex-col items-center justify-center gap-1.5",
+          phoneWrapperClass: "w-full flex-1 relative overflow-hidden flex items-center justify-center",
+          textAlign: "center" as const,
+        };
       case 'banner-kinetic-stack':
         return {
           containerClass: "relative flex items-center overflow-hidden",
@@ -424,6 +473,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
   const getDefaultTextBoxWidth = (layout: LayoutType): number => {
     switch (layout) {
+      case 'multi-screen-right':
+      case 'multi-screen-left':
+      case 'multi-screen-center':
+        return 88;
       case 'half-right':
       case 'half-left':
         return 54;
@@ -2432,9 +2485,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 break-words hyphens-none ${
                         canvas.titleFontSize
                           ? 'mb-2'
-                          : isHalfLayout 
-                            ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-2')
-                            : (isCompact ? 'text-[28px] mb-1' : 'text-[40px] mb-2')
+                          : isMultiScreen
+                            ? (isCompact ? 'text-[24px] mb-1' : 'text-[32px] mb-1.5')
+                            : isHalfLayout 
+                              ? (isCompact ? 'text-[22px] mb-1' : 'text-[28px] mb-2')
+                              : (isCompact ? 'text-[28px] mb-1' : 'text-[40px] mb-2')
                       } ${
                         canvas.gradientText 
                           ? 'bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent drop-shadow-sm' 
@@ -2458,9 +2513,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
                         canvas.subtitleFontSize
                           ? ''
-                          : isHalfLayout
+                          : isMultiScreen
                             ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
-                            : (isCompact ? 'text-sm' : 'text-lg sm:text-xl')
+                            : isHalfLayout
+                              ? (isCompact ? 'text-xs' : 'text-sm sm:text-base')
+                              : (isCompact ? 'text-sm' : 'text-lg sm:text-xl')
                       }`}
                       style={{
                         fontSize: canvas.subtitleFontSize ? `${canvas.subtitleFontSize}px` : undefined,
@@ -2538,63 +2595,289 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           )}
 
           {/* Adaptive Phone Mockup Section */}
-          <div 
-            className={layoutConfig.phoneWrapperClass}
-            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            onDrop={handlePhoneDrop}
-          >
-            <div className="group/phone relative transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer"
-                 onClick={() => fileInputRef.current?.click()}>
-              <MinimalPhoneFrame 
-                width={phoneW} 
-                height={phoneH} 
-                targetSizeId={globalSettings.targetSize}
-                mockupStyle={globalSettings.mockupStyle}
-                showNotch={globalSettings.showNotch}
-                statusBar={canvas.statusBar || globalSettings.statusBar}
+          {(() => {
+            const slot2Image = currentLayout === 'multi-screen-right'
+              ? (canvas.secondaryImageSrc || nextCanvas?.imageSrc || canvas.imageSrc)
+              : (canvas.secondaryImageSrc || prevCanvas?.imageSrc || canvas.imageSrc);
+
+            const slot3Image = currentLayout === 'multi-screen-right'
+              ? (canvas.tertiaryImageSrc || nextNextCanvas?.imageSrc || nextCanvas?.imageSrc || canvas.imageSrc)
+              : (canvas.tertiaryImageSrc || nextCanvas?.imageSrc || canvas.imageSrc);
+
+            return (
+              <div 
+                className={layoutConfig.phoneWrapperClass}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={handlePhoneDrop}
               >
-                {canvas.imageSrc ? (
-                <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
-                  <CanvasImage canvas={canvas} />
-                  <div 
-                    className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
-                  >
-                    <button
-                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
-                    >
-                      <IoCloudUploadOutline className="w-4 h-4" />
-                      Change Image
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setIsEditingImage(true); }}
-                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
-                    >
-                      <IoOptionsOutline className="w-4 h-4" />
-                      Edit & Filter
-                    </button>
-                    <button
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        updateCanvas(canvas.id, { imageFit: canvas.imageFit === 'contain' ? 'cover' : 'contain' });
-                      }}
-                      className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium text-xs rounded-full transition-colors"
-                    >
-                      Fit: {canvas.imageFit === 'contain' ? 'Contain' : 'Cover'}
-                    </button>
-                  </div>
-                </div>
-              ) : (
+            {isMultiScreen ? (
+              <div className="w-full h-full relative overflow-hidden flex items-center justify-center">
+                {/* Slot 2 (Left Phone) */}
                 <div
-                  className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
+                  className={`rounded-[40px] ${
+                    currentLayout === 'multi-screen-right'
+                      ? 'absolute top-[4%] -left-[14%] sm:left-[2%] z-10 scale-[0.88] origin-top opacity-95 shadow-xl transition-transform duration-300 hover:scale-[0.90] cursor-pointer group/phone-sub1'
+                      : currentLayout === 'multi-screen-left'
+                      ? 'absolute top-[4%] -left-[30%] z-10 scale-[0.88] origin-top opacity-95 shadow-xl transition-transform duration-300 hover:scale-[0.90] cursor-pointer group/phone-sub1'
+                      : 'absolute top-[4%] -left-[14%] sm:left-[0%] z-10 scale-[0.86] origin-top opacity-95 shadow-xl transition-transform duration-300 hover:scale-[0.88] cursor-pointer group/phone-sub1'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    uploadSlotRef.current = 'secondary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'secondary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 >
-                  <IoCloudUploadOutline className="w-10 h-10 text-gray-400 mb-2" />
-                  <span className="text-xs font-semibold text-gray-500">Upload Screenshot</span>
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                  >
+                    {slot2Image ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={{ ...canvas, imageSrc: slot2Image }} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'secondary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white font-medium text-xs rounded-full transition-colors flex items-center gap-1.5"
+                          >
+                            <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                            Change Image
+                          </button>
+                          {canvas.secondaryImageSrc && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateCanvas(canvas.id, { secondaryImageSrc: null });
+                                toast.success("Reset to auto linked screen");
+                              }}
+                              className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white font-medium text-[11px] rounded-full transition-colors flex items-center gap-1"
+                            >
+                              <IoRefreshOutline className="w-3 h-3" />
+                              Reset to Auto
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <IoCloudUploadOutline className="w-8 h-8 text-gray-400 mb-1" />
+                        <span className="text-[10px] font-semibold text-gray-500">Upload Left Screen</span>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
                 </div>
-              )}
-            </MinimalPhoneFrame>
-            </div>
+
+                {/* Slot 3 (Right Phone) */}
+                <div
+                  className={`rounded-[40px] ${
+                    currentLayout === 'multi-screen-right'
+                      ? 'absolute top-[4%] -right-[30%] z-10 scale-[0.88] origin-top opacity-95 shadow-xl transition-transform duration-300 hover:scale-[0.90] cursor-pointer group/phone-sub2'
+                      : currentLayout === 'multi-screen-left'
+                      ? 'absolute top-[4%] -right-[14%] sm:right-[2%] z-10 scale-[0.88] origin-top opacity-95 shadow-xl transition-transform duration-300 hover:scale-[0.90] cursor-pointer group/phone-sub2'
+                      : 'absolute top-[4%] -right-[14%] sm:right-[0%] z-10 scale-[0.86] origin-top opacity-95 shadow-xl transition-transform duration-300 hover:scale-[0.88] cursor-pointer group/phone-sub2'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    uploadSlotRef.current = 'tertiary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'tertiary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                >
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                  >
+                    {slot3Image ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={{ ...canvas, imageSrc: slot3Image }} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'tertiary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white font-medium text-xs rounded-full transition-colors flex items-center gap-1.5"
+                          >
+                            <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                            Change Image
+                          </button>
+                          {canvas.tertiaryImageSrc && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateCanvas(canvas.id, { tertiaryImageSrc: null });
+                                toast.success("Reset to auto linked screen");
+                              }}
+                              className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white font-medium text-[11px] rounded-full transition-colors flex items-center gap-1"
+                            >
+                              <IoRefreshOutline className="w-3 h-3" />
+                              Reset to Auto
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <IoCloudUploadOutline className="w-8 h-8 text-gray-400 mb-1" />
+                        <span className="text-[10px] font-semibold text-gray-500">Upload Right Screen</span>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+
+                {/* Slot 1 (Foreground Center Phone - Primary) */}
+                <div
+                  className={`rounded-[40px] ${
+                    currentLayout === 'multi-screen-right'
+                      ? 'absolute bottom-[-14%] left-[22%] z-20 shadow-[-16px_25px_60px_rgba(0,0,0,0.65),0_10px_25px_rgba(0,0,0,0.45)] transition-transform duration-300 hover:scale-[1.02] cursor-pointer group/phone-main'
+                      : currentLayout === 'multi-screen-left'
+                      ? 'absolute bottom-[-14%] right-[22%] z-20 shadow-[16px_25px_60px_rgba(0,0,0,0.65),0_10px_25px_rgba(0,0,0,0.45)] transition-transform duration-300 hover:scale-[1.02] cursor-pointer group/phone-main'
+                      : 'absolute bottom-[-14%] left-1/2 -translate-x-1/2 z-20 shadow-[0_25px_60px_rgba(0,0,0,0.65),0_10px_25px_rgba(0,0,0,0.45)] transition-transform duration-300 hover:scale-[1.02] cursor-pointer group/phone-main'
+                  }`}
+                  onClick={() => {
+                    uploadSlotRef.current = 'primary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'primary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                >
+                  <MinimalPhoneFrame 
+                    width={phoneW} 
+                    height={phoneH} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                  >
+                    {canvas.imageSrc ? (
+                      <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
+                        <CanvasImage canvas={canvas} />
+                        <div 
+                          className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'primary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                          >
+                            <IoCloudUploadOutline className="w-4 h-4" />
+                            Change Image
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setIsEditingImage(true); }}
+                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                          >
+                            <IoOptionsOutline className="w-4 h-4" />
+                            Edit & Filter
+                          </button>
+                          <button
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              updateCanvas(canvas.id, { imageFit: canvas.imageFit === 'contain' ? 'cover' : 'contain' });
+                            }}
+                            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium text-xs rounded-full transition-colors"
+                          >
+                            Fit: {canvas.imageFit === 'contain' ? 'Contain' : 'Cover'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => {
+                          uploadSlotRef.current = 'primary';
+                          fileInputRef.current?.click();
+                        }}
+                      >
+                        <IoCloudUploadOutline className="w-10 h-10 text-gray-400 mb-2" />
+                        <span className="text-xs font-semibold text-gray-500">Upload Main Screenshot</span>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+              </div>
+            ) : (
+              <div className="group/phone relative transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer"
+                   onClick={() => {
+                     uploadSlotRef.current = 'primary';
+                     fileInputRef.current?.click();
+                   }}>
+                <MinimalPhoneFrame 
+                  width={phoneW} 
+                  height={phoneH} 
+                  targetSizeId={globalSettings.targetSize}
+                  mockupStyle={globalSettings.mockupStyle}
+                  showNotch={globalSettings.showNotch}
+                  statusBar={canvas.statusBar || globalSettings.statusBar}
+                >
+                  {canvas.imageSrc ? (
+                  <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
+                    <CanvasImage canvas={canvas} />
+                    <div 
+                      className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          uploadSlotRef.current = 'primary';
+                          fileInputRef.current?.click();
+                        }}
+                        className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                      >
+                        <IoCloudUploadOutline className="w-4 h-4" />
+                        Change Image
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setIsEditingImage(true); }}
+                        className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                      >
+                        <IoOptionsOutline className="w-4 h-4" />
+                        Edit & Filter
+                      </button>
+                      <button
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          updateCanvas(canvas.id, { imageFit: canvas.imageFit === 'contain' ? 'cover' : 'contain' });
+                        }}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium text-xs rounded-full transition-colors"
+                      >
+                        Fit: {canvas.imageFit === 'contain' ? 'Contain' : 'Cover'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => {
+                      uploadSlotRef.current = 'primary';
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <IoCloudUploadOutline className="w-10 h-10 text-gray-400 mb-2" />
+                    <span className="text-xs font-semibold text-gray-500">Upload Screenshot</span>
+                  </div>
+                )}
+              </MinimalPhoneFrame>
+              </div>
+            )}
             
             {(currentLayout === 'banner-stack-right' || currentLayout === 'banner-kinetic-stack') && (
               <>
@@ -2737,6 +3020,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               </>
             )}
           </div>
+        );
+      })()}
         </div>
       </div>
       

@@ -22,6 +22,34 @@ export function createTemplateLogoSvg(
 }
 
 export const TEMPLATE_LOGOS: Record<string, TemplateLogo> = {
+  'Connected Showcase (5 Screens)': {
+    appName: 'SyncWave',
+    style: 'Modern Multi-Screen Flow',
+    icon: 'layers',
+    bgGradient: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%)',
+    accentColor: '#6366f1',
+    svgDataUri: createTemplateLogoSvg(
+      '#1e1b4b',
+      '#4338ca',
+      '<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>',
+      true
+    ),
+  },
+
+  'Panoramic Multi-Screen Flow (3 Screens)': {
+    appName: 'Nexus Flow',
+    style: 'Sleek Multi-Display Flow',
+    icon: 'browsers',
+    bgGradient: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)',
+    accentColor: '#38bdf8',
+    svgDataUri: createTemplateLogoSvg(
+      '#0f172a',
+      '#334155',
+      '<path d="M4 6h16M4 12h16M4 18h16"/>',
+      true
+    ),
+  },
+
   'Aesthetic Modern (5 Screens)': {
     appName: 'Atlas Pin',
     style: 'Minimalist Pastel Radial',

@@ -54,11 +54,16 @@ export type LayoutType =
   | 'hero-3d-center'
   | 'banner-stack-right'
   | 'banner-triple-bottom'
-  | 'banner-kinetic-stack';
+  | 'banner-kinetic-stack'
+  | 'multi-screen-right'
+  | 'multi-screen-left'
+  | 'multi-screen-center';
 
 export type CanvasItem = {
   id: string;
   imageSrc: string | null;
+  secondaryImageSrc?: string | null;
+  tertiaryImageSrc?: string | null;
   title: string;
   subtitle: string;
   layout: LayoutType;
@@ -285,7 +290,10 @@ const LAYOUTS: LayoutType[] = [
   '3d-isometric-right',
   '3d-isometric-left',
   'device-only',
-  'hero-center'
+  'hero-center',
+  'multi-screen-right',
+  'multi-screen-left',
+  'multi-screen-center'
 ];
 
 function cloneState(canvases: CanvasItem[], globalSettings: GlobalSettings): HistorySnapshot {

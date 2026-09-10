@@ -16,6 +16,155 @@ export interface TemplateDefinition {
 
 const RAW_TEMPLATES: { name: string; apply: (loadTemplate: (canvases: CanvasItem[]) => void, updateGlobalSettings: (settings: Partial<GlobalSettings>) => void) => void }[] = [
   {
+    name: 'Connected Showcase (5 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Connected Experience',
+          subtitle: 'Multiple screens that seamlessly complete each other.',
+          layout: 'multi-screen-right',
+          backgroundColor: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'Featured Suite', style: 'pill-glass', icon: 'sparkle' },
+          doodle: {
+            enabled: false,
+            color: '#818cf8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: '\\ NEW /\nIntelligent Highlights',
+          subtitle: 'Curated widgets and themes updated continuously.',
+          layout: 'basic-top',
+          backgroundColor: 'linear-gradient(135deg, #312e81 0%, #3730a3 50%, #4f46e5 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#c7d2fe',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'Latest Release', style: 'pill-solid', icon: 'star' },
+          doodle: {
+            enabled: false,
+            color: '#818cf8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Dynamic Overviews',
+          subtitle: 'Every view connects into one cohesive ecosystem.',
+          layout: 'multi-screen-left',
+          backgroundColor: 'linear-gradient(135deg, #3730a3 0%, #4338ca 50%, #6366f1 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#e0e7ff',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: false,
+            color: '#818cf8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Synchronized Symphony',
+          subtitle: 'Real-time harmony across all your displays.',
+          layout: 'multi-screen-center',
+          backgroundColor: 'linear-gradient(135deg, #4338ca 0%, #4f46e5 50%, #7c3aed 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#ede9fe',
+          fontFamily: 'outfit',
+          doodle: {
+            enabled: false,
+            color: '#a78bfa',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Elevate Your Flow',
+          subtitle: 'Experience the next generation today.',
+          layout: 'hero-center',
+          backgroundColor: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#ede9fe',
+          fontFamily: 'outfit',
+          badge: { enabled: true, text: 'Top Rated', style: 'pill-glass', icon: 'trophy' },
+          doodle: {
+            enabled: false,
+            color: '#a78bfa',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
+    name: 'Panoramic Multi-Screen Flow (3 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'light', targetSize: 'ios-6.5' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Live Workspace',
+          subtitle: 'Interactive widgets that complete each other.',
+          layout: 'multi-screen-right',
+          backgroundColor: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'Pro Edition', style: 'pill-glass', icon: 'star' },
+          doodle: {
+            enabled: false,
+            color: '#38bdf8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: '\\ NEW /\nPremium Modules',
+          subtitle: 'Modular design crafted for focus and power.',
+          layout: 'basic-top',
+          backgroundColor: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          badge: { enabled: true, text: 'New Release', style: 'pill-solid', icon: 'sparkle' },
+          doodle: {
+            enabled: false,
+            color: '#38bdf8',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Unified Timeline',
+          subtitle: 'Swipe across to reveal the full picture.',
+          layout: 'multi-screen-left',
+          backgroundColor: 'linear-gradient(135deg, #334155 0%, #1e293b 50%, #0f172a 100%)',
+          textColor: '#ffffff',
+          subtitleColor: '#94a3b8',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#38bdf8',
+            doodles: []
+          }
+        }
+      ]);
+    }
+  },
+  {
     name: 'Aesthetic Modern (5 Screens)',
     apply: (loadTemplate, _updateGlobalSettings) => {
       _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.5' });
@@ -4210,7 +4359,10 @@ export const TEMPLATES: TemplateDefinition[] = RAW_TEMPLATES.map((raw) => {
     nameLower.includes('platano') ||
     nameLower.includes('hero 3d') ||
     nameLower.includes('bento') ||
-    nameLower.includes('feature graphic')
+    nameLower.includes('feature graphic') ||
+    nameLower.includes('multi-screen') ||
+    nameLower.includes('connected') ||
+    nameLower.includes('panoramic')
   ) {
     category = 'Banner & Feature';
   } else if (

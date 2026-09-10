@@ -24,14 +24,16 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
   const wrapperW = activeDevice.logicalWidth + 16;
   const wrapperH = activeDevice.logicalHeight + 16;
 
-  useEffect(() => {
+  const [prevTargetSize, setPrevTargetSize] = useState(globalSettings.targetSize);
+  if (prevTargetSize !== globalSettings.targetSize) {
+    setPrevTargetSize(globalSettings.targetSize);
     setPreviewDevice(globalSettings.targetSize);
     if (isAndroidDevice(globalSettings.targetSize)) {
       setStoreType('play-store');
     } else if (isAppleDevice(globalSettings.targetSize)) {
       setStoreType('app-store');
     }
-  }, [globalSettings.targetSize]);
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -218,6 +220,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                         total={canvases.length}
                         targetWidth={240}
                         isPreviewMode={true}
+                        prevCanvas={canvases[i - 1]}
                         nextCanvas={canvases[i + 1]}
                         nextNextCanvas={canvases[i + 2]}
                       />
@@ -309,6 +312,7 @@ export function StoreContextPreview({ onClose }: { onClose: () => void }) {
                         total={canvases.length}
                         targetWidth={180}
                         isPreviewMode={true}
+                        prevCanvas={canvases[i - 1]}
                         nextCanvas={canvases[i + 1]}
                         nextNextCanvas={canvases[i + 2]}
                       />
