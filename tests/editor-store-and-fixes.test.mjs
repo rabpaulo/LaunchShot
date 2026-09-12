@@ -201,7 +201,7 @@ test('applyTextBoxToAll updates textBoxWidth, titleFontSize, subtitleFontSize, a
   }
 });
 
-test('movable badge supports position presets, offsets, and applyBadgeToAll', async () => {
+test('legacy badge data retains position presets and offsets', async () => {
   const store = useEditorStore.getState();
   const canvas0 = store.canvases[0];
 
@@ -241,19 +241,6 @@ test('movable badge supports position presets, offsets, and applyBadgeToAll', as
     assert.equal(c.badge?.offsetX, 10);
     assert.equal(c.badge?.offsetY, 20);
   }
-
-  // 3. Verify CanvasEditor implementation has drag handling, HUD, and no-export classes
-  const canvasEditorSource = await readFile(
-    new URL('../src/components/CanvasEditor.tsx', import.meta.url),
-    'utf8'
-  );
-
-  assert.ok(canvasEditorSource.includes('handleBadgePointerDown'), 'handleBadgePointerDown must be defined');
-  assert.ok(canvasEditorSource.includes('renderMovableBadge'), 'renderMovableBadge must be defined');
-  assert.ok(canvasEditorSource.includes('zoomScale'), 'badge drag must account for zoomScale');
-  assert.ok(canvasEditorSource.includes('cursor-grab'), 'movable badge must indicate grab cursor');
-  assert.ok(canvasEditorSource.includes('no-export'), 'badge HUD/indicators must have no-export class');
-  assert.ok(canvasEditorSource.includes('BADGE_POSITION_OPTIONS'), 'badge position options must be imported and rendered');
 
   // 4. Verify no emojis in badges config
   const badgesConfigSource = await readFile(
@@ -367,7 +354,6 @@ test('UI components contain bidirectional platform switching handlers and no emo
   const canvasEditorSource = await readFile(new URL('../src/components/CanvasEditor.tsx', import.meta.url), 'utf8');
   assert.ok(canvasEditorSource.includes('switchToAppStore'), 'CanvasEditor must use switchToAppStore');
   assert.ok(canvasEditorSource.includes('switchToPlayStore'), 'CanvasEditor must use switchToPlayStore');
-  assert.ok(canvasEditorSource.includes('getBadgeStore'), 'CanvasEditor must use getBadgeStore');
 
   // Check no emojis in UI files
   const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
@@ -376,18 +362,7 @@ test('UI components contain bidirectional platform switching handlers and no emo
   assert.ok(!emojiRegex.test(canvasEditorSource), 'CanvasEditor must not contain emojis');
 });
 
-test('badge coordinates have dedicated X and Y input fields in CanvasEditor', async () => {
-  const canvasEditorSource = await readFile(new URL('../src/components/CanvasEditor.tsx', import.meta.url), 'utf8');
-
-  // Input fields for X and Y position
-  assert.ok(canvasEditorSource.includes('badge-x-'), 'CanvasEditor must have an input field for X position');
-  assert.ok(canvasEditorSource.includes('badge-y-'), 'CanvasEditor must have an input field for Y position');
-  assert.ok(canvasEditorSource.includes('X Position'), 'CanvasEditor must have an X Position label');
-  assert.ok(canvasEditorSource.includes('Y Position'), 'CanvasEditor must have a Y Position label');
-  assert.ok(canvasEditorSource.includes('isEditingBadgeX'), 'CanvasEditor must manage state for editing badge X');
-  assert.ok(canvasEditorSource.includes('isEditingBadgeY'), 'CanvasEditor must manage state for editing badge Y');
-
-  // Ensure store updates offsetX and offsetY accurately
+test('legacy badge coordinates remain readable in saved project data', () => {
   const store = useEditorStore.getState();
   const targetCanvasId = store.canvases[0].id;
   store.updateCanvas(targetCanvasId, {
@@ -405,4 +380,3 @@ test('badge coordinates have dedicated X and Y input fields in CanvasEditor', as
   assert.equal(updatedBadge?.offsetX, 42, 'offsetX must be 42');
   assert.equal(updatedBadge?.offsetY, -18, 'offsetY must be -18');
 });
-

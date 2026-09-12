@@ -7,10 +7,8 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS, DEFAULT_BACKDROP_EFFECTS } from '@/config/backgrounds';
 import { DEFAULT_SHADOW } from '@/utils/shadowEngine';
 import { DOODLE_PRESETS, DOODLE_TYPE_OPTIONS, DOODLE_POSITION_OPTIONS, type DoodleItem } from '@/config/doodles';
-import { BADGE_PRESETS, BADGE_POSITION_OPTIONS, type BadgeConfig } from '@/config/badges';
 import { FLOATING_CARD_PRESETS, CALLOUT_PIN_PRESETS } from '@/config/floatingCards';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
-import { PANORAMA_PRESETS } from '@/config/panoramas';
 import { captureDesign } from '@/config/designs';
 import { LAYOUT_OPTIONS, getDefaultTextBoxWidth } from './CanvasEditor';
 import { DoodleShape } from './DoodleAccent';
@@ -55,6 +53,7 @@ export function WorkspaceTypography({ canvas }: { canvas: CanvasItem }) {
     </div>
     <Range label="Text box width" value={canvas.textBoxWidth ?? getDefaultTextBoxWidth(canvas.layout)} min={25} max={100} unit="%" onChange={textBoxWidth => update({ textBoxWidth })} />
     <p className={styles.hint}>Drag a side handle on the canvas to resize the text box, or a corner to scale the text too.</p>
+    <p className={styles.hint}>Font sizes stay fixed. If text is cut off, widen the box, reduce the font size, or shorten the copy.</p>
     <label>Text alignment<select aria-label="Text alignment" value={canvas.textAlign || ''} onChange={event => update({ textAlign: (event.target.value || undefined) as CanvasItem['textAlign'] })}><option value="">Layout default</option>{['left', 'center', 'right'].map(value => <option key={value}>{value}</option>)}</select></label>
     <div className={styles.controlColumns}><Color label="Headline color" value={canvas.textColor} onChange={textColor => update({ textColor })} /><Color label="Subtitle color" value={canvas.subtitleColor || canvas.textColor} onChange={subtitleColor => update({ subtitleColor })} /></div>
     <Toggle label="Gradient headline" checked={!!canvas.gradientText} onChange={gradientText => update({ gradientText })} />
@@ -70,12 +69,10 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
   const shadow = canvas.shadow || state.globalSettings.shadow || DEFAULT_SHADOW;
   const effects = canvas.backdropEffects || state.globalSettings.backdropEffects || DEFAULT_BACKDROP_EFFECTS;
   const doodle = canvas.doodle || { enabled: false, color: '#facc15', doodles: [] };
-  const badge = canvas.badge || BADGE_PRESETS[0].config;
   const statusBar = canvas.statusBar || state.globalSettings.statusBar || DEFAULT_STATUS_BAR;
   const gradient = canvas.backgroundColor.match(/^linear-gradient\((\d+)deg,\s*(#[\da-f]{6})\s*0%,\s*(#[\da-f]{6})\s*100%\)$/i);
   const setGradient = (angle: number, start: string, end: string) => update({ backgroundColor: `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`, backgroundImageSrc: undefined });
   const changeDoodle = (index: number, changes: Partial<DoodleItem>) => update({ doodle: { ...doodle, doodles: doodle.doodles.map((item, position) => position === index ? { ...item, ...changes } : item) } });
-  const changeBadge = (changes: Partial<BadgeConfig>) => update({ badge: { ...badge, ...changes } });
 
   return <div className={styles.designControls}>
     <Group title="Layout & device">
@@ -131,18 +128,6 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <button className={styles.fullButton} onClick={() => state.applyDoodlesToAll(doodle)}>Use doodles on all slides</button>
     </Group>
 
-    <Group title="Badges & stickers">
-      <Toggle label="Show badge" checked={!!canvas.badge?.enabled} onChange={enabled => changeBadge({ enabled })} />
-      <label>Badge preset<select aria-label="Badge preset" value="" onChange={event => update({ badge: structuredClone(BADGE_PRESETS[Number(event.target.value)].config) })}><option value="" disabled>Choose a badge</option>{BADGE_PRESETS.map((preset, index) => <option key={index} value={index}>{preset.label}</option>)}</select></label>
-      <label>Badge text<input value={badge.text} onChange={event => changeBadge({ text: event.target.value })} /></label>
-      <label>Badge supporting text<input value={badge.subtext || ''} onChange={event => changeBadge({ subtext: event.target.value })} /></label>
-      <label>Badge icon<select aria-label="Badge icon" value={badge.icon} onChange={event => changeBadge({ icon: event.target.value as BadgeConfig['icon'] })}>{['none', 'star', 'trophy', 'flame', 'shield', 'heart', 'sparkle'].map(value => <option key={value}>{value}</option>)}</select></label>
-      <label>Badge style<select aria-label="Badge style" value={badge.style} onChange={event => changeBadge({ style: event.target.value as BadgeConfig['style'] })}>{['pill-glass', 'pill-solid', 'minimal-star'].map(value => <option key={value}>{value}</option>)}</select></label>
-      <label>Badge position<select aria-label="Badge position" value={badge.position || 'inline'} onChange={event => changeBadge({ position: event.target.value as BadgeConfig['position'] })}>{[...BADGE_POSITION_OPTIONS, { value: 'free', label: 'Custom position' }].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-      <Range label="Badge horizontal offset" value={badge.offsetX || 0} min={-400} max={400} onChange={offsetX => changeBadge({ offsetX })} />
-      <Range label="Badge vertical offset" value={badge.offsetY || 0} min={-800} max={800} onChange={offsetY => changeBadge({ offsetY })} />
-      <Toggle label="Show store download badge" checked={!!canvas.showAppStoreBadge} onChange={showAppStoreBadge => update({ showAppStoreBadge })} />
-    </Group>
 
     <Group title="Cards & callouts">
       <label>Add floating card<select aria-label="Add floating card" value="" onChange={event => state.addFloatingCard(canvas.id, FLOATING_CARD_PRESETS[Number(event.target.value)].config)}><option value="" disabled>Choose a card</option>{FLOATING_CARD_PRESETS.map((preset, index) => <option key={index} value={index}>{preset.label}</option>)}</select></label>
@@ -171,11 +156,6 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <Toggle label="Show cellular signal" checked={statusBar.showCellular} onChange={showCellular => update({ statusBar: { ...statusBar, showCellular } })} />
     </Group>
 
-    <Group title="Panoramic background">
-      <p className={styles.hint}>A continuous background across all slides. Turn it off to show each slide’s background.</p>
-      <Toggle label="Connect slide backgrounds" checked={!!state.globalSettings.panorama?.enabled} onChange={state.togglePanorama} />
-      <label>Panorama preset<select aria-label="Panorama preset" value={state.globalSettings.panorama?.presetId || PANORAMA_PRESETS[0].id} onChange={event => state.applyPanoramaToAll(event.target.value)}>{PANORAMA_PRESETS.map(preset => <option key={preset.id} value={preset.id}>{preset.name}</option>)}</select></label>
-    </Group>
 
     <Group title="Reusable templates">
       <button className={styles.fullButton} onClick={onTemplates}>Browse template gallery</button>

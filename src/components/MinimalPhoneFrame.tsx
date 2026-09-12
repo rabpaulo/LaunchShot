@@ -66,6 +66,7 @@ export function MinimalPhoneFrame({
 
   return (
     <div 
+      data-device-frame
       className={`relative inline-block overflow-hidden flex-shrink-0 border transition-shadow duration-300 ${outerStyleClass}`}
       style={{
         width: `${width}px`,

@@ -40,7 +40,7 @@ export function StudioWorkspace() {
   const isEmpty = state.canvases.length === 0 || (state.canvases.length === 1 && !selected?.imageSrc && !selected?.title);
   const size = TARGET_SIZES[state.globalSettings.targetSize] || TARGET_SIZES[DEFAULT_IPHONE_SIZE];
   const fit = Math.min((available.width - 80) / size.logicalWidth, (available.height - 80) / size.logicalHeight, 1.2);
-  const width = Math.max(120, size.logicalWidth * (zoom || fit));
+  const width = Math.max(120, size.logicalWidth * (zoom ?? .65));
   const platform = isAndroidDevice(state.globalSettings.targetSize) ? 'android' : 'ios';
 
   useEffect(() => {
@@ -54,7 +54,13 @@ export function StudioWorkspace() {
   useEffect(() => {
     const element = stageRef.current;
     if (!element) return;
-    const observer = new ResizeObserver(([entry]) => setAvailable({ width: entry.contentRect.width, height: entry.contentRect.height }));
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setAvailable({ width, height });
+      const target = TARGET_SIZES[useEditorStore.getState().globalSettings.targetSize] || TARGET_SIZES[DEFAULT_IPHONE_SIZE];
+      // Fit once on opening. Later panel/window changes must not change the chosen scale.
+      setZoom(current => current ?? Math.max(.2, Math.min((width - 80) / target.logicalWidth, (height - 80) / target.logicalHeight, 1.2)));
+    });
     observer.observe(element);
     return () => observer.disconnect();
   }, [hydrated]);
@@ -78,7 +84,6 @@ export function StudioWorkspace() {
     try {
       if (!files.some(file => file.type.startsWith('image/'))) throw new Error('Choose PNG, JPEG, or WebP screenshots.');
       await processUploadedFiles(files);
-      setZoom(null);
     } catch (error) { toast.error(error instanceof Error ? error.message : 'Upload failed. Please try again.'); }
     finally { setBusy(false); }
   }
@@ -95,7 +100,6 @@ export function StudioWorkspace() {
 
   function choosePlatform(value: string) {
     state.updateGlobalSettings({ targetSize: value === 'ios' ? DEFAULT_IPHONE_SIZE : DEFAULT_ANDROID_SIZE });
-    setZoom(null);
   }
 
   if (!hydrated) return <main className={styles.loading}>
@@ -156,7 +160,7 @@ export function StudioWorkspace() {
         </div>
         <div className={styles.canvasFooter}>
           <div><button aria-label="Move slide earlier" disabled={!selected || index === 0} onClick={() => state.moveCanvas(selected.id, 'left')}><IoArrowBackOutline /></button><button aria-label="Move slide later" disabled={!selected || index === state.canvases.length - 1} onClick={() => state.moveCanvas(selected.id, 'right')}><IoArrowForwardOutline /></button><span>Slide order</span></div>
-          <div><button aria-label="Zoom out" onClick={() => setZoom(Math.max(.2, (zoom || fit) - .1))}>−</button><span>{Math.round((zoom || fit) * 100)}%</span><button aria-label="Zoom in" onClick={() => setZoom(Math.min(2, (zoom || fit) + .1))}>+</button><button onClick={() => setZoom(null)}><IoExpandOutline />Fit</button></div>
+          <div><button aria-label="Zoom out" onClick={() => setZoom(Math.max(.2, (zoom ?? .65) - .1))}>−</button><span>{Math.round((zoom ?? .65) * 100)}%</span><button aria-label="Zoom in" onClick={() => setZoom(Math.min(2, (zoom ?? .65) + .1))}>+</button><button onClick={() => setZoom(Math.max(.2, fit))}><IoExpandOutline />Fit</button></div>
         </div>
       </section>
 
@@ -186,7 +190,7 @@ export function StudioWorkspace() {
         <WorkspaceDesignControls key={selected.id} canvas={selected} onTemplates={() => setModal('templates')} onImageEdit={() => setModal('image')} />
         <section><label>App name<input value={state.globalSettings.appName || ''} placeholder="Your app name" onChange={event => state.renameProject(state.activeProjectId, event.target.value)} /></label></section>
         <section><label>Store destination<select value={platform} onChange={event => choosePlatform(event.target.value)}><option value="ios">Apple App Store</option><option value="android">Google Play</option></select></label>
-          <label>Canvas size<select value={state.globalSettings.targetSize} onChange={event => { state.updateGlobalSettings({ targetSize: event.target.value as typeof state.globalSettings.targetSize }); setZoom(null); }}>{Object.entries(TARGET_SIZES).map(([id, target]) => <option key={id} value={id}>{target.name} · {target.width} × {target.height}</option>)}</select></label>
+          <label>Canvas size<select value={state.globalSettings.targetSize} onChange={event => { state.updateGlobalSettings({ targetSize: event.target.value as typeof state.globalSettings.targetSize }); }}>{Object.entries(TARGET_SIZES).map(([id, target]) => <option key={id} value={id}>{target.name} · {target.width} × {target.height}</option>)}</select></label>
           <button className={styles.fullButton} onClick={() => setModal('translations')}>Languages & translations</button>
         </section>
         <div className={styles.inspectorFooter}>

@@ -25,7 +25,8 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
       await background.decode();
     }
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-    if (node.querySelector('[data-overflow="true"]')) throw new Error('Shorten the headline or supporting text so it fits this size.');
+    const overflowingText = Array.from(node.querySelectorAll<HTMLElement>('[data-render-text]')).some(text => text.scrollHeight > text.clientHeight + 1 || text.scrollWidth > text.clientWidth + 1);
+    if (overflowingText) throw new Error('Text does not fit at its chosen size. Widen the text box, reduce the font size, or shorten the copy.');
     const size = TARGET_SIZES[props.settings.targetSize];
     const blob = await toBlob(node, {
       width: size.logicalWidth, height: size.logicalHeight,

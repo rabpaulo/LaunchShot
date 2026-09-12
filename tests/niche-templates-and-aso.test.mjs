@@ -230,13 +230,6 @@ test('CanvasEditor half-left and half-right layouts maintain non-overlapping geo
     'half-left phone wrapper must use translated left anchor'
   );
 
-  // Verify badge alignment
-  assert.ok(
-    code.includes("effectiveTextAlign === 'right' ? 'justify-end' :") ||
-    code.includes("layoutConfig.textAlign === 'right' ? 'justify-end' :"),
-    'Badge wrapper must right-align when text is right-aligned'
-  );
-
   // Verify layout-aware font scaling
   assert.ok(
     code.includes('isHalfLayout'),
@@ -374,4 +367,3 @@ test('Smart ASO copywriter performs contextual domain detection and adheres to C
   const var1 = applyAsoCopy(dummyCanvases, 'gym workout tracker', 'high-converting', undefined, 1);
   assert.notEqual(var0[0].title, var1[0].title, 'Different variation index should produce different angle');
 });
-

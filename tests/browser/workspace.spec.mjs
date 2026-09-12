@@ -26,6 +26,63 @@ async function upload(page, count = 2) {
 }
 async function saved(page) { await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible(); }
 
+test('chosen text size stays fixed when copy wraps and the text box narrows', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Headline', { exact: true }).fill('A short headline');
+  await page.getByLabel('Title size', { exact: true }).fill('48');
+  const title = page.locator('[id^="workspace-"] [data-render-text]').first();
+  await expect(title).toHaveCSS('font-size', '48px');
+  const phone = page.locator('[id^="workspace-"] [data-device-frame]');
+  const originalPhone = await phone.boundingBox();
+  await page.getByLabel('Headline', { exact: true }).fill('Bring all your ideas together, make room for meaningful progress, and build better habits every single day with a clear plan for the work that matters most.');
+  await expect(title).toHaveCSS('font-size', '48px');
+  await page.getByLabel('Text box width', { exact: true }).fill('45');
+  await expect(title).toHaveCSS('font-size', '48px');
+  expect(await phone.boundingBox()).toEqual(originalPhone);
+  await page.getByLabel('Supporting text', { exact: true }).fill('Supporting copy that should keep its selected size even when there is more than one line to display.');
+  await page.getByLabel('Subtitle size', { exact: true }).fill('30');
+  await expect(page.locator('[id^="workspace-"] [data-render-text]').nth(1)).toHaveCSS('font-size', '30px');
+  await saved(page);
+  await page.reload();
+  await expect(title).toHaveCSS('font-size', '48px');
+  await page.getByLabel('Replace slide screenshot', { exact: true }).setInputFiles((await screenshots(page, 1))[0]);
+  await page.getByRole('button', { name: 'Export screenshots', exact: true }).click();
+  await page.getByRole('button', { name: 'Export 1 PNG', exact: true }).click();
+  await expect(page.getByText(/Text does not fit at its chosen size/)).toBeVisible();
+  await page.getByRole('button', { name: 'Back to editing', exact: true }).click();
+  await expect(title).toHaveCSS('font-size', '48px');
+});
+
+test('legacy badges and panoramas are absent from the workspace and preview', async ({ page }) => {
+  await page.addInitScript(() => {
+    const canvas = { id: 'legacy-decoration', title: 'My own background', subtitle: '', imageSrc: null, layout: 'basic-top', backgroundColor: '#123456', textColor: '#ffffff', badge: { enabled: true, text: 'Retired badge', icon: 'star', style: 'pill-glass' }, showAppStoreBadge: true };
+    localStorage.setItem('screenshot-editor-storage', JSON.stringify({ state: { canvases: [canvas], globalSettings: { targetSize: 'ios-6.5', panorama: { enabled: true, presetId: 'aurora-borealis' } } }, version: 0 }));
+  });
+  await page.goto('/');
+  await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('My own background');
+  await expect(page.getByText('Badges & stickers', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Panoramic background', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Retired badge', { exact: true })).toHaveCount(0);
+  await expect(page.locator('[id^="workspace-"]')).toHaveCSS('background-color', 'rgb(18, 52, 86)');
+  await expect(page.locator('[id^="workspace-"]')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('[id^="workspace-"]').getByText('Download on the')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Preview', exact: true }).click();
+  await expect(page.locator('[id^="preview-"]')).toHaveCSS('background-image', 'none');
+  await expect(page.getByText('Retired badge', { exact: true })).toHaveCount(0);
+});
+
+test('workspace scale stays fixed until Fit or zoom is explicitly requested', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByLabel('Headline', { exact: true })).toBeVisible();
+  const canvas = page.locator('[id^="workspace-"]');
+  await page.getByRole('button', { name: 'Fit', exact: true }).click();
+  const initial = await canvas.boundingBox();
+  await page.setViewportSize({ width: 1180, height: 800 });
+  await expect.poll(async () => Math.round((await canvas.boundingBox()).width)).toBe(Math.round(initial.width));
+  await page.getByRole('button', { name: 'Fit', exact: true }).click();
+  await expect.poll(async () => Math.round((await canvas.boundingBox()).width)).toBeLessThan(Math.round(initial.width));
+});
+
 // Real browser coverage: persisted image bytes, selection, history, renderer and PNG output.
 test('upload, style, edit later slide, reopen and export opaque PNGs without changing the editor', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -163,6 +220,8 @@ test('translation failure, five-slide listing and long headlines at laptop size'
   expect(await page.locator('[id^="preview-"]').count()).toBe(5);
   await page.screenshot({ path: 'test-results/listing-preview.png' });
   await page.getByRole('button', { name: 'Close preview' }).click();
+  // Long copy is sized explicitly; the renderer must never shrink it automatically.
+  await page.getByLabel('Title size', { exact: true }).fill('24');
   await page.getByRole('button', { name: 'Export screenshots', exact: true }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export 5 PNGs', exact: true }).click();
