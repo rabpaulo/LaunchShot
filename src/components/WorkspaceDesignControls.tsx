@@ -7,7 +7,6 @@ import { FONT_OPTIONS } from '@/config/fonts';
 import { BACKGROUND_PRESETS, DEFAULT_BACKDROP_EFFECTS } from '@/config/backgrounds';
 import { DEFAULT_SHADOW } from '@/utils/shadowEngine';
 import { DOODLE_PRESETS, DOODLE_TYPE_OPTIONS, DOODLE_POSITION_OPTIONS, type DoodleItem } from '@/config/doodles';
-import { FLOATING_CARD_PRESETS, CALLOUT_PIN_PRESETS } from '@/config/floatingCards';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 import { captureDesign } from '@/config/designs';
 import { LAYOUT_OPTIONS, getDefaultTextBoxWidth } from './CanvasEditor';
@@ -128,24 +127,6 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <button className={styles.fullButton} onClick={() => state.applyDoodlesToAll(doodle)}>Use doodles on all slides</button>
     </Group>
 
-
-    <Group title="Cards & callouts">
-      <label>Add floating card<select aria-label="Add floating card" value="" onChange={event => state.addFloatingCard(canvas.id, FLOATING_CARD_PRESETS[Number(event.target.value)].config)}><option value="" disabled>Choose a card</option>{FLOATING_CARD_PRESETS.map((preset, index) => <option key={index} value={index}>{preset.label}</option>)}</select></label>
-      {canvas.floatingCards?.map((card, index) => <div className={styles.elementCard} key={card.id}>
-        <label>Card {index + 1} title<input value={card.title} onChange={event => update({ floatingCards: canvas.floatingCards?.map(item => item.id === card.id ? { ...item, title: event.target.value } : item) })} /></label>
-        <label>Card {index + 1} subtitle<input value={card.subtitle || ''} onChange={event => update({ floatingCards: canvas.floatingCards?.map(item => item.id === card.id ? { ...item, subtitle: event.target.value } : item) })} /></label>
-        <label>Card {index + 1} position<select value={card.position} onChange={event => update({ floatingCards: canvas.floatingCards?.map(item => item.id === card.id ? { ...item, position: event.target.value as typeof card.position } : item) })}>{['top-left', 'top-right', 'bottom-left', 'bottom-right', 'center-left', 'center-right'].map(value => <option key={value}>{value}</option>)}</select></label>
-        <label>Card {index + 1} theme<select value={card.theme} onChange={event => update({ floatingCards: canvas.floatingCards?.map(item => item.id === card.id ? { ...item, theme: event.target.value as typeof card.theme } : item) })}>{['glass-dark', 'glass-light', 'solid-dark', 'solid-light', 'accent'].map(value => <option key={value}>{value}</option>)}</select></label>
-        <button className={styles.fullButton} onClick={() => state.removeFloatingCard(canvas.id, card.id)}>Remove card {index + 1}</button>
-      </div>)}
-      <label>Add callout<select aria-label="Add callout" value="" onChange={event => state.addCalloutPin(canvas.id, CALLOUT_PIN_PRESETS[Number(event.target.value)].config)}><option value="" disabled>Choose a callout</option>{CALLOUT_PIN_PRESETS.map((preset, index) => <option key={index} value={index}>{preset.label}</option>)}</select></label>
-      {canvas.calloutPins?.map((pin, index) => <div className={styles.elementCard} key={pin.id}>
-        <label>Callout {index + 1} text<input value={pin.text} onChange={event => update({ calloutPins: canvas.calloutPins?.map(item => item.id === pin.id ? { ...item, text: event.target.value } : item) })} /></label>
-        <label>Callout {index + 1} position<select value={pin.position} onChange={event => update({ calloutPins: canvas.calloutPins?.map(item => item.id === pin.id ? { ...item, position: event.target.value as typeof pin.position } : item) })}>{['top-left', 'top-right', 'bottom-left', 'bottom-right', 'center'].map(value => <option key={value}>{value}</option>)}</select></label>
-        <Color label={`Callout ${index + 1} color`} value={pin.color || '#286348'} onChange={color => update({ calloutPins: canvas.calloutPins?.map(item => item.id === pin.id ? { ...item, color } : item) })} />
-        <button className={styles.fullButton} onClick={() => state.removeCalloutPin(canvas.id, pin.id)}>Remove callout {index + 1}</button>
-      </div>)}
-    </Group>
 
     <Group title="Status bar">
       <Toggle label="Replace screenshot status bar" checked={statusBar.enabled} onChange={enabled => update({ statusBar: { ...statusBar, enabled } })} />

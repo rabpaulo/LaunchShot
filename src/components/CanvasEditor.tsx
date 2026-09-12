@@ -7,8 +7,6 @@ import { processUploadedFiles } from '@/utils/imageProcessor';
 import { CanvasImage } from './CanvasImage';
 import { ImageEditorModal } from './ImageEditorModal';
 import { MinimalPhoneFrame } from './MinimalPhoneFrame';
-import { FloatingCard } from './FloatingCard';
-import { CalloutPin } from './CalloutPin';
 import {
   IoCloudUploadOutline,
   IoTrashOutline,
@@ -23,7 +21,6 @@ import {
   IoLogoGooglePlaystore,
   IoOptionsOutline,
   IoBrushOutline,
-  IoLayersOutline,
   IoPhonePortraitOutline,
   IoAdd,
   IoResizeOutline,
@@ -41,7 +38,6 @@ import {
   DoodleType,
   DoodlePosition
 } from '@/config/doodles';
-import { FLOATING_CARD_PRESETS, CALLOUT_PIN_PRESETS } from '@/config/floatingCards';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -153,10 +149,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
     applyTextBoxToAll,
     applyDoodlesToAll,
     setIsDraggingGlobal,
-    addFloatingCard,
-    removeFloatingCard,
-    addCalloutPin,
-    removeCalloutPin,
     switchToAppStore,
     switchToPlayStore,
   } = useEditorStore(useShallow((state) => ({
@@ -170,17 +162,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
     applyTextBoxToAll: state.applyTextBoxToAll,
     applyDoodlesToAll: state.applyDoodlesToAll,
     setIsDraggingGlobal: state.setIsDraggingGlobal,
-    addFloatingCard: state.addFloatingCard,
-    removeFloatingCard: state.removeFloatingCard,
-    addCalloutPin: state.addCalloutPin,
-    removeCalloutPin: state.removeCalloutPin,
     switchToAppStore: state.switchToAppStore,
     switchToPlayStore: state.switchToPlayStore,
   })));
   const globalSettings = settings || liveSettings;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showDoodleMenu, setShowDoodleMenu] = useState(false);
-  const [showWidgetMenu, setShowWidgetMenu] = useState(false);
   const [showStatusBarMenu, setShowStatusBarMenu] = useState(false);
   const [showTextBoxMenu, setShowTextBoxMenu] = useState(false);
   const [isResizingTextBox, setIsResizingTextBox] = useState(false);
@@ -671,7 +658,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
           <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowDoodleMenu(!showDoodleMenu);
-              setShowWidgetMenu(false);
               setShowStatusBarMenu(false);
               setShowTextBoxMenu(false);
             }}
@@ -695,7 +681,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
             onClick={() => {
               setShowTextBoxMenu(!showTextBoxMenu);
               setShowDoodleMenu(false);
-              setShowWidgetMenu(false);
               setShowStatusBarMenu(false);
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
@@ -713,35 +698,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
             <span>Text Box {(canvas.textBoxWidth || canvas.titleFontSize) ? `(${currentTextBoxWidth}%)` : ''}</span>
           </CanvasButton>
 
-          {/* Floating Widgets Toggle */}
-          <CanvasButton readOnly={isPreviewMode}
-            onClick={() => {
-              setShowWidgetMenu(!showWidgetMenu);
-              setShowDoodleMenu(false);
-              setShowStatusBarMenu(false);
-              setShowTextBoxMenu(false);
-            }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
-              (canvas.floatingCards && canvas.floatingCards.length > 0) || (canvas.calloutPins && canvas.calloutPins.length > 0)
-                ? isDark
-                  ? 'bg-blue-950/60 text-blue-300 border-blue-500/40 shadow-sm'
-                  : 'bg-blue-50 text-blue-800 border-blue-300 shadow-sm'
-                : isDark
-                  ? 'bg-gray-800/80 text-gray-400 border-gray-700 hover:bg-gray-700'
-                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-            }`}
-            title="Add Floating UI Cards & Callout Pins"
-          >
-            <IoLayersOutline className="w-3.5 h-3.5" />
-            <span>Widgets {(canvas.floatingCards?.length || 0) + (canvas.calloutPins?.length || 0) > 0 ? `(${(canvas.floatingCards?.length || 0) + (canvas.calloutPins?.length || 0)})` : ''}</span>
-          </CanvasButton>
-
           {/* Status Bar Sanitizer Toggle */}
           <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowStatusBarMenu(!showStatusBarMenu);
               setShowDoodleMenu(false);
-              setShowWidgetMenu(false);
               setShowTextBoxMenu(false);
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all ${
@@ -1165,126 +1126,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
           </div>
         )}
 
-        {/* Floating Widgets Popover */}
-        {showWidgetMenu && (
-          <div className={`absolute top-12 left-52 z-50 rounded-2xl shadow-2xl border p-3.5 w-84 flex flex-col gap-3 ${
-            isDark ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'
-          }`}>
-            <div className={`flex items-center justify-between border-b pb-2 ${
-              isDark ? 'border-gray-800' : 'border-gray-100'
-            }`}>
-              <span className="text-xs font-bold flex items-center gap-1.5">
-                <IoLayersOutline className="w-3.5 h-3.5 text-blue-400" />
-                Floating UI Cards & Callouts
-              </span>
-              <CanvasButton readOnly={isPreviewMode}
-                onClick={() => setShowWidgetMenu(false)}
-                className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
-              >
-                <IoClose className="w-3.5 h-3.5" />
-              </CanvasButton>
-            </div>
-
-            {/* Active Widgets on this Screen */}
-            {((canvas.floatingCards && canvas.floatingCards.length > 0) || (canvas.calloutPins && canvas.calloutPins.length > 0)) && (
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-semibold opacity-75">Active on this screen:</span>
-                <div className="space-y-1 max-h-28 overflow-y-auto pr-1">
-                  {canvas.floatingCards?.map((card) => (
-                    <div
-                      key={card.id}
-                      className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs ${
-                        isDark ? 'bg-zinc-800/80 border-zinc-700' : 'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      <div className="flex flex-col truncate">
-                        <span className="font-bold truncate">{card.title}</span>
-                        <span className="text-[10px] opacity-70">Card • {card.position}</span>
-                      </div>
-                      <CanvasButton readOnly={isPreviewMode}
-                        onClick={() => removeFloatingCard(canvas.id, card.id)}
-                        className="text-red-400 hover:text-red-300 p-1"
-                        title="Remove Card"
-                      >
-                        <IoTrashOutline className="w-3.5 h-3.5" />
-                      </CanvasButton>
-                    </div>
-                  ))}
-
-                  {canvas.calloutPins?.map((pin) => (
-                    <div
-                      key={pin.id}
-                      className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs ${
-                        isDark ? 'bg-zinc-800/80 border-zinc-700' : 'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      <div className="flex flex-col truncate">
-                        <span className="font-bold truncate">{pin.text}</span>
-                        <span className="text-[10px] opacity-70">Callout Pin • {pin.position}</span>
-                      </div>
-                      <CanvasButton readOnly={isPreviewMode}
-                        onClick={() => removeCalloutPin(canvas.id, pin.id)}
-                        className="text-red-400 hover:text-red-300 p-1"
-                        title="Remove Pin"
-                      >
-                        <IoTrashOutline className="w-3.5 h-3.5" />
-                      </CanvasButton>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Presets to Add */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-semibold opacity-75">Add Floating Card:</span>
-              <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
-                {FLOATING_CARD_PRESETS.map((preset) => (
-                  <CanvasButton readOnly={isPreviewMode}
-                    key={preset.label}
-                    onClick={() => {
-                      addFloatingCard(canvas.id, preset.config);
-                      toast.success(`Added ${preset.label}`);
-                    }}
-                    className={`text-left p-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
-                      isDark
-                        ? 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
-                        : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
-                    }`}
-                  >
-                    <IoAdd className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                    <span className="truncate">{preset.label}</span>
-                  </CanvasButton>
-                ))}
-              </div>
-            </div>
-
-            {/* Callout Pins to Add */}
-            <div className={`pt-2 border-t space-y-1.5 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}>
-              <span className="text-[11px] font-semibold opacity-75">Add Callout Pin:</span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {CALLOUT_PIN_PRESETS.map((preset) => (
-                  <CanvasButton readOnly={isPreviewMode}
-                    key={preset.label}
-                    onClick={() => {
-                      addCalloutPin(canvas.id, preset.config);
-                      toast.success(`Added ${preset.label}`);
-                    }}
-                    className={`text-left p-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
-                      isDark
-                        ? 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
-                        : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
-                    }`}
-                  >
-                    <IoAdd className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                    <span className="truncate">{preset.label}</span>
-                  </CanvasButton>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Status Bar Sanitizer Popover */}
         {showStatusBarMenu && (
           <div className={`absolute top-12 left-64 z-50 rounded-2xl shadow-2xl border p-3.5 w-76 flex flex-col gap-3 ${
@@ -1679,25 +1520,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
           {(canvas.backdropEffects?.effects ?? globalSettings.backdropEffects?.effects) && (
             <div className="absolute inset-0 pointer-events-none z-0 [background:radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.22)_0%,transparent_65%)]" />
           )}
-
-          {/* Floating UI Cards */}
-          {canvas.floatingCards?.map((card) => (
-            <FloatingCard
-              key={card.id}
-              card={card}
-              onRemove={isPreviewMode ? undefined : () => removeFloatingCard(canvas.id, card.id)}
-            />
-          ))}
-
-          {/* Callout Pins */}
-          {canvas.calloutPins?.map((pin) => (
-            <CalloutPin
-              key={pin.id}
-              pin={pin}
-              onRemove={isPreviewMode ? undefined : () => removeCalloutPin(canvas.id, pin.id)}
-            />
-          ))}
-
 
           {/* Background Image Overlay */}
           {canvas.backgroundImageSrc && (

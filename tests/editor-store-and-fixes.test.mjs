@@ -165,18 +165,6 @@ test('parseUploadedTranslationJson validates and rejects empty objects', () => {
   }, /Unsupported JSON format/);
 });
 
-test('FloatingCard includes group class and vertical centering for center positions', async () => {
-  const floatingCardSource = await readFile(
-    new URL('../src/components/FloatingCard.tsx', import.meta.url),
-    'utf8'
-  );
-
-  // Verify container has group class so hover delete button works
-  assert.match(floatingCardSource, /className=\{`group absolute z-30/);
-  // Verify vertical centering translateY(-50%)
-  assert.match(floatingCardSource, /transforms\.push\('translateY\(-50%\)'\)/);
-});
-
 test('applyTextBoxToAll updates textBoxWidth, titleFontSize, subtitleFontSize, and textAlign across canvases', () => {
   const store = useEditorStore.getState();
   

@@ -53,21 +53,28 @@ test('chosen text size stays fixed when copy wraps and the text box narrows', as
   await expect(title).toHaveCSS('font-size', '48px');
 });
 
-test('legacy badges and panoramas are absent from the workspace and preview', async ({ page }) => {
+test('retired decorations are absent from the workspace and preview', async ({ page }) => {
   await page.addInitScript(() => {
-    const canvas = { id: 'legacy-decoration', title: 'My own background', subtitle: '', imageSrc: null, layout: 'basic-top', backgroundColor: '#123456', textColor: '#ffffff', badge: { enabled: true, text: 'Retired badge', icon: 'star', style: 'pill-glass' }, showAppStoreBadge: true };
+    const canvas = { id: 'legacy-decoration', title: 'My own background', subtitle: '', imageSrc: null, layout: 'basic-top', backgroundColor: '#123456', textColor: '#ffffff', badge: { enabled: true, text: 'Retired badge', icon: 'star', style: 'pill-glass' }, showAppStoreBadge: true, floatingCards: [{ id: 'old-card', type: 'stat-metric', title: 'Retired floating card', position: 'top-left', theme: 'glass-dark' }], calloutPins: [{ id: 'old-pin', text: 'Retired callout', position: 'bottom-right' }] };
     localStorage.setItem('screenshot-editor-storage', JSON.stringify({ state: { canvases: [canvas], globalSettings: { targetSize: 'ios-6.5', panorama: { enabled: true, presetId: 'aurora-borealis' } } }, version: 0 }));
   });
   await page.goto('/');
   await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('My own background');
   await expect(page.getByText('Badges & stickers', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Panoramic background', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Cards & callouts', { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel('Add floating card', { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel('Add callout', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Retired floating card', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Retired callout', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Retired badge', { exact: true })).toHaveCount(0);
   await expect(page.locator('[id^="workspace-"]')).toHaveCSS('background-color', 'rgb(18, 52, 86)');
   await expect(page.locator('[id^="workspace-"]')).toHaveCSS('background-image', 'none');
   await expect(page.locator('[id^="workspace-"]').getByText('Download on the')).toHaveCount(0);
   await page.getByRole('button', { name: 'Preview', exact: true }).click();
   await expect(page.locator('[id^="preview-"]')).toHaveCSS('background-image', 'none');
+  await expect(page.getByText('Retired floating card', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Retired callout', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Retired badge', { exact: true })).toHaveCount(0);
 });
 
