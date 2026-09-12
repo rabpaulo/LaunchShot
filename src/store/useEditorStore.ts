@@ -14,6 +14,7 @@ import { type ShadowSettings, DEFAULT_SHADOW } from '@/utils/shadowEngine';
 import { type BackdropEffects, DEFAULT_BACKDROP_EFFECTS, POSTSPARK_COLOR_PALETTE } from '@/config/backgrounds';
 import { getContrastColor } from '@/utils/imageProcessor';
 import FileSaver from 'file-saver';
+import { applyDesign, captureDesign, type SavedDesign, type SlideDesign } from '@/config/designs';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
 
@@ -145,6 +146,10 @@ interface HistorySnapshot {
 }
 
 interface EditorState {
+  savedDesigns: SavedDesign[];
+  saveDesign: (name: string, canvasId: string) => void;
+  removeDesign: (id: string) => void;
+  applySlideDesign: (design: SlideDesign, canvasId?: string) => void;
   selectedCanvasId: string | null;
   selectCanvas: (id: string) => void;
   applyStudioStyle: (id: StudioStyleId) => void;
@@ -372,13 +377,23 @@ function pushHistory(
 export const useEditorStore = create<EditorState>()(
   persist(
     (set, get) => ({
+      savedDesigns: [],
+      saveDesign: (name, canvasId) => set(state => {
+        const canvas = state.canvases.find(item => item.id === canvasId);
+        if (!canvas || !name.trim()) return state;
+        return { savedDesigns: [...state.savedDesigns, { id: crypto.randomUUID(), name: name.trim(), design: captureDesign(canvas, state.globalSettings) }] };
+      }),
+      removeDesign: (id) => set(state => ({ savedDesigns: state.savedDesigns.filter(item => item.id !== id) })),
+      applySlideDesign: (design, canvasId) => set(state => pushHistory(state, state.canvases.map(canvas => !canvasId || canvas.id === canvasId ? applyDesign(canvas, design) : canvas))),
       selectedCanvasId: null,
       selectCanvas: (id) => set({ selectedCanvasId: id }),
       applyStudioStyle: (id) => set(state => pushHistory(state,
         state.canvases.map(canvas => styleSlide(canvas, id)), styleSettings(state.globalSettings, id))),
       importScreenshots: (sources) => set(state => {
         const empty = state.canvases.length === 1 && !state.canvases[0].imageSrc && !state.canvases[0].title;
-        const additions = sources.map(source => styleSlide({
+        const additions = sources.map(source => empty ? {
+          ...state.canvases[0], id: crypto.randomUUID(), imageSrc: source,
+        } : styleSlide({
           ...initialDefaultCanvas, id: crypto.randomUUID(), imageSrc: source,
           translations: { [state.globalSettings.activeLanguage || 'en']: { title: '', subtitle: '' } },
         }, state.globalSettings.studioStyle || 'clean-light'));
@@ -1371,6 +1386,7 @@ export const useEditorStore = create<EditorState>()(
       skipHydration: true,
       // Exclude past & future from persistence to save localStorage quota
       partialize: (state) => ({
+        savedDesigns: state.savedDesigns,
         canvases: state.canvases,
         globalSettings: state.globalSettings,
         projects: state.projects,

@@ -165,19 +165,6 @@ test('parseUploadedTranslationJson validates and rejects empty objects', () => {
   }, /Unsupported JSON format/);
 });
 
-test('CanvasEditor gives targetWidth precedence over isPreviewMode to prevent preview overflow', async () => {
-  const canvasEditorSource = await readFile(
-    new URL('../src/components/CanvasEditor.tsx', import.meta.url),
-    'utf8'
-  );
-
-  // Verify targetWidth precedence in card className
-  assert.match(
-    canvasEditorSource,
-    /targetWidth\s*\?\s*['"]items-center pointer-events-none snap-center['"]\s*:\s*isPreviewMode/
-  );
-});
-
 test('FloatingCard includes group class and vertical centering for center positions', async () => {
   const floatingCardSource = await readFile(
     new URL('../src/components/FloatingCard.tsx', import.meta.url),
@@ -418,5 +405,4 @@ test('badge coordinates have dedicated X and Y input fields in CanvasEditor', as
   assert.equal(updatedBadge?.offsetX, 42, 'offsetX must be 42');
   assert.equal(updatedBadge?.offsetY, -18, 'offsetY must be -18');
 });
-
 

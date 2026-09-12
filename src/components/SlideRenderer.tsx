@@ -10,10 +10,11 @@ export interface SlideRendererProps {
   settings: GlobalSettings;
   width?: number;
   renderId: string;
+  editableTextBox?: boolean;
 }
 
 /** One composition for workspace previews, style previews, and isolated exports. */
-export function SlideRenderer({ canvas, canvases, settings, width, renderId }: SlideRendererProps) {
+export function SlideRenderer({ canvas, canvases, settings, width, renderId, editableTextBox = false }: SlideRendererProps) {
   const index = Math.max(0, canvases.findIndex(item => item.id === canvas.id));
   const translation = canvas.translations?.[settings.activeLanguage || 'en'];
   const resolve = (item?: CanvasItem) => item && ({ ...item, ...item.translations?.[settings.activeLanguage || 'en'] });
@@ -26,6 +27,7 @@ export function SlideRenderer({ canvas, canvases, settings, width, renderId }: S
     nextCanvas={resolve(canvases[index + 1])}
     nextNextCanvas={resolve(canvases[index + 2])}
     isPreviewMode
+    editableTextBox={editableTextBox}
     targetWidth={width || TARGET_SIZES[settings.targetSize].logicalWidth}
     renderId={renderId}
   />;

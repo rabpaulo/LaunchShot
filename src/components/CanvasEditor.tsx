@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { CanvasItem, GlobalSettings, LayoutType, useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
@@ -58,13 +58,14 @@ export interface CanvasEditorProps {
   index: number;
   total: number;
   isPreviewMode?: boolean;
+  editableTextBox?: boolean;
   targetWidth?: number;
   prevCanvas?: CanvasItem;
   nextCanvas?: CanvasItem;
   nextNextCanvas?: CanvasItem;
 }
 
-const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
+export const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'basic-top', label: 'Basic Top (Standard)' },
   { value: 'basic-bottom', label: 'Basic Bottom (Header Phone)' },
   { value: 'split-vertical', label: 'Split Vertical' },
@@ -94,6 +95,43 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'duo-row', label: 'Duo Row (2 Mockups Side-by-Side)' },
 ];
 
+export const getDefaultTextBoxWidth = (layout: LayoutType): number => {
+  switch (layout) {
+    case 'multi-screen-right':
+    case 'multi-screen-left':
+    case 'multi-screen-center':
+      return 88;
+    case 'half-right':
+    case 'half-left':
+      return 50;
+    case 'banner-stack-right':
+      return 48;
+    case 'banner-kinetic-stack':
+      return 44;
+    case 'og-style-1':
+      return 50;
+    case 'og-style-2':
+      return 48;
+    case 'og-style-3':
+      return 45;
+    case '3d-isometric-right':
+    case '3d-isometric-left':
+      return 58;
+    case 'tilt-right':
+    case 'tilt-left':
+    case 'tilt-right-complement':
+    case 'tilt-left-complement':
+    case 'tilt-bottom-right':
+    case 'tilt-bottom-left':
+      return 60;
+    case 'hero-center':
+    case 'hero-3d-center':
+      return 85;
+    default:
+      return 100;
+  }
+};
+
 function CanvasButton({ readOnly, ...props }: React.ComponentProps<'button'> & { readOnly: boolean }) {
   return readOnly ? null : <button {...props} />;
 }
@@ -115,16 +153,22 @@ function CanvasText({ maxRenderHeight, ...props }: React.ComponentProps<typeof T
       node.dataset.overflow = String(node.scrollHeight > maxRenderHeight);
     };
     fitText();
+    const observer = new ResizeObserver(fitText);
+    observer.observe(node.parentElement || node);
     void document.fonts.ready.then(fitText);
     document.fonts.addEventListener('loadingdone', fitText);
-    return () => { active = false; document.fonts.removeEventListener('loadingdone', fitText); };
-  }, [props.value, props.style?.fontSize, maxRenderHeight]);
+    return () => { active = false; observer.disconnect(); document.fonts.removeEventListener('loadingdone', fitText); };
+  }, [props.value, props.style?.fontSize, props.style?.fontFamily, maxRenderHeight]);
   if (!props.readOnly) return <TextareaAutosize {...props} />;
   if (!props.value) return null;
   return <div ref={textRef} data-render-text className={props.className} style={{ ...props.style, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{props.value}</div>;
 }
 
-export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth, prevCanvas, nextCanvas, nextNextCanvas, settings, renderId }: CanvasEditorProps) {
+export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanvas, index, total, isPreviewMode = false, editableTextBox = false, targetWidth, prevCanvas, nextCanvas, nextNextCanvas, settings, renderId }: CanvasEditorProps) {
+  const [resizeDraft, setResizeDraft] = useState<Partial<CanvasItem> | null>(null);
+  const canvas = resizeDraft ? { ...savedCanvas, ...resizeDraft } : savedCanvas;
+  const resizeCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => resizeCleanup.current?.(), []);
   const { 
     globalSettings: liveSettings,
     updateCanvas, 
@@ -497,42 +541,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
   const layoutConfig = getLayoutConfig();
 
-  const getDefaultTextBoxWidth = (layout: LayoutType): number => {
-    switch (layout) {
-      case 'multi-screen-right':
-      case 'multi-screen-left':
-      case 'multi-screen-center':
-        return 88;
-      case 'half-right':
-      case 'half-left':
-        return 50;
-      case 'banner-stack-right':
-        return 48;
-      case 'banner-kinetic-stack':
-        return 44;
-      case 'og-style-1':
-        return 50;
-      case 'og-style-2':
-        return 48;
-      case 'og-style-3':
-        return 45;
-      case '3d-isometric-right':
-      case '3d-isometric-left':
-        return 58;
-      case 'tilt-right':
-      case 'tilt-left':
-      case 'tilt-right-complement':
-      case 'tilt-left-complement':
-      case 'tilt-bottom-right':
-      case 'tilt-bottom-left':
-        return 60;
-      case 'hero-center':
-      case 'hero-3d-center':
-        return 85;
-      default:
-        return 100;
-    }
-  };
 
   const defaultTextBoxWidth = getDefaultTextBoxWidth(currentLayout);
   const currentTextBoxWidth = canvas.textBoxWidth ?? defaultTextBoxWidth;
@@ -559,6 +567,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     const initialWidth = currentTextBoxWidth;
     const initialTitleSize = effectiveTitleFontSize;
     const initialSubSize = effectiveSubtitleFontSize;
+    let changes: Partial<CanvasItem> | null = null;
+    const previewResize = (next: Partial<CanvasItem>) => { changes = next; setResizeDraft(next); };
 
     document.body.style.userSelect = 'none';
     if (handle === 'corner') {
@@ -574,11 +584,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
       if (handle === 'right') {
         const deltaPct = (deltaX / canvasWidth) * 100;
         const newWidth = Math.min(100, Math.max(25, Math.round(initialWidth + deltaPct)));
-        updateCanvas(canvas.id, { textBoxWidth: newWidth });
+        previewResize({ textBoxWidth: newWidth });
       } else if (handle === 'left') {
         const deltaPct = (-deltaX / canvasWidth) * 100;
         const newWidth = Math.min(100, Math.max(25, Math.round(initialWidth + deltaPct)));
-        updateCanvas(canvas.id, { textBoxWidth: newWidth });
+        previewResize({ textBoxWidth: newWidth });
       } else if (handle === 'corner') {
         const deltaFont = Math.round(deltaY * 0.15);
         const newFontSize = Math.min(72, Math.max(16, initialTitleSize + deltaFont));
@@ -587,7 +597,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
         const deltaPct = ((deltaX * (effectiveTextAlign === 'right' ? -1 : 1)) / canvasWidth) * 100;
         const newWidth = Math.min(100, Math.max(25, Math.round(initialWidth + deltaPct)));
 
-        updateCanvas(canvas.id, {
+        previewResize({
           textBoxWidth: newWidth,
           titleFontSize: newFontSize,
           subtitleFontSize: newSubSize,
@@ -596,15 +606,28 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     };
 
     const onPointerUp = () => {
+      if (changes) updateCanvas(canvas.id, changes);
+      setResizeDraft(null);
       setIsResizingTextBox(false);
+      cleanup();
+    };
+    const onPointerCancel = () => {
+      setResizeDraft(null);
+      setIsResizingTextBox(false);
+      cleanup();
+    };
+    const cleanup = () => {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerCancel);
+      resizeCleanup.current = null;
     };
-
+    resizeCleanup.current = cleanup;
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerCancel);
   };
 
   const handleBadgePointerDown = (e: React.PointerEvent) => {
@@ -843,10 +866,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   return (
     <div 
       id={`card-${canvas.id}`}
+      data-slide-render
       onPointerDown={() => { if (!isPreviewMode) useEditorStore.getState().selectCanvas(canvas.id); }}
       className={`flex flex-col flex-shrink-0 group relative transition-transform duration-200 ${
         targetWidth
-          ? 'items-center pointer-events-none snap-center'
+          ? `items-center ${editableTextBox ? '' : 'pointer-events-none'} snap-center`
           : isPreviewMode 
             ? 'w-screen h-screen items-center justify-center snap-center' 
             : 'items-center'
@@ -2280,7 +2304,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
       {/* Scaled Preview Canvas */}
       <div
         className={`origin-top overflow-hidden transition-all duration-150 ${
-          isPreviewMode ? 'pointer-events-none' : 'shadow-2xl rounded-3xl border border-black/20'
+          isPreviewMode ? (editableTextBox ? '' : 'pointer-events-none') : 'shadow-2xl rounded-3xl border border-black/20'
         }`}
         style={{ 
           transform: `scale(${zoomScale})`,
@@ -2390,7 +2414,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               }}
             >
               {/* Visual selection outline on hover/resizing (no-export) */}
-              {!isPreviewMode && (
+              {(!isPreviewMode || editableTextBox) && (
                 <div className={`absolute inset-0 rounded-2xl border transition-colors pointer-events-none no-export ${
                   isResizingTextBox
                     ? 'border-indigo-500 ring-2 ring-indigo-500/40 bg-indigo-500/5'
@@ -2399,7 +2423,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               )}
 
               {/* Interactive Resize Handles & Dimensions HUD (no-export) */}
-              {!isPreviewMode && (
+              {(!isPreviewMode || editableTextBox) && (
                 <>
                   {/* Floating HUD on hover or active */}
                   <div className={`absolute -top-8 left-1/2 -translate-x-1/2 no-export ${
@@ -2463,7 +2487,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   {effectiveTextAlign !== 'right' && (
                     <div
                       onPointerDown={(e) => handleResizeStart(e, 'right')}
-                      className={`absolute -right-2.5 top-1/2 -translate-y-1/2 w-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center cursor-ew-resize shadow-2xl z-40 transition-transform hover:scale-110 no-export ${
+                      className={`absolute ${editableTextBox ? 'right-1' : '-right-2.5'} top-1/2 -translate-y-1/2 w-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center cursor-ew-resize shadow-2xl z-40 transition-transform hover:scale-110 no-export ${
                         isResizingTextBox ? 'opacity-100 scale-110' : 'opacity-0 group-hover/textbox:opacity-100 focus-within:opacity-100'
                       } border border-white/40`}
                       title="Drag to resize text box width"
@@ -2476,7 +2500,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   {effectiveTextAlign !== 'left' && (
                     <div
                       onPointerDown={(e) => handleResizeStart(e, 'left')}
-                      className={`absolute -left-2.5 top-1/2 -translate-y-1/2 w-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center cursor-ew-resize shadow-2xl z-40 transition-transform hover:scale-110 no-export ${
+                      className={`absolute ${editableTextBox ? 'left-1' : '-left-2.5'} top-1/2 -translate-y-1/2 w-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center cursor-ew-resize shadow-2xl z-40 transition-transform hover:scale-110 no-export ${
                         isResizingTextBox ? 'opacity-100 scale-110' : 'opacity-0 group-hover/textbox:opacity-100 focus-within:opacity-100'
                       } border border-white/40`}
                       title="Drag to resize text box width"
@@ -2489,7 +2513,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   <div
                     onPointerDown={(e) => handleResizeStart(e, 'corner')}
                     className={`absolute bottom-0 ${
-                      effectiveTextAlign === 'right' ? '-left-2.5' : '-right-2.5'
+                      effectiveTextAlign === 'right' ? (editableTextBox ? 'left-1' : '-left-2.5') : (editableTextBox ? 'right-1' : '-right-2.5')
                     } translate-y-2.5 w-5 h-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center ${
                       effectiveTextAlign === 'right' ? 'cursor-nesw-resize' : 'cursor-nwse-resize'
                     } shadow-2xl z-40 transition-transform hover:scale-125 no-export ${
