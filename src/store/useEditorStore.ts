@@ -8,6 +8,9 @@ import { DEFAULT_LANGUAGE } from '@/config/languages';
 import { type StatusBarConfig, DEFAULT_STATUS_BAR } from '@/config/statusBar';
 import { type PanoramaSettings, PANORAMA_PRESETS } from '@/config/panoramas';
 import type { FloatingCardConfig, CalloutPinConfig } from '@/config/floatingCards';
+import { type ShadowSettings, DEFAULT_SHADOW } from '@/utils/shadowEngine';
+import { type BackdropEffects, DEFAULT_BACKDROP_EFFECTS, POSTSPARK_COLOR_PALETTE } from '@/config/backgrounds';
+import { getContrastColor } from '@/utils/imageProcessor';
 import FileSaver from 'file-saver';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
@@ -57,7 +60,9 @@ export type LayoutType =
   | 'banner-kinetic-stack'
   | 'multi-screen-right'
   | 'multi-screen-left'
-  | 'multi-screen-center';
+  | 'multi-screen-center'
+  | 'trio-row'
+  | 'duo-row';
 
 export type CanvasItem = {
   id: string;
@@ -96,6 +101,9 @@ export type CanvasItem = {
   titleFontSize?: number;
   subtitleFontSize?: number;
   textAlign?: 'left' | 'center' | 'right';
+  shadow?: ShadowSettings;
+  backdropEffects?: BackdropEffects;
+  rotationAngle?: number;
 };
 
 export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';
@@ -114,6 +122,9 @@ export type GlobalSettings = {
   activeLanguage?: string;
   statusBar?: StatusBarConfig;
   panorama?: PanoramaSettings;
+  shadow?: ShadowSettings;
+  backdropEffects?: BackdropEffects;
+  aspectRatio?: string;
 };
 
 export interface Project {
@@ -194,6 +205,14 @@ interface EditorState {
   addCalloutPin: (canvasId: string, pin: Omit<CalloutPinConfig, 'id'>) => void;
   removeCalloutPin: (canvasId: string, pinId: string) => void;
 
+  // PostSpark Studio Mockup Controls (Shadows, Backdrops, Aspect Ratio)
+  updateShadow: (updates: Partial<ShadowSettings>) => void;
+  updateBackdropEffects: (updates: Partial<BackdropEffects>) => void;
+  setAspectRatio: (aspectRatio: string) => void;
+  rotateMockup: (canvasId?: string) => void;
+  shuffleBackground: () => void;
+  resetCanvasAdjustments: (canvasId?: string) => void;
+
   clearAllCanvases: () => void;
   loadTemplate: (canvases: CanvasItem[]) => void;
   isPreviewMode: boolean;
@@ -229,6 +248,9 @@ const defaultGlobalSettings: GlobalSettings = {
     enabled: false,
     presetId: 'aurora-borealis',
   },
+  shadow: DEFAULT_SHADOW,
+  backdropEffects: DEFAULT_BACKDROP_EFFECTS,
+  aspectRatio: '4:3',
 };
 
 const initialDefaultCanvas: CanvasItem = {
@@ -236,10 +258,13 @@ const initialDefaultCanvas: CanvasItem = {
   imageSrc: null,
   title: 'Amazing Features',
   subtitle: 'Discover what makes our app great',
-  layout: 'basic-top',
-  backgroundColor: '#000000',
-  textColor: '#ffffff',
+  layout: 'trio-row',
+  backgroundColor: '#fce7f3',
+  textColor: '#0f172a',
   fontFamily: DEFAULT_FONT,
+  shadow: DEFAULT_SHADOW,
+  backdropEffects: DEFAULT_BACKDROP_EFFECTS,
+  rotationAngle: 0,
   badge: {
     enabled: true,
     icon: 'star',
@@ -752,6 +777,100 @@ export const useEditorStore = create<EditorState>()(
             return pushHistory(state, state.canvases, nextSettings);
           }
           return state;
+        }),
+
+      updateShadow: (updates) =>
+        set((state) => {
+          const currentShadow = state.globalSettings.shadow || DEFAULT_SHADOW;
+          const nextShadow = { ...currentShadow, ...updates };
+          const nextSettings = {
+            ...state.globalSettings,
+            shadow: nextShadow,
+          };
+          const nextCanvases = state.canvases.map((c) => ({
+            ...c,
+            shadow: { ...(c.shadow || currentShadow), ...updates },
+          }));
+          return pushHistory(state, nextCanvases, nextSettings);
+        }),
+
+      updateBackdropEffects: (updates) =>
+        set((state) => {
+          const currentEffects = state.globalSettings.backdropEffects || DEFAULT_BACKDROP_EFFECTS;
+          const nextEffects = { ...currentEffects, ...updates };
+          const nextSettings = {
+            ...state.globalSettings,
+            backdropEffects: nextEffects,
+          };
+          const nextCanvases = state.canvases.map((c) => ({
+            ...c,
+            backdropEffects: { ...(c.backdropEffects || currentEffects), ...updates },
+          }));
+          return pushHistory(state, nextCanvases, nextSettings);
+        }),
+
+      setAspectRatio: (aspectRatio) =>
+        set((state) => {
+          const nextSettings = {
+            ...state.globalSettings,
+            aspectRatio,
+          };
+          return pushHistory(state, state.canvases, nextSettings);
+        }),
+
+      rotateMockup: (canvasId) =>
+        set((state) => {
+          const targetId = canvasId || state.canvases[0]?.id;
+          if (!targetId) return state;
+          const angles = [0, 8, -8, 15, -15];
+          const nextCanvases = state.canvases.map((c) => {
+            if (c.id === targetId) {
+              const currentAngle = c.rotationAngle || 0;
+              const currentIndex = angles.indexOf(currentAngle);
+              const nextAngle = angles[(currentIndex + 1) % angles.length];
+              return { ...c, rotationAngle: nextAngle };
+            }
+            return c;
+          });
+          return pushHistory(state, nextCanvases);
+        }),
+
+      shuffleBackground: () =>
+        set((state) => {
+          const randomIndex = Math.floor(Math.random() * POSTSPARK_COLOR_PALETTE.length);
+          const chosenColor = POSTSPARK_COLOR_PALETTE[randomIndex];
+          const textColor = getContrastColor(chosenColor);
+          const nextCanvases = state.canvases.map((c) => ({
+            ...c,
+            backgroundColor: chosenColor,
+            textColor,
+          }));
+          return pushHistory(state, nextCanvases);
+        }),
+
+      resetCanvasAdjustments: (canvasId) =>
+        set((state) => {
+          const targetId = canvasId || state.canvases[0]?.id;
+          const nextCanvases = state.canvases.map((c) => {
+            if (!targetId || c.id === targetId) {
+              return {
+                ...c,
+                rotationAngle: 0,
+                imageZoom: 1,
+                imageRotation: 0,
+                shadow: DEFAULT_SHADOW,
+                backdropEffects: DEFAULT_BACKDROP_EFFECTS,
+              };
+            }
+            return c;
+          });
+          const nextSettings = {
+            ...state.globalSettings,
+            shadow: DEFAULT_SHADOW,
+            backdropEffects: DEFAULT_BACKDROP_EFFECTS,
+            zoomScale: 0.65,
+          };
+          return pushHistory(state, nextCanvases, nextSettings);
         }),
 
       setZoomScale: (scale) =>

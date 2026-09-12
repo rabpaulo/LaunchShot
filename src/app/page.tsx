@@ -12,6 +12,10 @@ import { IoDownloadOutline, IoGlobeOutline } from 'react-icons/io5';
 import { CanvasEditor } from '@/components/CanvasEditor';
 import { useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
+import { LayoutPresetStrip } from '@/components/LayoutPresetStrip';
+import { BackdropShadowInspector } from '@/components/BackdropShadowInspector';
+import { FloatingToolbar } from '@/components/FloatingToolbar';
+import { copyCanvasToClipboard } from '@/utils/export';
 import {
   IoCloudUploadOutline,
   IoSparklesOutline,
@@ -33,6 +37,9 @@ import {
   IoArrowUndoOutline,
   IoArrowRedoOutline,
   IoFolderOpenOutline,
+  IoCopyOutline,
+  IoLayersOutline,
+  IoOptionsOutline,
 } from 'react-icons/io5';
 
 import { useShallow } from 'zustand/react/shallow';
@@ -80,6 +87,9 @@ export default function Home() {
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showTranslationModal, setShowTranslationModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [leftPanel, setLeftPanel] = useState<'layouts' | 'full'>('layouts');
+  const [isInspectorOpen, setIsInspectorOpen] = useState(true);
+  const [isCopying, setIsCopying] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -87,6 +97,23 @@ export default function Home() {
   const isDark = globalSettings.theme !== 'light';
 
   const currentProject = (projects && projects.length > 0 ? (projects.find(p => p.id === activeProjectId) || projects[0]) : null) || { name: 'Default Project', id: 'default-project' };
+
+  const handleCopyCurrent = async () => {
+    if (canvases.length === 0) return;
+    setIsCopying(true);
+    try {
+      const success = await copyCanvasToClipboard(canvases[0].id);
+      if (success) {
+        toast.success('Mockup copied to clipboard!');
+      } else {
+        toast.error('Could not copy image to clipboard in this browser');
+      }
+    } catch {
+      toast.error('Failed to copy mockup');
+    } finally {
+      setIsCopying(false);
+    }
+  };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -224,7 +251,13 @@ export default function Home() {
         </div>
       )}
 
-      {!isPreviewMode && <Sidebar />}
+      {!isPreviewMode && (
+        leftPanel === 'layouts' ? (
+          <LayoutPresetStrip />
+        ) : (
+          <Sidebar />
+        )
+      )}
       
       {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
       
@@ -247,8 +280,40 @@ export default function Home() {
               ? 'bg-zinc-950/90 backdrop-blur-md border-gray-800/80 text-gray-200' 
               : 'bg-white/90 backdrop-blur-md border-gray-200/80 text-gray-800'
           }`}>
-          {/* Left: Project Selector & Undo/Redo */}
+          {/* Left: Project Selector, Left Panel Toggle & Undo/Redo */}
           <div className="flex items-center space-x-2.5 h-full">
+            {/* Left Panel Mode Switcher: Layouts vs Full Studio Tools */}
+            <div className={`flex items-center rounded-lg border p-0.5 ${
+              isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-gray-100 border-gray-200'
+            }`}>
+              <button
+                type="button"
+                onClick={() => setLeftPanel('layouts')}
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md flex items-center gap-1.5 transition-all ${
+                  leftPanel === 'layouts'
+                    ? isDark ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white text-zinc-900 shadow-sm'
+                    : isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-500 hover:text-zinc-900'
+                }`}
+                title="Visual Layout Presets"
+              >
+                <IoLayersOutline className="w-3.5 h-3.5 text-blue-400" />
+                <span>Layouts</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeftPanel('full')}
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md flex items-center gap-1.5 transition-all ${
+                  leftPanel === 'full'
+                    ? isDark ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white text-zinc-900 shadow-sm'
+                    : isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-500 hover:text-zinc-900'
+                }`}
+                title="Full Studio Tools & Copywriter"
+              >
+                <IoOptionsOutline className="w-3.5 h-3.5 text-amber-400" />
+                <span>Tools</span>
+              </button>
+            </div>
+
             {/* Project Pill */}
             <button
               onClick={() => setShowProjectModal(true)}
@@ -413,6 +478,41 @@ export default function Home() {
               Translations ({(globalSettings.activeLanguage || 'en').toUpperCase()})
             </button>
 
+            {/* Inspector Toggle Button */}
+            <button
+              onClick={() => setIsInspectorOpen(!isInspectorOpen)}
+              className={`ml-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+                isInspectorOpen
+                  ? isDark
+                    ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
+                    : 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : isDark
+                    ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700'
+                    : 'bg-white text-zinc-700 border border-gray-200 hover:bg-gray-50'
+              }`}
+              title="Toggle Backdrop & Shadow Inspector"
+            >
+              <IoColorPaletteOutline className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
+              Inspector
+            </button>
+
+            {/* Quick Copy to Clipboard Button */}
+            <button
+              disabled={canvases.length === 0 || isCopying}
+              onClick={handleCopyCurrent}
+              className={`ml-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center shadow-sm ${
+                canvases.length === 0
+                  ? 'opacity-40 cursor-not-allowed text-zinc-500'
+                  : isDark
+                    ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
+                    : 'bg-white text-zinc-800 border border-gray-200 hover:bg-gray-50'
+              }`}
+              title="Copy current mockup to clipboard as HD PNG"
+            >
+              <IoCopyOutline className={`w-3.5 h-3.5 mr-1.5 ${isCopying ? 'animate-spin' : 'text-blue-400'}`} />
+              {isCopying ? 'Copying...' : 'Copy'}
+            </button>
+
             {/* Top Toolbar Preview Button */}
             <button
               onClick={togglePreviewMode}
@@ -481,54 +581,73 @@ export default function Home() {
           </>
         )}
 
-        {/* Scrollable Canvases Container */}
-        <div 
-          ref={scrollContainerRef}
-          onWheel={handleWheel}
-          className={`flex-1 overflow-x-auto overflow-y-auto flex scroll-smooth ${
-            globalSettings.viewMode === 'vertical' ? 'flex-col items-center' : 'items-start'
-          } ${
-            isPreviewMode 
-              ? `items-center justify-start pt-0 pb-0 gap-0 snap-mandatory ${globalSettings.viewMode === 'vertical' ? 'snap-y' : 'snap-x'}` 
-              : 'pt-12 pb-32 px-12 gap-12'
-          }`}
-        >
-          {canvases.map((canvas, index) => (
-            <CanvasEditor 
-              key={canvas.id} 
-              canvas={canvas} 
-              index={index} 
-              total={canvases.length} 
-              isPreviewMode={isPreviewMode}
-              prevCanvas={canvases[index - 1]}
-              nextCanvas={canvases[index + 1]}
-              nextNextCanvas={canvases[index + 2]}
-            />
-          ))}
-          
-          {/* Add Slide Quick Button at End */}
+        {/* Workspace body with canvas container and right inspector */}
+        <div className="flex-1 flex overflow-hidden relative">
+          {/* Scrollable Canvases Container */}
           <div 
-            className={`flex flex-col items-center justify-center min-w-[200px] h-[520px] rounded-3xl transition-all cursor-pointer group flex-shrink-0 ${
-              isDark 
-                ? 'border-2 border-dashed border-gray-800 bg-zinc-900/40 hover:bg-zinc-900/90 hover:border-zinc-500' 
-                : 'border-2 border-dashed border-gray-300 bg-white/40 hover:bg-white/80 hover:border-zinc-400'
+            ref={scrollContainerRef}
+            onWheel={handleWheel}
+            className={`flex-1 overflow-x-auto overflow-y-auto flex scroll-smooth ${
+              globalSettings.viewMode === 'vertical' ? 'flex-col items-center' : 'items-start'
+            } ${
+              isPreviewMode 
+                ? `items-center justify-start pt-0 pb-0 gap-0 snap-mandatory ${globalSettings.viewMode === 'vertical' ? 'snap-y' : 'snap-x'}` 
+                : 'pt-12 pb-32 px-12 gap-12'
             }`}
-            onClick={() => addCanvas()}
           >
-            <div className={`p-4 rounded-full group-hover:scale-110 transition-transform mb-3 shadow-sm ${
-              isDark ? 'bg-zinc-900/40 text-zinc-400' : 'bg-zinc-50 text-zinc-600'
-            }`}>
-              <IoAdd className="w-8 h-8" />
+            {canvases.map((canvas, index) => (
+              <CanvasEditor 
+                key={canvas.id} 
+                canvas={canvas} 
+                index={index} 
+                total={canvases.length} 
+                isPreviewMode={isPreviewMode}
+                prevCanvas={canvases[index - 1]}
+                nextCanvas={canvases[index + 1]}
+                nextNextCanvas={canvases[index + 2]}
+              />
+            ))}
+            
+            {/* Add Slide Quick Button at End */}
+            <div 
+              className={`flex flex-col items-center justify-center min-w-[200px] h-[520px] rounded-3xl transition-all cursor-pointer group flex-shrink-0 ${
+                isDark 
+                  ? 'border-2 border-dashed border-gray-800 bg-zinc-900/40 hover:bg-zinc-900/90 hover:border-zinc-500' 
+                  : 'border-2 border-dashed border-gray-300 bg-white/40 hover:bg-white/80 hover:border-zinc-400'
+              }`}
+              onClick={() => addCanvas()}
+            >
+              <div className={`p-4 rounded-full group-hover:scale-110 transition-transform mb-3 shadow-sm ${
+                isDark ? 'bg-zinc-900/40 text-zinc-400' : 'bg-zinc-50 text-zinc-600'
+              }`}>
+                <IoAdd className="w-8 h-8" />
+              </div>
+              <span className={`text-sm font-bold tracking-tight transition-colors ${
+                isDark ? 'text-gray-500 group-hover:text-zinc-400' : 'text-gray-400 group-hover:text-zinc-600'
+              }`}>
+                Add New Slide
+              </span>
             </div>
-            <span className={`text-sm font-bold tracking-tight transition-colors ${
-              isDark ? 'text-gray-500 group-hover:text-zinc-400' : 'text-gray-400 group-hover:text-zinc-600'
-            }`}>
-              Add New Slide
-            </span>
+
+            <div className="w-20 h-full flex-shrink-0" />
           </div>
 
-          <div className="w-20 h-full flex-shrink-0" />
+          {/* Right Inspector */}
+          {!isPreviewMode && (
+            <BackdropShadowInspector 
+              isOpen={isInspectorOpen} 
+              onClose={() => setIsInspectorOpen(false)} 
+            />
+          )}
         </div>
+
+        {/* Floating Toolbar Dock at Bottom */}
+        {!isPreviewMode && (
+          <FloatingToolbar 
+            onToggleInspector={() => setIsInspectorOpen((prev) => !prev)}
+            isInspectorOpen={isInspectorOpen}
+          />
+        )}
       </main>
     </div>
   );

@@ -1,5 +1,8 @@
 export type TargetSizeId = 
   // iPhone
+  | 'ios-iphone-17'
+  | 'ios-iphone-17-pro'
+  | 'ios-iphone-17-pro-max'
   | 'ios-6.9'
   | 'ios-6.5'
   | 'ios-6.3'
@@ -60,6 +63,37 @@ export interface TargetSizeConfig {
 }
 
 export const TARGET_SIZES: Record<TargetSizeId, TargetSizeConfig> = {
+  // iPhone 17 Series
+  'ios-iphone-17': {
+    id: 'ios-iphone-17',
+    name: 'iPhone 17 (6.3" 1206x2622)',
+    category: 'iPhone',
+    width: 1206,
+    height: 2622,
+    logicalWidth: 402,
+    logicalHeight: 874,
+    pixelRatio: 3,
+  },
+  'ios-iphone-17-pro': {
+    id: 'ios-iphone-17-pro',
+    name: 'iPhone 17 Pro (6.3" 1206x2622)',
+    category: 'iPhone',
+    width: 1206,
+    height: 2622,
+    logicalWidth: 402,
+    logicalHeight: 874,
+    pixelRatio: 3,
+  },
+  'ios-iphone-17-pro-max': {
+    id: 'ios-iphone-17-pro-max',
+    name: 'iPhone 17 Pro Max (6.9" 1320x2868)',
+    category: 'iPhone',
+    width: 1320,
+    height: 2868,
+    logicalWidth: 440,
+    logicalHeight: 956,
+    pixelRatio: 3,
+  },
   // iPhone
   'ios-6.9': {
     id: 'ios-6.9',
@@ -344,3 +378,19 @@ export const TARGET_SIZES: Record<TargetSizeId, TargetSizeConfig> = {
 };
 
 export const DEFAULT_SIZE: TargetSizeId = 'ios-6.5';
+
+export interface AspectRatioOption {
+  id: string;
+  label: string;
+  ratio: number;
+  description: string;
+}
+
+export const ASPECT_RATIOS: AspectRatioOption[] = [
+  { id: '4:3', label: '4:3', ratio: 4 / 3, description: 'Standard (4:3)' },
+  { id: '16:9', label: '16:9', ratio: 16 / 9, description: 'Landscape (16:9)' },
+  { id: '1:1', label: '1:1', ratio: 1, description: 'Square (1:1)' },
+  { id: '9:16', label: '9:16', ratio: 9 / 16, description: 'Portrait / Story (9:16)' },
+  { id: '3:2', label: '3:2', ratio: 3 / 2, description: 'Classic (3:2)' },
+  { id: 'auto', label: 'Device', ratio: 0, description: 'Device Native' },
+];

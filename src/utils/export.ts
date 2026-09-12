@@ -155,3 +155,36 @@ export const exportImages = async (
     alert('Failed to generate any images.');
   }
 };
+
+export const copyCanvasToClipboard = async (canvasId: string): Promise<boolean> => {
+  const canvasNode = document.getElementById(`canvas-${canvasId}`);
+  if (!canvasNode) return false;
+  try {
+    if (typeof document !== 'undefined' && document.fonts) {
+      await document.fonts.ready;
+    }
+    const blob = await toBlob(canvasNode, {
+      quality: 1,
+      pixelRatio: 2,
+      cacheBust: true,
+      filter: (node) => {
+        if (node instanceof HTMLElement && node.classList.contains('no-export')) {
+          return false;
+        }
+        return true;
+      },
+    });
+    if (!blob) return false;
+    if (navigator.clipboard && window.ClipboardItem) {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob }),
+      ]);
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error('Failed to copy to clipboard', err);
+    return false;
+  }
+};
+

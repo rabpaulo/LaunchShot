@@ -190,3 +190,33 @@ export const BACKGROUND_PRESETS: BackgroundPreset[] = [
     textColor: '#ffffff',
   },
 ];
+
+export interface BackdropEffects {
+  overlay: boolean;
+  effects: boolean;
+  pattern: boolean;
+  vignette: boolean;
+  mode: 'none' | 'solid' | 'gradient' | 'image';
+}
+
+export const DEFAULT_BACKDROP_EFFECTS: BackdropEffects = {
+  overlay: false,
+  effects: false,
+  pattern: false,
+  vignette: false,
+  mode: 'solid',
+};
+
+export const POSTSPARK_COLOR_PALETTE: string[] = [
+  // Row 1: Soft Pastels
+  '#fdf2f8', '#fff1f2', '#fff7ed', '#fefce8', '#f0fdf4', '#ecfeff', '#eff6ff', '#faf5ff',
+  // Row 2: Fresh Tones
+  '#fce7f3', '#ffe4e6', '#ffedd5', '#fef9c3', '#dcfce7', '#cffafe', '#dbeafe', '#f3e8ff',
+  // Row 3: Modern Neutrals & Monochromes
+  '#ffffff', '#f8fafc', '#e2e8f0', '#94a3b8', '#64748b', '#334155', '#1e293b', '#09090b',
+  // Row 4: Bright Accents
+  '#f43f5e', '#fb923c', '#facc15', '#4ade80', '#2dd4bf', '#38bdf8', '#818cf8', '#c084fc',
+  // Row 5: Deep & Jewel Tones
+  '#be123c', '#c2410c', '#a16207', '#15803d', '#0f766e', '#0369a1', '#4338ca', '#7e22ce',
+];
+

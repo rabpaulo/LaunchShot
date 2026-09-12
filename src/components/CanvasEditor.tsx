@@ -90,6 +90,8 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'og-style-2', label: 'Social Graphic - Angled Focus' },
   { value: 'og-style-3', label: 'Social Graphic - 3D Perspective' },
   { value: 'device-only', label: 'Device Only (Clean Mockup)' },
+  { value: 'trio-row', label: 'Trio Row (3 Mockups Side-by-Side)' },
+  { value: 'duo-row', label: 'Duo Row (2 Mockups Side-by-Side)' },
 ];
 
 function getContrastColor(hex: string) {
@@ -256,6 +258,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     else if (currentLayout === 'tilt-right' || currentLayout === 'tilt-left' || currentLayout === 'tilt-right-complement' || currentLayout === 'tilt-left-complement') heightFactor = 0.68;
     else if (currentLayout === 'tilt-bottom-right' || currentLayout === 'tilt-bottom-left') heightFactor = 0.66;
     else if (currentLayout === 'split-vertical') heightFactor = 0.52;
+    else if (currentLayout === 'trio-row') heightFactor = 0.58;
+    else if (currentLayout === 'duo-row') heightFactor = 0.68;
     else if (isMultiScreen) heightFactor = 0.66;
     else if (isCompact) heightFactor = 0.54;
 
@@ -459,6 +463,20 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           containerClass: "flex flex-col items-center justify-start overflow-hidden pt-10 relative",
           textContainerClass: "w-[85%] text-center z-20 flex flex-col justify-center items-center gap-1.5 pt-2",
           phoneWrapperClass: "absolute bottom-[-20%] z-10 scale-[1.12]",
+          textAlign: "center" as const,
+        };
+      case 'trio-row':
+        return {
+          containerClass: "w-full h-full flex flex-col justify-center items-center overflow-hidden relative",
+          textContainerClass: "hidden",
+          phoneWrapperClass: "w-full h-full flex flex-row items-center justify-center gap-3 sm:gap-5 lg:gap-7 px-4 z-10",
+          textAlign: "center" as const,
+        };
+      case 'duo-row':
+        return {
+          containerClass: "w-full h-full flex flex-col justify-center items-center overflow-hidden relative",
+          textContainerClass: "hidden",
+          phoneWrapperClass: "w-full h-full flex flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 px-6 z-10",
           textAlign: "center" as const,
         };
       default:
@@ -2276,6 +2294,34 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             fontFamily: fontConfig.fontFamily,
           }}
         >
+          {/* Custom Background Image */}
+          {canvas.backgroundImageSrc && (
+            <div
+              className="absolute inset-0 bg-cover bg-center pointer-events-none z-0"
+              style={{ backgroundImage: `url(${canvas.backgroundImageSrc})` }}
+            />
+          )}
+
+          {/* Backdrop Pattern Effect */}
+          {(canvas.backdropEffects?.pattern ?? globalSettings.backdropEffects?.pattern) && (
+            <div className="absolute inset-0 pointer-events-none z-0 opacity-25 [background-image:radial-gradient(rgba(0,0,0,0.4)_1px,transparent_1px)] [background-size:20px_20px]" />
+          )}
+
+          {/* Backdrop Vignette Effect */}
+          {(canvas.backdropEffects?.vignette ?? globalSettings.backdropEffects?.vignette) && (
+            <div className="absolute inset-0 pointer-events-none z-0 [background:radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.38)_100%)]" />
+          )}
+
+          {/* Backdrop Overlay Tint Effect */}
+          {(canvas.backdropEffects?.overlay ?? globalSettings.backdropEffects?.overlay) && (
+            <div className="absolute inset-0 pointer-events-none z-0 bg-black/15 backdrop-blur-[0.5px]" />
+          )}
+
+          {/* Backdrop Center Glow Effect */}
+          {(canvas.backdropEffects?.effects ?? globalSettings.backdropEffects?.effects) && (
+            <div className="absolute inset-0 pointer-events-none z-0 [background:radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.22)_0%,transparent_65%)]" />
+          )}
+
           {/* Floating UI Cards */}
           {canvas.floatingCards?.map((card) => (
             <FloatingCard
@@ -2619,7 +2665,289 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 onDrop={handlePhoneDrop}
               >
-            {isMultiScreen ? (
+            {currentLayout === 'trio-row' ? (
+              <div className="w-full h-full flex flex-row items-center justify-center gap-3 sm:gap-5 lg:gap-7 px-4">
+                {/* Slot 2 (Left Phone) */}
+                <div
+                  className="rounded-[36px] cursor-pointer transition-transform duration-300 hover:scale-[1.02] flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    uploadSlotRef.current = 'secondary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'secondary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  style={{
+                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                  }}
+                >
+                  <MinimalPhoneFrame 
+                    width={Math.round(phoneW * 0.74)} 
+                    height={Math.round(phoneH * 0.74)} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
+                  >
+                    {slot2Image ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={{ ...canvas, imageSrc: slot2Image }} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'secondary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white font-medium text-xs rounded-full transition-colors flex items-center gap-1.5"
+                          >
+                            <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                            Change Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => {
+                          uploadSlotRef.current = 'secondary';
+                          fileInputRef.current?.click();
+                        }}
+                        className="w-full h-full flex flex-col items-center justify-center bg-[#111215] [background-image:linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] cursor-pointer group/placeholder select-none transition-colors"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-white/10 group-hover/placeholder:bg-white/20 border border-white/20 flex items-center justify-center text-white/80 group-hover/placeholder:text-white group-hover/placeholder:scale-110 transition-all shadow-md">
+                          <IoAdd className="w-5 h-5" />
+                        </div>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+
+                {/* Slot 1 (Center Phone - Primary) */}
+                <div
+                  className="rounded-[36px] cursor-pointer transition-transform duration-300 hover:scale-[1.02] flex-shrink-0"
+                  onClick={() => {
+                    uploadSlotRef.current = 'primary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'primary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  style={{
+                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                  }}
+                >
+                  <MinimalPhoneFrame 
+                    width={Math.round(phoneW * 0.74)} 
+                    height={Math.round(phoneH * 0.74)} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
+                  >
+                    {canvas.imageSrc ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={canvas} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'primary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
+                          >
+                            <IoCloudUploadOutline className="w-4 h-4" />
+                            Change Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => {
+                          uploadSlotRef.current = 'primary';
+                          fileInputRef.current?.click();
+                        }}
+                        className="w-full h-full flex flex-col items-center justify-center bg-[#111215] [background-image:linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] cursor-pointer group/placeholder select-none transition-colors"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-white/10 group-hover/placeholder:bg-white/20 border border-white/20 flex items-center justify-center text-white/80 group-hover/placeholder:text-white group-hover/placeholder:scale-110 transition-all shadow-md">
+                          <IoAdd className="w-5 h-5" />
+                        </div>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+
+                {/* Slot 3 (Right Phone) */}
+                <div
+                  className="rounded-[36px] cursor-pointer transition-transform duration-300 hover:scale-[1.02] flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    uploadSlotRef.current = 'tertiary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'tertiary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  style={{
+                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                  }}
+                >
+                  <MinimalPhoneFrame 
+                    width={Math.round(phoneW * 0.74)} 
+                    height={Math.round(phoneH * 0.74)} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
+                  >
+                    {slot3Image ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={{ ...canvas, imageSrc: slot3Image }} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'tertiary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white font-medium text-xs rounded-full transition-colors flex items-center gap-1.5"
+                          >
+                            <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                            Change Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => {
+                          uploadSlotRef.current = 'tertiary';
+                          fileInputRef.current?.click();
+                        }}
+                        className="w-full h-full flex flex-col items-center justify-center bg-[#111215] [background-image:linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] cursor-pointer group/placeholder select-none transition-colors"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-white/10 group-hover/placeholder:bg-white/20 border border-white/20 flex items-center justify-center text-white/80 group-hover/placeholder:text-white group-hover/placeholder:scale-110 transition-all shadow-md">
+                          <IoAdd className="w-5 h-5" />
+                        </div>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+              </div>
+            ) : currentLayout === 'duo-row' ? (
+              <div className="w-full h-full flex flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 px-6">
+                {/* Left Phone (Slot 1) */}
+                <div
+                  className="rounded-[38px] cursor-pointer transition-transform duration-300 hover:scale-[1.02] flex-shrink-0"
+                  onClick={() => {
+                    uploadSlotRef.current = 'primary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'primary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  style={{
+                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                  }}
+                >
+                  <MinimalPhoneFrame 
+                    width={Math.round(phoneW * 0.86)} 
+                    height={Math.round(phoneH * 0.86)} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
+                  >
+                    {canvas.imageSrc ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={canvas} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'primary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white font-medium text-xs rounded-full transition-colors flex items-center gap-1.5"
+                          >
+                            <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                            Change Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => {
+                          uploadSlotRef.current = 'primary';
+                          fileInputRef.current?.click();
+                        }}
+                        className="w-full h-full flex flex-col items-center justify-center bg-[#111215] [background-image:linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] cursor-pointer group/placeholder select-none transition-colors"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-white/10 group-hover/placeholder:bg-white/20 border border-white/20 flex items-center justify-center text-white/80 group-hover/placeholder:text-white group-hover/placeholder:scale-110 transition-all shadow-md">
+                          <IoAdd className="w-5 h-5" />
+                        </div>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+
+                {/* Right Phone (Slot 2) */}
+                <div
+                  className="rounded-[38px] cursor-pointer transition-transform duration-300 hover:scale-[1.02] flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    uploadSlotRef.current = 'secondary';
+                    fileInputRef.current?.click();
+                  }}
+                  onDrop={(e) => handleSpecificPhoneDrop(e, 'secondary')}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  style={{
+                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                  }}
+                >
+                  <MinimalPhoneFrame 
+                    width={Math.round(phoneW * 0.86)} 
+                    height={Math.round(phoneH * 0.86)} 
+                    targetSizeId={globalSettings.targetSize}
+                    mockupStyle={globalSettings.mockupStyle}
+                    showNotch={globalSettings.showNotch}
+                    statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
+                  >
+                    {slot2Image ? (
+                      <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
+                        <CanvasImage canvas={{ ...canvas, imageSrc: slot2Image }} />
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              uploadSlotRef.current = 'secondary';
+                              fileInputRef.current?.click();
+                            }}
+                            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white font-medium text-xs rounded-full transition-colors flex items-center gap-1.5"
+                          >
+                            <IoCloudUploadOutline className="w-3.5 h-3.5" />
+                            Change Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => {
+                          uploadSlotRef.current = 'secondary';
+                          fileInputRef.current?.click();
+                        }}
+                        className="w-full h-full flex flex-col items-center justify-center bg-[#111215] [background-image:linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] cursor-pointer group/placeholder select-none transition-colors"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-white/10 group-hover/placeholder:bg-white/20 border border-white/20 flex items-center justify-center text-white/80 group-hover/placeholder:text-white group-hover/placeholder:scale-110 transition-all shadow-md">
+                          <IoAdd className="w-5 h-5" />
+                        </div>
+                      </div>
+                    )}
+                  </MinimalPhoneFrame>
+                </div>
+              </div>
+            ) : isMultiScreen ? (
               <div className="w-full h-full relative overflow-hidden flex items-center justify-center">
                 {/* Slot 2 (Left Phone) */}
                 <div
@@ -2828,6 +3156,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                    onClick={() => {
                      uploadSlotRef.current = 'primary';
                      fileInputRef.current?.click();
+                   }}
+                   style={{
+                     transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                    }}>
                 <MinimalPhoneFrame 
                   width={phoneW} 
@@ -2836,6 +3167,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   mockupStyle={globalSettings.mockupStyle}
                   showNotch={globalSettings.showNotch}
                   statusBar={canvas.statusBar || globalSettings.statusBar}
+                  shadow={canvas.shadow || globalSettings.shadow}
                 >
                   {canvas.imageSrc ? (
                   <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
@@ -2874,14 +3206,18 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   </div>
                 ) : (
                   <div
-                    className="w-full h-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="w-full h-full flex flex-col items-center justify-center bg-[#111215] [background-image:linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] cursor-pointer group/placeholder select-none transition-colors"
                     onClick={() => {
                       uploadSlotRef.current = 'primary';
                       fileInputRef.current?.click();
                     }}
                   >
-                    <IoCloudUploadOutline className="w-10 h-10 text-gray-400 mb-2" />
-                    <span className="text-xs font-semibold text-gray-500">Upload Screenshot</span>
+                    <div className="w-10 h-10 rounded-full bg-white/10 group-hover/placeholder:bg-white/20 border border-white/20 flex items-center justify-center text-white/80 group-hover/placeholder:text-white group-hover/placeholder:scale-110 transition-all shadow-md">
+                      <IoAdd className="w-5 h-5" />
+                    </div>
+                    <span className="mt-2 text-xs font-semibold text-zinc-500 group-hover/placeholder:text-zinc-300 transition-colors">
+                      Upload Screenshot
+                    </span>
                   </div>
                 )}
               </MinimalPhoneFrame>

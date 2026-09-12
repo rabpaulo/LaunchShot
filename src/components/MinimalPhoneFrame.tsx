@@ -3,6 +3,7 @@ import { TargetSizeId } from '@/config/sizes';
 import { MockupStyle } from '@/store/useEditorStore';
 import { StatusBarConfig } from '@/config/statusBar';
 import { StatusBarOverlay } from './StatusBarOverlay';
+import { ShadowSettings, computeDeviceShadow } from '@/utils/shadowEngine';
 
 export type DeviceStyle = 'apple' | 'samsung-ultra' | 'samsung-base' | 'android' | 'ipad' | 'android-tablet';
 
@@ -14,6 +15,7 @@ interface MinimalPhoneFrameProps {
   mockupStyle?: MockupStyle;
   showNotch?: boolean;
   statusBar?: StatusBarConfig;
+  shadow?: ShadowSettings;
 }
 
 export function getDeviceStyle(targetSizeId?: TargetSizeId): DeviceStyle {
@@ -33,7 +35,8 @@ export function MinimalPhoneFrame({
   targetSizeId = 'ios-6.5',
   mockupStyle = 'dark',
   showNotch = true,
-  statusBar
+  statusBar,
+  shadow
 }: MinimalPhoneFrameProps) {
   const style = getDeviceStyle(targetSizeId);
 
@@ -48,7 +51,9 @@ export function MinimalPhoneFrame({
   const innerRadius = Math.max(4, Math.round(borderRadius * 0.78));
   const bezelPadding = Math.max(5, Math.round(width * 0.024));
 
-  let outerStyleClass = "bg-[#121316] border-white/10 shadow-2xl"; // default dark
+  const customShadow = shadow ? computeDeviceShadow(shadow) : undefined;
+
+  let outerStyleClass = "bg-[#121316] border-white/15 shadow-2xl"; // default dark
   if (mockupStyle === 'light') {
     outerStyleClass = "bg-[#f8fafc] border-gray-300/80 shadow-xl";
   } else if (mockupStyle === 'glass') {
@@ -61,12 +66,13 @@ export function MinimalPhoneFrame({
 
   return (
     <div 
-      className={`relative inline-block overflow-hidden flex-shrink-0 border ${outerStyleClass}`}
+      className={`relative inline-block overflow-hidden flex-shrink-0 border transition-shadow duration-300 ${outerStyleClass}`}
       style={{
         width: `${width}px`,
         height: `${height}px`,
         borderRadius: `${borderRadius}px`,
         padding: `${bezelPadding}px`,
+        ...(customShadow ? { boxShadow: customShadow } : {}),
       }}
     >
       {/* Outer bezel / Screen container */}
