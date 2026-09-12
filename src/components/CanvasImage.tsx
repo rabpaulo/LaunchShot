@@ -1,14 +1,16 @@
 import React from 'react';
 import Cropper from 'react-easy-crop';
-import { CanvasItem, useEditorStore } from '@/store/useEditorStore';
+import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
 
 interface CanvasImageProps {
+  settings?: GlobalSettings;
   canvas: CanvasItem;
   className?: string;
 }
 
-export function CanvasImage({ canvas, className = '' }: CanvasImageProps) {
-  const globalSettings = useEditorStore(s => s.globalSettings);
+export function CanvasImage({ canvas, className = '', settings }: CanvasImageProps) {
+  const liveSettings = useEditorStore(s => s.globalSettings);
+  const globalSettings = settings || liveSettings;
   
   if (!canvas.imageSrc) return null;
 

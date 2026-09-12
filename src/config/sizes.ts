@@ -34,7 +34,7 @@ export type TargetSizeId =
   // Headers & Banners
   | 'play-feature-graphic';
 
-export const DEFAULT_IPHONE_SIZE: TargetSizeId = 'ios-6.5';
+export const DEFAULT_IPHONE_SIZE: TargetSizeId = 'ios-iphone-17-pro-max';
 export const DEFAULT_ANDROID_SIZE: TargetSizeId = 'android-tall';
 
 export function isAndroidDevice(sizeId?: string): boolean {
@@ -377,7 +377,7 @@ export const TARGET_SIZES: Record<TargetSizeId, TargetSizeConfig> = {
   },
 };
 
-export const DEFAULT_SIZE: TargetSizeId = 'ios-6.5';
+export const DEFAULT_SIZE: TargetSizeId = DEFAULT_IPHONE_SIZE;
 
 export interface AspectRatioOption {
   id: string;

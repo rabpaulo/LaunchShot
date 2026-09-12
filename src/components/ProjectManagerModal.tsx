@@ -70,7 +70,7 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
 
     try {
       const text = await file.text();
-      const success = importProjectFile(text);
+      const success = await importProjectFile(text);
       if (success) {
         toast.success('Project imported successfully!');
       } else {
@@ -138,6 +138,7 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
             </button>
 
             <button
+              aria-label="Close projects"
               onClick={onClose}
               className={`p-2 rounded-xl border transition-colors ${
                 isDark ? 'border-zinc-800 hover:bg-zinc-800 text-zinc-400' : 'border-gray-200 hover:bg-gray-100 text-gray-500'
@@ -306,8 +307,9 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
 
                   <button
                     onClick={() => {
-                      exportProjectFile(proj.id);
-                      toast.success(`Exported "${proj.name}.launchshot"`);
+                      void exportProjectFile(proj.id)
+                        .then(() => toast.success(`Exported "${proj.name}.launchshot"`))
+                        .catch(error => toast.error(error.message || 'Project export failed.'));
                     }}
                     className={`p-2 rounded-xl border transition-colors ${
                       isDark ? 'border-zinc-800 hover:bg-zinc-800 text-zinc-400' : 'border-gray-200 hover:bg-gray-100 text-gray-500'

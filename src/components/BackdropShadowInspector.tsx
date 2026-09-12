@@ -18,7 +18,6 @@ import {
   IoSunny,
   IoChevronDown,
   IoChevronUp,
-  IoImageOutline,
   IoCheckmark,
   IoClose,
 } from 'react-icons/io5';
@@ -69,7 +68,8 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
     mode: 'solid' as const,
   };
 
-  const activeCanvas = canvases[0];
+  const selectedCanvasId = useEditorStore(state => state.selectedCanvasId);
+  const activeCanvas = canvases.find(canvas => canvas.id === selectedCanvasId) || canvases[0];
   const activeColor = activeCanvas?.backgroundColor || '#fce7f3';
 
   const handleSelectColor = (color: string) => {

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LaunchShot Studio - App Store Screenshot Generator",
-  description: "Create beautiful, high-converting App Store and Google Play screenshots in seconds.",
+  description: "Turn your app screenshots into a polished, consistent App Store or Google Play listing.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

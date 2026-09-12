@@ -41,7 +41,8 @@ export function FloatingToolbar({ onToggleInspector, isInspectorOpen }: Floating
 
   const [isAnimating, setIsAnimating] = useState(false);
   const isDark = globalSettings.theme !== 'light';
-  const activeCanvas = canvases[0];
+  const selectedCanvasId = useEditorStore(state => state.selectedCanvasId);
+  const activeCanvas = canvases.find(canvas => canvas.id === selectedCanvasId) || canvases[0];
 
   const handleReset = () => {
     resetCanvasAdjustments();

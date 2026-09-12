@@ -16,3 +16,12 @@ body {
   color: var(--foreground);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* A render surface must never capture editor chrome or animated transitions. */
+.export-surface *, .export-surface *::before, .export-surface *::after {
+  animation: none !important;
+  transition: none !important;
+  caret-color: transparent !important;
+}
+.export-surface textarea { border-color: transparent !important; background-color: transparent !important; }
+button:focus-visible, a:focus-visible { outline: 3px solid #64957c; outline-offset: 3px; }

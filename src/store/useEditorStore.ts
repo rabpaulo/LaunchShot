@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { projectStorage, portableProject, restoreProjectImages } from '@/utils/projectStorage';
+import { styleSlide, styleSettings, type StudioStyleId } from '@/config/styles';
 import { type TargetSizeId, DEFAULT_SIZE, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE, isAndroidDevice, isAppleDevice } from '@/config/sizes';
 import { DEFAULT_FONT } from '@/config/fonts';
 import { type BadgeConfig, getBadgeStore } from '@/config/badges';
@@ -109,6 +111,7 @@ export type CanvasItem = {
 export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';
 
 export type GlobalSettings = {
+  studioStyle?: StudioStyleId;
   targetSize: TargetSizeId;
   fontFamily: string;
   zoomScale: number;
@@ -142,6 +145,10 @@ interface HistorySnapshot {
 }
 
 interface EditorState {
+  selectedCanvasId: string | null;
+  selectCanvas: (id: string) => void;
+  applyStudioStyle: (id: StudioStyleId) => void;
+  importScreenshots: (sources: string[]) => void;
   // Canvases & Global Settings (Active Project)
   canvases: CanvasItem[];
   globalSettings: GlobalSettings;
@@ -162,8 +169,8 @@ interface EditorState {
   renameProject: (projectId: string, name: string) => void;
   duplicateProject: (projectId: string) => void;
   deleteProject: (projectId: string) => void;
-  exportProjectFile: (projectId?: string) => void;
-  importProjectFile: (jsonText: string) => boolean;
+  exportProjectFile: (projectId?: string) => Promise<void>;
+  importProjectFile: (jsonText: string) => Promise<boolean>;
 
   // Actions on Canvases
   addCanvas: (initialData?: Partial<CanvasItem>) => void;
@@ -235,15 +242,16 @@ const defaultGlobalSettings: GlobalSettings = {
   targetSize: DEFAULT_SIZE,
   fontFamily: DEFAULT_FONT,
   zoomScale: 0.65,
-  theme: 'dark',
+  theme: 'light',
+  studioStyle: 'clean-light',
   mockupStyle: 'dark',
   showNotch: true,
-  imageFit: 'cover',
+  imageFit: 'contain',
   viewMode: 'horizontal',
-  appName: 'Your App Name',
-  companyName: 'Your Company Inc.',
+  appName: '',
+  companyName: '',
   activeLanguage: DEFAULT_LANGUAGE,
-  statusBar: DEFAULT_STATUS_BAR,
+  statusBar: { ...DEFAULT_STATUS_BAR, enabled: false },
   panorama: {
     enabled: false,
     presetId: 'aurora-borealis',
@@ -256,20 +264,20 @@ const defaultGlobalSettings: GlobalSettings = {
 const initialDefaultCanvas: CanvasItem = {
   id: 'canvas-default-1',
   imageSrc: null,
-  title: 'Amazing Features',
-  subtitle: 'Discover what makes our app great',
-  layout: 'trio-row',
-  backgroundColor: '#fce7f3',
+  title: '',
+  subtitle: '',
+  layout: 'basic-top',
+  backgroundColor: '#f2f0eb',
   textColor: '#0f172a',
   fontFamily: DEFAULT_FONT,
   shadow: DEFAULT_SHADOW,
   backdropEffects: DEFAULT_BACKDROP_EFFECTS,
   rotationAngle: 0,
   badge: {
-    enabled: true,
+    enabled: false,
     icon: 'star',
-    text: '4.9 App Store',
-    subtext: '30k+ ratings',
+    text: '',
+    subtext: '',
     style: 'pill-glass',
   },
   doodle: {
@@ -280,13 +288,13 @@ const initialDefaultCanvas: CanvasItem = {
       { type: 'underline-wave', position: 'underline' },
     ],
   },
-  statusBar: DEFAULT_STATUS_BAR,
+  statusBar: { ...DEFAULT_STATUS_BAR, enabled: false },
   floatingCards: [],
   calloutPins: [],
   translations: {
     en: {
-      title: 'Amazing Features',
-      subtitle: 'Discover what makes our app great',
+      title: '',
+      subtitle: '',
     },
   },
 };
@@ -336,6 +344,7 @@ function pushHistory(
     globalSettings: GlobalSettings;
     projects?: Project[];
     activeProjectId?: string;
+    selectedCanvasId?: string | null;
   },
   newCanvases: CanvasItem[],
   newSettings?: GlobalSettings
@@ -349,6 +358,7 @@ function pushHistory(
   );
 
   return {
+    selectedCanvasId: newCanvases.some(c => c.id === state.selectedCanvasId) ? state.selectedCanvasId! : newCanvases[0]?.id || null,
     past: newPast,
     future: [],
     canUndo: newPast.length > 0,
@@ -362,6 +372,19 @@ function pushHistory(
 export const useEditorStore = create<EditorState>()(
   persist(
     (set, get) => ({
+      selectedCanvasId: null,
+      selectCanvas: (id) => set({ selectedCanvasId: id }),
+      applyStudioStyle: (id) => set(state => pushHistory(state,
+        state.canvases.map(canvas => styleSlide(canvas, id)), styleSettings(state.globalSettings, id))),
+      importScreenshots: (sources) => set(state => {
+        const empty = state.canvases.length === 1 && !state.canvases[0].imageSrc && !state.canvases[0].title;
+        const additions = sources.map(source => styleSlide({
+          ...initialDefaultCanvas, id: crypto.randomUUID(), imageSrc: source,
+          translations: { [state.globalSettings.activeLanguage || 'en']: { title: '', subtitle: '' } },
+        }, state.globalSettings.studioStyle || 'clean-light'));
+        const next = [...(empty ? [] : state.canvases), ...additions];
+        return { ...pushHistory(state, next), selectedCanvasId: additions[0]?.id || state.selectedCanvasId };
+      }),
       canvases: [initialDefaultCanvas],
       globalSettings: defaultGlobalSettings,
       past: [],
@@ -442,7 +465,7 @@ export const useEditorStore = create<EditorState>()(
             createdAt: Date.now(),
             updatedAt: Date.now(),
             canvases: currentCanvases,
-            globalSettings: { ...state.globalSettings, appName: name },
+            globalSettings: { ...defaultGlobalSettings, appName: name },
           };
 
           return {
@@ -562,7 +585,7 @@ export const useEditorStore = create<EditorState>()(
           };
         }),
 
-      exportProjectFile: (projectId) => {
+      exportProjectFile: async (projectId) => {
         const state = get();
         const targetId = projectId || state.activeProjectId;
         const project = state.projects.find((p) => p.id === targetId) || {
@@ -575,7 +598,7 @@ export const useEditorStore = create<EditorState>()(
         };
 
         const exportPayload = {
-          version: '1.0.0',
+          version: '2.0.0',
           type: 'launchshot-project',
           exportedAt: new Date().toISOString(),
           project: {
@@ -585,28 +608,30 @@ export const useEditorStore = create<EditorState>()(
           },
         };
 
-        const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(await portableProject(exportPayload), null, 2)], { type: 'application/json' });
         const sanitizedName = (project.name || 'project').toLowerCase().replace(/[^a-z0-9]/g, '-');
         downloadBlob(blob, `${sanitizedName}.launchshot`);
       },
 
-      importProjectFile: (jsonText: string): boolean => {
+      importProjectFile: async (jsonText: string): Promise<boolean> => {
         try {
           const parsed = JSON.parse(jsonText);
+          if (parsed.version && !['1.0.0', '2.0.0'].includes(parsed.version)) return false;
           const projectData = parsed.project || parsed;
 
           if (!projectData || !Array.isArray(projectData.canvases)) {
             throw new Error('Invalid project file: missing canvases');
           }
 
+          if (projectData.canvases.some((canvas: CanvasItem) => !canvas || typeof canvas.title !== 'string' || typeof canvas.subtitle !== 'string' || typeof canvas.id !== 'string' || (canvas.imageSrc != null && typeof canvas.imageSrc !== 'string'))) return false;
           const newId = `project-${crypto.randomUUID()}`;
           const importedProject: Project = {
             id: newId,
             name: projectData.name || 'Imported Project',
             createdAt: projectData.createdAt || Date.now(),
             updatedAt: Date.now(),
-            canvases: projectData.canvases,
-            globalSettings: projectData.globalSettings || defaultGlobalSettings,
+            canvases: await restoreProjectImages(projectData.canvases) as CanvasItem[],
+            globalSettings: { ...defaultGlobalSettings, ...projectData.globalSettings },
           };
 
           set((state) => {
@@ -640,8 +665,8 @@ export const useEditorStore = create<EditorState>()(
           const lastLayout = state.canvases.length > 0 ? state.canvases[state.canvases.length - 1].layout : 'basic-top';
           const nextLayoutIndex = (LAYOUTS.indexOf(lastLayout) + 1) % LAYOUTS.length;
           const currentLang = state.globalSettings.activeLanguage || DEFAULT_LANGUAGE;
-          const newTitle = initialData?.title ?? 'New Feature';
-          const newSubtitle = initialData?.subtitle ?? 'Describe it here';
+          const newTitle = initialData?.title ?? '';
+          const newSubtitle = initialData?.subtitle ?? '';
 
           const newCanvas: CanvasItem = {
             id: crypto.randomUUID(),
@@ -725,7 +750,7 @@ export const useEditorStore = create<EditorState>()(
           };
           const newCanvases = [...state.canvases];
           newCanvases.splice(index + 1, 0, duplicate);
-          return pushHistory(state, newCanvases);
+          return { ...pushHistory(state, newCanvases), selectedCanvasId: duplicate.id };
         }),
 
       updateGlobalSettings: (updates) =>
@@ -820,7 +845,7 @@ export const useEditorStore = create<EditorState>()(
 
       rotateMockup: (canvasId) =>
         set((state) => {
-          const targetId = canvasId || state.canvases[0]?.id;
+          const targetId = canvasId || (state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0])?.id;
           if (!targetId) return state;
           const angles = [0, 8, -8, 15, -15];
           const nextCanvases = state.canvases.map((c) => {
@@ -850,7 +875,7 @@ export const useEditorStore = create<EditorState>()(
 
       resetCanvasAdjustments: (canvasId) =>
         set((state) => {
-          const targetId = canvasId || state.canvases[0]?.id;
+          const targetId = canvasId || (state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0])?.id;
           const nextCanvases = state.canvases.map((c) => {
             if (!targetId || c.id === targetId) {
               return {
@@ -1342,6 +1367,8 @@ export const useEditorStore = create<EditorState>()(
     }),
     {
       name: 'screenshot-editor-storage',
+      storage: createJSONStorage(() => projectStorage),
+      skipHydration: true,
       // Exclude past & future from persistence to save localStorage quota
       partialize: (state) => ({
         canvases: state.canvases,

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import toast from 'react-hot-toast';
-import { CanvasItem, LayoutType, useEditorStore } from '@/store/useEditorStore';
+import { CanvasItem, GlobalSettings, LayoutType, useEditorStore } from '@/store/useEditorStore';
 import { processUploadedFiles } from '@/utils/imageProcessor';
 import { CanvasImage } from './CanvasImage';
 import { ImageEditorModal } from './ImageEditorModal';
@@ -32,7 +32,6 @@ import {
   IoMoveOutline,
   IoRefreshOutline,
 } from 'react-icons/io5';
-import { FastAverageColor } from 'fast-average-color';
 import TextareaAutosize from 'react-textarea-autosize';
 import { TARGET_SIZES, isAndroidDevice, isAppleDevice } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
@@ -51,9 +50,10 @@ import { getPanoramaSliceStyle } from '@/config/panoramas';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 import { useShallow } from 'zustand/react/shallow';
 
-const fac = new FastAverageColor();
 
-interface CanvasEditorProps {
+export interface CanvasEditorProps {
+  settings?: GlobalSettings;
+  renderId?: string;
   canvas: CanvasItem;
   index: number;
   total: number;
@@ -94,24 +94,39 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
   { value: 'duo-row', label: 'Duo Row (2 Mockups Side-by-Side)' },
 ];
 
-function getContrastColor(hex: string) {
-  let r = 0, g = 0, b = 0;
-  if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (hex.length === 7) {
-    r = parseInt(hex.substring(1, 3), 16);
-    g = parseInt(hex.substring(3, 5), 16);
-    b = parseInt(hex.substring(5, 7), 16);
-  }
-  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-  return yiq >= 128 ? '#000000' : '#ffffff';
+function CanvasButton({ readOnly, ...props }: React.ComponentProps<'button'> & { readOnly: boolean }) {
+  return readOnly ? null : <button {...props} />;
 }
 
-export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth, prevCanvas, nextCanvas, nextNextCanvas }: CanvasEditorProps) {
+function CanvasText({ maxRenderHeight, ...props }: React.ComponentProps<typeof TextareaAutosize> & { maxRenderHeight?: number }) {
+  const textRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const node = textRef.current;
+    if (!node || !maxRenderHeight) return;
+    const baseSize = parseFloat(String(props.style?.fontSize || getComputedStyle(node).fontSize));
+    let active = true;
+    const fitText = () => {
+      if (!active) return;
+      let size = baseSize;
+      node.style.fontSize = `${size}px`;
+      while (node.scrollHeight > maxRenderHeight && size > 14) {
+        node.style.fontSize = `${--size}px`;
+      }
+      node.dataset.overflow = String(node.scrollHeight > maxRenderHeight);
+    };
+    fitText();
+    void document.fonts.ready.then(fitText);
+    document.fonts.addEventListener('loadingdone', fitText);
+    return () => { active = false; document.fonts.removeEventListener('loadingdone', fitText); };
+  }, [props.value, props.style?.fontSize, maxRenderHeight]);
+  if (!props.readOnly) return <TextareaAutosize {...props} />;
+  if (!props.value) return null;
+  return <div ref={textRef} data-render-text className={props.className} style={{ ...props.style, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{props.value}</div>;
+}
+
+export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, total, isPreviewMode = false, targetWidth, prevCanvas, nextCanvas, nextNextCanvas, settings, renderId }: CanvasEditorProps) {
   const { 
-    globalSettings, 
+    globalSettings: liveSettings,
     updateCanvas, 
     removeCanvas, 
     moveCanvas, 
@@ -147,6 +162,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     switchToAppStore: state.switchToAppStore,
     switchToPlayStore: state.switchToPlayStore,
   })));
+  const globalSettings = settings || liveSettings;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBadgeMenu, setShowBadgeMenu] = useState(false);
   const [showDoodleMenu, setShowDoodleMenu] = useState(false);
@@ -169,18 +185,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
     if (!file || !file.type.startsWith('image/')) return;
     const url = URL.createObjectURL(file);
     if (slot === 'primary') {
-      try {
-        const color = await fac.getColorAsync(url);
-        updateCanvas(canvas.id, { 
-          imageSrc: url,
-          backgroundColor: color.hex,
-          textColor: getContrastColor(color.hex),
-        });
-        toast.success("Screenshot replaced successfully!");
-      } catch {
-        updateCanvas(canvas.id, { imageSrc: url });
-        toast.success("Screenshot replaced successfully!");
-      }
+      updateCanvas(canvas.id, { imageSrc: url });
+      toast.success('Screenshot replaced');
     } else if (slot === 'secondary') {
       updateCanvas(canvas.id, { secondaryImageSrc: url });
       toast.success("Secondary screen updated!");
@@ -739,7 +745,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               {isMoved && (
                 <>
                   <span className="opacity-40">|</span>
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     type="button"
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
@@ -758,7 +764,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     title="Reset badge position"
                   >
                     Reset
-                  </button>
+                  </CanvasButton>
                 </>
               )}
             </div>
@@ -837,6 +843,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
   return (
     <div 
       id={`card-${canvas.id}`}
+      onPointerDown={() => { if (!isPreviewMode) useEditorStore.getState().selectCanvas(canvas.id); }}
       className={`flex flex-col flex-shrink-0 group relative transition-transform duration-200 ${
         targetWidth
           ? 'items-center pointer-events-none snap-center'
@@ -883,7 +890,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             </select>
             
             {/* Apply Layout to All Button */}
-            <button
+            <CanvasButton readOnly={isPreviewMode}
               onClick={() => applyLayoutToAll(currentLayout)}
               className={`px-2 py-1.5 ml-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm ${
                 isDark 
@@ -893,13 +900,13 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               title="Apply this layout to all screenshots"
             >
               Apply All
-            </button>
+            </CanvasButton>
           </div>
 
           <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
 
           {/* Social Proof Badge Toggle */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowBadgeMenu(!showBadgeMenu);
               setShowDoodleMenu(false);
@@ -920,10 +927,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           >
             <IoStar className={`w-3.5 h-3.5 ${canvas.badge?.enabled ? 'fill-amber-400 text-amber-500' : 'text-gray-400'}`} />
             <span>Badge</span>
-          </button>
+          </CanvasButton>
 
           {/* Hand-Drawn Doodle Accents Toggle */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowDoodleMenu(!showDoodleMenu);
               setShowBadgeMenu(false);
@@ -944,10 +951,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           >
             <IoBrushOutline className={`w-3.5 h-3.5 ${canvas.doodle?.enabled ? 'text-yellow-400' : 'text-gray-400'}`} />
             <span>Doodles</span>
-          </button>
+          </CanvasButton>
 
           {/* Resizable Text Box Settings Toggle */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowTextBoxMenu(!showTextBoxMenu);
               setShowBadgeMenu(false);
@@ -968,10 +975,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           >
             <IoResizeOutline className="w-3.5 h-3.5" />
             <span>Text Box {(canvas.textBoxWidth || canvas.titleFontSize) ? `(${currentTextBoxWidth}%)` : ''}</span>
-          </button>
+          </CanvasButton>
 
           {/* Floating Widgets Toggle */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowWidgetMenu(!showWidgetMenu);
               setShowBadgeMenu(false);
@@ -992,10 +999,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           >
             <IoLayersOutline className="w-3.5 h-3.5" />
             <span>Widgets {(canvas.floatingCards?.length || 0) + (canvas.calloutPins?.length || 0) > 0 ? `(${(canvas.floatingCards?.length || 0) + (canvas.calloutPins?.length || 0)})` : ''}</span>
-          </button>
+          </CanvasButton>
 
           {/* Status Bar Sanitizer Toggle */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => {
               setShowStatusBarMenu(!showStatusBarMenu);
               setShowBadgeMenu(false);
@@ -1016,10 +1023,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           >
             <IoPhonePortraitOutline className="w-3.5 h-3.5" />
             <span>Status</span>
-          </button>
+          </CanvasButton>
 
           {/* Gradient Text Toggle */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={toggleGradientText}
             className={`p-2 rounded-lg border transition-all ${
               canvas.gradientText
@@ -1033,7 +1040,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             title="Toggle Gradient Text Style"
           >
             <IoSparklesOutline className="w-4 h-4" />
-          </button>
+          </CanvasButton>
         </div>
 
         <div className="flex items-center space-x-1.5">
@@ -1067,7 +1074,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
           <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
 
           {/* Move & Duplicate */}
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             disabled={index === 0}
             onClick={() => moveCanvas(canvas.id, 'left')}
             className={`p-2 rounded-lg transition-colors ${
@@ -1080,9 +1087,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             title="Move Left"
           >
             <IoChevronBack className="w-4 h-4" />
-          </button>
+          </CanvasButton>
 
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             disabled={index === total - 1}
             onClick={() => moveCanvas(canvas.id, 'right')}
             className={`p-2 rounded-lg transition-colors ${
@@ -1095,9 +1102,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             title="Move Right"
           >
             <IoChevronForward className="w-4 h-4" />
-          </button>
+          </CanvasButton>
 
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => duplicateCanvas(canvas.id)}
             className={`p-2 rounded-lg transition-colors ${
               isDark 
@@ -1107,9 +1114,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             title="Duplicate Screenshot"
           >
             <IoCopyOutline className="w-4 h-4" />
-          </button>
+          </CanvasButton>
 
-          <button
+          <CanvasButton readOnly={isPreviewMode}
             onClick={() => applyContentToAll(canvas.title, canvas.subtitle)}
             className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 ${
               isDark 
@@ -1122,12 +1129,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             <span className="text-[10px] font-bold uppercase tracking-wider hidden xl:block">
               Apply Text
             </span>
-          </button>
+          </CanvasButton>
 
           {total > 1 && (
             <>
               <div className={`w-px h-5 mx-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-              <button
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => removeCanvas(canvas.id)}
                 className={`p-2 rounded-lg transition-colors ${
                   isDark 
@@ -1137,7 +1144,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 title="Delete Screenshot"
               >
                 <IoTrashOutline className="w-4 h-4" />
-              </button>
+              </CanvasButton>
             </>
           )}
         </div>
@@ -1154,12 +1161,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <IoStar className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 Social Proof Badge
               </span>
-              <button 
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => setShowBadgeMenu(false)}
                 className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
                 <IoClose className="w-3.5 h-3.5" />
-              </button>
+              </CanvasButton>
             </div>
 
             {canvas.badge?.enabled ? (
@@ -1175,7 +1182,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       Position
                     </span>
                     {(canvas.badge.offsetX || canvas.badge.offsetY || (canvas.badge.position && canvas.badge.position !== 'inline')) ? (
-                      <button
+                      <CanvasButton readOnly={isPreviewMode}
                         onClick={() => {
                           updateCanvas(canvas.id, {
                             badge: {
@@ -1191,14 +1198,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       >
                         <IoRefreshOutline className="w-2.5 h-2.5" />
                         Reset
-                      </button>
+                      </CanvasButton>
                     ) : null}
                   </div>
                   <div className="grid grid-cols-2 gap-1">
                     {BADGE_POSITION_OPTIONS.map((pos) => {
                       const isActive = (canvas.badge?.position || 'inline') === pos.value;
                       return (
-                        <button
+                        <CanvasButton readOnly={isPreviewMode}
                           key={pos.value}
                           onClick={() => {
                             updateCanvas(canvas.id, {
@@ -1221,7 +1228,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           }`}
                         >
                           {pos.label}
-                        </button>
+                        </CanvasButton>
                       );
                     })}
                   </div>
@@ -1248,7 +1255,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                         <span className="text-[10px] text-gray-500 font-mono">px</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button
+                        <CanvasButton readOnly={isPreviewMode}
                           type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
@@ -1264,7 +1271,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           title="Nudge Left (-10px)"
                         >
                           -
-                        </button>
+                        </CanvasButton>
                         <input
                           id={`badge-x-${canvas.id}`}
                           type="number"
@@ -1308,7 +1315,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           }`}
                           placeholder="0"
                         />
-                        <button
+                        <CanvasButton readOnly={isPreviewMode}
                           type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
@@ -1324,7 +1331,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           title="Nudge Right (+10px)"
                         >
                           +
-                        </button>
+                        </CanvasButton>
                       </div>
                     </div>
 
@@ -1337,7 +1344,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                         <span className="text-[10px] text-gray-500 font-mono">px</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button
+                        <CanvasButton readOnly={isPreviewMode}
                           type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
@@ -1353,7 +1360,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           title="Nudge Up (-10px)"
                         >
                           -
-                        </button>
+                        </CanvasButton>
                         <input
                           id={`badge-y-${canvas.id}`}
                           type="number"
@@ -1397,7 +1404,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           }`}
                           placeholder="0"
                         />
-                        <button
+                        <CanvasButton readOnly={isPreviewMode}
                           type="button"
                           onClick={() =>
                             updateCanvas(canvas.id, {
@@ -1413,7 +1420,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           title="Nudge Down (+10px)"
                         >
                           +
-                        </button>
+                        </CanvasButton>
                       </div>
                     </div>
                   </div>
@@ -1424,7 +1431,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   <span className="text-[11px] font-semibold text-gray-400">Badge Style</span>
                   <div className="grid grid-cols-3 gap-1">
                     {(['pill-glass', 'pill-solid', 'minimal-star'] as const).map((st) => (
-                      <button
+                      <CanvasButton readOnly={isPreviewMode}
                         key={st}
                         onClick={() =>
                           updateCanvas(canvas.id, {
@@ -1445,14 +1452,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                         }`}
                       >
                         {st === 'pill-glass' ? 'Frosted' : st === 'pill-solid' ? 'Solid' : 'Minimal'}
-                      </button>
+                      </CanvasButton>
                     ))}
                   </div>
                 </div>
 
                 {/* Action Buttons: Apply All & Remove */}
                 <div className="pt-2 border-t border-gray-800/20 flex items-center gap-1.5">
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     onClick={() => {
                       applyBadgeToAll(canvas.badge!);
                       toast.success('Applied badge to all screenshots');
@@ -1465,8 +1472,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     }`}
                   >
                     Apply to All
-                  </button>
-                  <button
+                  </CanvasButton>
+                  <CanvasButton readOnly={isPreviewMode}
                     onClick={() => handleApplyBadge({ enabled: false, icon: 'none', text: '', style: 'pill-glass' })}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-colors ${
                       isDark
@@ -1475,7 +1482,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     }`}
                   >
                     Remove
-                  </button>
+                  </CanvasButton>
                 </div>
 
                 {/* Presets List Header */}
@@ -1483,7 +1490,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   <span className="text-[11px] font-semibold text-gray-400 block mb-1.5">Switch Preset</span>
                   <div className="space-y-1">
                     {BADGE_PRESETS.map((p) => (
-                      <button
+                      <CanvasButton readOnly={isPreviewMode}
                         key={p.label}
                         onClick={() => handleApplyBadge(p.config)}
                         className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
@@ -1494,7 +1501,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       >
                         <span className="font-semibold">{p.label}</span>
                         <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{p.config.text}</span>
-                      </button>
+                      </CanvasButton>
                     ))}
                   </div>
                 </div>
@@ -1506,7 +1513,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 onWheel={(e) => e.stopPropagation()}
               >
                 {BADGE_PRESETS.map((p) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={p.label}
                     onClick={() => handleApplyBadge(p.config)}
                     className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex flex-col gap-0.5 transition-colors border ${
@@ -1517,7 +1524,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     <span className="font-semibold">{p.label}</span>
                     <span className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{p.config.text}</span>
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             )}
@@ -1536,18 +1543,18 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <IoBrushOutline className="w-3.5 h-3.5 text-yellow-400" />
                 Doodle Accents
               </span>
-              <button 
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => setShowDoodleMenu(false)}
                 className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
                 <IoClose className="w-3.5 h-3.5" />
-              </button>
+              </CanvasButton>
             </div>
 
             {/* Quick Toggle On/Off */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold">Toggle Accents</span>
-              <button
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => {
                   const isCurrentlyEnabled = !!canvas.doodle?.enabled;
                   const defaultDoodles = [
@@ -1569,7 +1576,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 }`}
               >
                 {canvas.doodle?.enabled ? 'Active' : 'Off'}
-              </button>
+              </CanvasButton>
             </div>
 
             {/* Color Palette Picker */}
@@ -1580,7 +1587,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 {DOODLE_COLOR_PALETTE.map((pal) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={pal.value}
                     onClick={() => {
                       const currentDoodles = canvas.doodle?.doodles || [
@@ -1633,7 +1640,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 onWheel={(e) => e.stopPropagation()}
               >
                 {DOODLE_PRESETS.map((preset) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={preset.id}
                     onClick={() => {
                       const color = canvas.doodle?.color || preset.config.color || '#facc15';
@@ -1658,7 +1665,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                       <DoodleShape type={preset.config.doodles[0]?.type || 'question'} color={canvas.doodle?.color || '#facc15'} className="w-5 h-5" />
                     </div>
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
@@ -1786,7 +1793,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
             {/* Apply to All Screens Button */}
             {canvas.doodle?.enabled && (
-              <button
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => {
                   if (canvas.doodle) {
                     applyDoodlesToAll(canvas.doodle);
@@ -1800,7 +1807,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 }`}
               >
                 Apply Doodles to All Screens
-              </button>
+              </CanvasButton>
             )}
           </div>
         )}
@@ -1817,12 +1824,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <IoLayersOutline className="w-3.5 h-3.5 text-blue-400" />
                 Floating UI Cards & Callouts
               </span>
-              <button 
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => setShowWidgetMenu(false)}
                 className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
                 <IoClose className="w-3.5 h-3.5" />
-              </button>
+              </CanvasButton>
             </div>
 
             {/* Active Widgets on this Screen */}
@@ -1841,13 +1848,13 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                         <span className="font-bold truncate">{card.title}</span>
                         <span className="text-[10px] opacity-70">Card • {card.position}</span>
                       </div>
-                      <button
+                      <CanvasButton readOnly={isPreviewMode}
                         onClick={() => removeFloatingCard(canvas.id, card.id)}
                         className="text-red-400 hover:text-red-300 p-1"
                         title="Remove Card"
                       >
                         <IoTrashOutline className="w-3.5 h-3.5" />
-                      </button>
+                      </CanvasButton>
                     </div>
                   ))}
 
@@ -1862,13 +1869,13 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                         <span className="font-bold truncate">{pin.text}</span>
                         <span className="text-[10px] opacity-70">Callout Pin • {pin.position}</span>
                       </div>
-                      <button
+                      <CanvasButton readOnly={isPreviewMode}
                         onClick={() => removeCalloutPin(canvas.id, pin.id)}
                         className="text-red-400 hover:text-red-300 p-1"
                         title="Remove Pin"
                       >
                         <IoTrashOutline className="w-3.5 h-3.5" />
-                      </button>
+                      </CanvasButton>
                     </div>
                   ))}
                 </div>
@@ -1880,7 +1887,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               <span className="text-[11px] font-semibold opacity-75">Add Floating Card:</span>
               <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
                 {FLOATING_CARD_PRESETS.map((preset) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={preset.label}
                     onClick={() => {
                       addFloatingCard(canvas.id, preset.config);
@@ -1894,7 +1901,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     <IoAdd className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                     <span className="truncate">{preset.label}</span>
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
@@ -1904,7 +1911,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               <span className="text-[11px] font-semibold opacity-75">Add Callout Pin:</span>
               <div className="grid grid-cols-2 gap-1.5">
                 {CALLOUT_PIN_PRESETS.map((preset) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={preset.label}
                     onClick={() => {
                       addCalloutPin(canvas.id, preset.config);
@@ -1918,7 +1925,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     <IoAdd className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                     <span className="truncate">{preset.label}</span>
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
@@ -1937,18 +1944,18 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <IoPhonePortraitOutline className="w-3.5 h-3.5 text-emerald-400" />
                 Status Bar Sanitizer
               </span>
-              <button 
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => setShowStatusBarMenu(false)}
                 className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
                 <IoClose className="w-3.5 h-3.5" />
-              </button>
+              </CanvasButton>
             </div>
 
             {/* Toggle Status Bar */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold">Enable Status Bar</span>
-              <button
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => {
                   const currentStatus = (canvas.statusBar || globalSettings.statusBar || DEFAULT_STATUS_BAR);
                   const isEnabled = !currentStatus.enabled;
@@ -1963,14 +1970,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 }`}
               >
                 {(canvas.statusBar || globalSettings.statusBar)?.enabled ? 'Active' : 'Off'}
-              </button>
+              </CanvasButton>
             </div>
 
             {/* Status Bar OS Platform */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium opacity-75">OS Platform:</label>
               <div className="grid grid-cols-2 gap-1.5">
-                <button
+                <CanvasButton readOnly={isPreviewMode}
                   type="button"
                   onClick={() => {
                     if (isAndroid) {
@@ -1986,8 +1993,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 >
                   <IoLogoApple className="w-3 h-3" />
                   <span>iOS (iPhone)</span>
-                </button>
-                <button
+                </CanvasButton>
+                <CanvasButton readOnly={isPreviewMode}
                   type="button"
                   onClick={() => {
                     if (!isAndroid) {
@@ -2003,7 +2010,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 >
                   <IoLogoGooglePlaystore className="w-3 h-3" />
                   <span>Android</span>
-                </button>
+                </CanvasButton>
               </div>
             </div>
 
@@ -2031,7 +2038,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               <label className="text-[11px] font-medium opacity-75">Icon Color Theme:</label>
               <div className="grid grid-cols-2 gap-1.5">
                 {['light', 'dark'].map((th) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={th}
                     onClick={() => {
                       const currentStatus = (canvas.statusBar || globalSettings.statusBar || DEFAULT_STATUS_BAR);
@@ -2046,7 +2053,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     }`}
                   >
                     {th} Text
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
@@ -2087,12 +2094,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <IoResizeOutline className="w-3.5 h-3.5 text-indigo-400" />
                 Text Box Dimensions & Size
               </span>
-              <button 
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => setShowTextBoxMenu(false)}
                 className="text-gray-400 hover:text-gray-200 p-0.5 rounded"
               >
                 <IoClose className="w-3.5 h-3.5" />
-              </button>
+              </CanvasButton>
             </div>
 
             {/* Width Slider */}
@@ -2102,12 +2109,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-indigo-400">{currentTextBoxWidth}%</span>
                   {canvas.textBoxWidth !== undefined && (
-                    <button
+                    <CanvasButton readOnly={isPreviewMode}
                       onClick={() => updateCanvas(canvas.id, { textBoxWidth: undefined })}
                       className="text-[10px] text-gray-400 hover:text-gray-200 underline"
                     >
                       Auto
-                    </button>
+                    </CanvasButton>
                   )}
                 </div>
               </div>
@@ -2122,7 +2129,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               />
               <div className="grid grid-cols-4 gap-1 text-[10px]">
                 {[40, 54, 75, 100].map((pct) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={pct}
                     onClick={() => updateCanvas(canvas.id, { textBoxWidth: pct })}
                     className={`py-1 rounded border font-medium transition-all ${
@@ -2132,7 +2139,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     }`}
                   >
                     {pct}%
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
@@ -2144,12 +2151,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-indigo-400">{effectiveTitleFontSize}px</span>
                   {canvas.titleFontSize !== undefined && (
-                    <button
+                    <CanvasButton readOnly={isPreviewMode}
                       onClick={() => updateCanvas(canvas.id, { titleFontSize: undefined })}
                       className="text-[10px] text-gray-400 hover:text-gray-200 underline"
                     >
                       Auto
-                    </button>
+                    </CanvasButton>
                   )}
                 </div>
               </div>
@@ -2164,7 +2171,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               />
               <div className="grid grid-cols-4 gap-1 text-[10px]">
                 {[22, 28, 36, 44].map((sz) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={sz}
                     onClick={() => updateCanvas(canvas.id, { titleFontSize: sz })}
                     className={`py-1 rounded border font-medium transition-all ${
@@ -2174,7 +2181,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     }`}
                   >
                     {sz}px
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
@@ -2186,12 +2193,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-indigo-400">{effectiveSubtitleFontSize}px</span>
                   {canvas.subtitleFontSize !== undefined && (
-                    <button
+                    <CanvasButton readOnly={isPreviewMode}
                       onClick={() => updateCanvas(canvas.id, { subtitleFontSize: undefined })}
                       className="text-[10px] text-gray-400 hover:text-gray-200 underline"
                     >
                       Auto
-                    </button>
+                    </CanvasButton>
                   )}
                 </div>
               </div>
@@ -2215,7 +2222,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   { value: 'center', label: 'Center' },
                   { value: 'right', label: 'Right' },
                 ].map((al) => (
-                  <button
+                  <CanvasButton readOnly={isPreviewMode}
                     key={al.value}
                     onClick={() => updateCanvas(canvas.id, { textAlign: al.value as 'left' | 'center' | 'right' })}
                     className={`py-1 rounded-lg text-xs font-semibold border transition-all ${
@@ -2225,14 +2232,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     }`}
                   >
                     {al.label}
-                  </button>
+                  </CanvasButton>
                 ))}
               </div>
             </div>
 
             {/* Apply to All Screens & Reset */}
             <div className="flex gap-2 pt-2 border-t border-zinc-800/40">
-              <button
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => {
                   applyTextBoxToAll(
                     canvas.textBoxWidth,
@@ -2249,8 +2256,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 }`}
               >
                 Apply to All Screens
-              </button>
-              <button
+              </CanvasButton>
+              <CanvasButton readOnly={isPreviewMode}
                 onClick={() => {
                   updateCanvas(canvas.id, {
                     textBoxWidth: undefined,
@@ -2263,7 +2270,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold border text-amber-400 hover:bg-amber-950/20 border-amber-500/30 transition-colors`}
               >
                 Reset
-              </button>
+              </CanvasButton>
             </div>
           </div>
         )}
@@ -2283,7 +2290,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
         }}
       >
         <div
-          id={`canvas-${canvas.id}`}
+          id={renderId || `canvas-${canvas.id}`}
           className={`relative overflow-hidden select-none ${layoutConfig.containerClass}`}
           style={{
             width: `${canvasWidth}px`,
@@ -2327,7 +2334,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             <FloatingCard
               key={card.id}
               card={card}
-              onRemove={() => removeFloatingCard(canvas.id, card.id)}
+              onRemove={isPreviewMode ? undefined : () => removeFloatingCard(canvas.id, card.id)}
             />
           ))}
 
@@ -2336,7 +2343,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
             <CalloutPin
               key={pin.id}
               pin={pin}
-              onRemove={() => removeCalloutPin(canvas.id, pin.id)}
+              onRemove={isPreviewMode ? undefined : () => removeCalloutPin(canvas.id, pin.id)}
             />
           ))}
 
@@ -2403,7 +2410,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                     <span className="opacity-40">|</span>
                     <span>Title: {effectiveTitleFontSize}px</span>
                     
-                    <button 
+                    <CanvasButton readOnly={isPreviewMode}
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -2414,8 +2421,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       title="Narrower (-5%)"
                     >
                       -
-                    </button>
-                    <button 
+                    </CanvasButton>
+                    <CanvasButton readOnly={isPreviewMode}
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -2426,12 +2433,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       title="Wider (+5%)"
                     >
                       +
-                    </button>
+                    </CanvasButton>
                     
                     {(canvas.textBoxWidth || canvas.titleFontSize || canvas.subtitleFontSize || canvas.textAlign) && (
                       <>
                         <span className="opacity-40">|</span>
-                        <button
+                        <CanvasButton readOnly={isPreviewMode}
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2447,7 +2454,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           title="Reset to layout defaults"
                         >
                           Reset
-                        </button>
+                        </CanvasButton>
                       </>
                     )}
                   </div>
@@ -2504,7 +2511,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               {currentLayout === 'banner-kinetic-stack' ? (
                 <div className="w-full flex flex-col justify-center select-none overflow-hidden relative group/kinetic">
                   <div className="mb-1 w-full relative z-20">
-                    <TextareaAutosize
+                    <CanvasText
+                      readOnly={isPreviewMode}
+                      tabIndex={isPreviewMode ? -1 : undefined}
+                      maxRenderHeight={['basic-top', 'basic-bottom'].includes(currentLayout) ? canvasHeight * .20 : undefined}
                       value={canvas.title}
                       onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
                       className="w-full bg-black/5 hover:bg-black/10 focus:bg-black/15 border border-black/15 focus:border-black/30 rounded-lg px-2 py-0.5 outline-none font-bold text-xs resize-none transition-all placeholder-black/40"
@@ -2534,7 +2544,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
               ) : (
                 <>
                   <div className="relative w-full">
-                    <TextareaAutosize
+                    <CanvasText
+                      readOnly={isPreviewMode}
+                      tabIndex={isPreviewMode ? -1 : undefined}
+                      maxRenderHeight={['basic-top', 'basic-bottom'].includes(currentLayout) ? canvasHeight * .20 : undefined}
                       value={canvas.title}
                       onChange={(e) => updateCanvas(canvas.id, { title: e.target.value })}
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-extrabold placeholder-white/50 tracking-tight leading-tight transition-all resize-none overflow-hidden relative z-10 break-words hyphens-none ${
@@ -2562,7 +2575,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
 
                   {/* Subtitle (Only if not split-vertical) */}
                   {currentLayout !== 'split-vertical' && (
-                    <TextareaAutosize
+                    <CanvasText
+                      readOnly={isPreviewMode}
+                      tabIndex={isPreviewMode ? -1 : undefined}
+                      maxRenderHeight={['basic-top', 'basic-bottom'].includes(currentLayout) ? canvasHeight * .08 : undefined}
                       value={canvas.subtitle}
                       onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
                       className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-1 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
@@ -2631,8 +2647,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 width: canvas.textBoxWidth ? `${canvas.textBoxWidth}%` : undefined,
               }}
             >
-              <TextareaAutosize
-                value={canvas.subtitle}
+              <CanvasText
+                      readOnly={isPreviewMode}
+                      tabIndex={isPreviewMode ? -1 : undefined}
+                maxRenderHeight={['basic-top', 'basic-bottom'].includes(currentLayout) ? canvasHeight * .08 : undefined}
+                      value={canvas.subtitle}
                 onChange={(e) => updateCanvas(canvas.id, { subtitle: e.target.value })}
                 className={`w-full bg-transparent border-2 border-transparent hover:border-white/20 focus:border-white/40 focus:bg-white/5 rounded-xl px-3 py-2 outline-none font-medium placeholder-white/50 resize-none overflow-hidden leading-relaxed transition-all break-words hyphens-none ${
                   canvas.subtitleFontSize
@@ -2692,9 +2711,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={{ ...canvas, imageSrc: slot2Image }} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot2Image }} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'secondary';
@@ -2704,7 +2723,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-3.5 h-3.5" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                         </div>
                       </div>
                     ) : (
@@ -2747,9 +2766,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={canvas} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'primary';
@@ -2759,7 +2778,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-4 h-4" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                         </div>
                       </div>
                     ) : (
@@ -2803,9 +2822,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={{ ...canvas, imageSrc: slot3Image }} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot3Image }} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'tertiary';
@@ -2815,7 +2834,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-3.5 h-3.5" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                         </div>
                       </div>
                     ) : (
@@ -2860,9 +2879,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={canvas} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'primary';
@@ -2872,7 +2891,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-3.5 h-3.5" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                         </div>
                       </div>
                     ) : (
@@ -2916,9 +2935,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={{ ...canvas, imageSrc: slot2Image }} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot2Image }} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'secondary';
@@ -2928,7 +2947,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-3.5 h-3.5" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                         </div>
                       </div>
                     ) : (
@@ -2976,9 +2995,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={{ ...canvas, imageSrc: slot2Image }} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot2Image }} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'secondary';
@@ -2988,9 +3007,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-3.5 h-3.5" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                           {canvas.secondaryImageSrc && (
-                            <button
+                            <CanvasButton readOnly={isPreviewMode}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateCanvas(canvas.id, { secondaryImageSrc: null });
@@ -3000,7 +3019,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                             >
                               <IoRefreshOutline className="w-3 h-3" />
                               Reset to Auto
-                            </button>
+                            </CanvasButton>
                           )}
                         </div>
                       </div>
@@ -3040,9 +3059,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={{ ...canvas, imageSrc: slot3Image }} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot3Image }} />
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'tertiary';
@@ -3052,9 +3071,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-3.5 h-3.5" />
                             Change Image
-                          </button>
+                          </CanvasButton>
                           {canvas.tertiaryImageSrc && (
-                            <button
+                            <CanvasButton readOnly={isPreviewMode}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateCanvas(canvas.id, { tertiaryImageSrc: null });
@@ -3064,7 +3083,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                             >
                               <IoRefreshOutline className="w-3 h-3" />
                               Reset to Auto
-                            </button>
+                            </CanvasButton>
                           )}
                         </div>
                       </div>
@@ -3103,11 +3122,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {canvas.imageSrc ? (
                       <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
-                        <CanvasImage canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={canvas} />
                         <div 
                           className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
                         >
-                          <button
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               uploadSlotRef.current = 'primary';
@@ -3117,15 +3136,15 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                           >
                             <IoCloudUploadOutline className="w-4 h-4" />
                             Change Image
-                          </button>
-                          <button
+                          </CanvasButton>
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => { e.stopPropagation(); setIsEditingImage(true); }}
                             className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
                           >
                             <IoOptionsOutline className="w-4 h-4" />
                             Edit & Filter
-                          </button>
-                          <button
+                          </CanvasButton>
+                          <CanvasButton readOnly={isPreviewMode}
                             onClick={(e) => { 
                               e.stopPropagation(); 
                               updateCanvas(canvas.id, { imageFit: canvas.imageFit === 'contain' ? 'cover' : 'contain' });
@@ -3133,7 +3152,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                             className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium text-xs rounded-full transition-colors"
                           >
                             Fit: {canvas.imageFit === 'contain' ? 'Contain' : 'Cover'}
-                          </button>
+                          </CanvasButton>
                         </div>
                       </div>
                     ) : (
@@ -3171,11 +3190,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                 >
                   {canvas.imageSrc ? (
                   <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
-                    <CanvasImage canvas={canvas} />
+                    <CanvasImage settings={globalSettings} canvas={canvas} />
                     <div 
                       className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity"
                     >
-                      <button
+                      <CanvasButton readOnly={isPreviewMode}
                         onClick={(e) => {
                           e.stopPropagation();
                           uploadSlotRef.current = 'primary';
@@ -3185,15 +3204,15 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                       >
                         <IoCloudUploadOutline className="w-4 h-4" />
                         Change Image
-                      </button>
-                      <button
+                      </CanvasButton>
+                      <CanvasButton readOnly={isPreviewMode}
                         onClick={(e) => { e.stopPropagation(); setIsEditingImage(true); }}
                         className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-colors flex items-center gap-2"
                       >
                         <IoOptionsOutline className="w-4 h-4" />
                         Edit & Filter
-                      </button>
-                      <button
+                      </CanvasButton>
+                      <CanvasButton readOnly={isPreviewMode}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           updateCanvas(canvas.id, { imageFit: canvas.imageFit === 'contain' ? 'cover' : 'contain' });
@@ -3201,7 +3220,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                         className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium text-xs rounded-full transition-colors"
                       >
                         Fit: {canvas.imageFit === 'contain' ? 'Contain' : 'Cover'}
-                      </button>
+                      </CanvasButton>
                     </div>
                   </div>
                 ) : (
@@ -3238,7 +3257,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -3259,7 +3278,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -3285,7 +3304,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -3306,7 +3325,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -3332,7 +3351,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -3353,7 +3372,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
                   >
                     {canvas.imageSrc ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={canvas} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -3370,13 +3389,13 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas, index, to
         </div>
       </div>
       
-      <input
+      {!isPreviewMode && <input
         type="file"
         ref={fileInputRef}
         onChange={handleImageUpload}
         accept="image/*"
         className="hidden"
-      />
+      />}
       {isEditingImage && <ImageEditorModal canvas={canvas} onClose={() => setIsEditingImage(false)} />}
     </div>
   );

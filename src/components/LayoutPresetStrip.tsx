@@ -9,7 +9,6 @@ import {
   IoChevronForward,
   IoCheckmark,
   IoLayersOutline,
-  IoSparklesOutline,
 } from 'react-icons/io5';
 
 interface LayoutCardOption {
@@ -158,15 +157,14 @@ export function LayoutPresetStrip() {
   const [showDeviceMenu, setShowDeviceMenu] = useState(false);
 
   const isDark = globalSettings.theme !== 'light';
-  const activeCanvas = canvases[0];
+  const selectedCanvasId = useEditorStore(state => state.selectedCanvasId);
+  const activeCanvas = canvases.find(canvas => canvas.id === selectedCanvasId) || canvases[0];
   const activeLayout = activeCanvas?.layout || 'trio-row';
   const activeAspect = globalSettings.aspectRatio || '4:3';
   const activeDeviceConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-iphone-17'] || TARGET_SIZES['ios-6.5'];
 
   const handleSelectLayout = (layout: LayoutType) => {
-    canvases.forEach((c) => {
-      updateCanvas(c.id, { layout });
-    });
+    if (activeCanvas) updateCanvas(activeCanvas.id, { layout });
   };
 
   const handleSelectAspect = (aspectId: string) => {

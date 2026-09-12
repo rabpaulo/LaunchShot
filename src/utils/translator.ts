@@ -194,6 +194,7 @@ export async function translateText(text: string, targetLang: string, sourceLang
     
     const res = await fetch(url, {
       method: 'GET',
+      signal: AbortSignal.timeout(12000),
       headers: {
         'Accept': 'application/json',
       },
@@ -227,6 +228,7 @@ export async function translateText(text: string, targetLang: string, sourceLang
     
     const res = await fetch(url, {
       method: 'GET',
+      signal: AbortSignal.timeout(12000),
       headers: {
         'Accept': 'application/json',
       },
@@ -242,8 +244,7 @@ export async function translateText(text: string, targetLang: string, sourceLang
     // Continue to next fallback
   }
 
-  // 4. Return original text if translation failed
-  return text;
+  throw new Error(`Translation to ${targetLang} failed. Your source text has not been changed.`);
 }
 
 /**

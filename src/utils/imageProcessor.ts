@@ -1,7 +1,5 @@
-import { FastAverageColor } from 'fast-average-color';
 import { useEditorStore } from '@/store/useEditorStore';
 
-const fac = new FastAverageColor();
 
 export function getContrastColor(colorStr: string): string {
   if (!colorStr) return '#ffffff';
@@ -46,64 +44,19 @@ export async function processUploadedFiles(
   const imageFiles = files.filter((f) => f.type.startsWith('image/'));
   if (imageFiles.length === 0) return;
 
-  const { canvases, updateCanvas, addCanvas } = useEditorStore.getState();
-
-  // First, find all canvases that don't have an image
-  const emptyCanvases = canvases.filter(c => !c.imageSrc);
-  
-  let processedCount = 0;
-
-  // 1. Fill empty canvases first
-  for (let i = 0; i < Math.min(emptyCanvases.length, imageFiles.length); i++) {
-    const file = imageFiles[i];
-    const url = URL.createObjectURL(file);
+  const sources: string[] = [];
+  for (const file of imageFiles) {
+    const source = URL.createObjectURL(file);
     try {
-      const color = await fac.getColorAsync(url);
-      updateCanvas(emptyCanvases[i].id, { 
-        imageSrc: url,
-        backgroundColor: color.hex,
-        textColor: getContrastColor(color.hex),
-      });
+      const image = new Image();
+      image.src = source;
+      await image.decode();
+      sources.push(source);
     } catch {
-      updateCanvas(emptyCanvases[i].id, { imageSrc: url });
+      URL.revokeObjectURL(source);
+      throw new Error(`Could not read ${file.name}. Use a PNG, JPEG, or WebP screenshot.`);
     }
-    processedCount++;
-    if (onProgress) {
-      onProgress(Math.round((processedCount / imageFiles.length) * 100), processedCount, imageFiles.length);
-    }
+    onProgress?.(Math.round(sources.length / imageFiles.length * 100), sources.length, imageFiles.length);
   }
-
-  // 2. If we still have images left, append new canvases using the layout of the last canvas (if any)
-  const lastCanvas = canvases.length > 0 ? canvases[canvases.length - 1] : null;
-  
-  for (let i = processedCount; i < imageFiles.length; i++) {
-    const file = imageFiles[i];
-    const url = URL.createObjectURL(file);
-    try {
-      const color = await fac.getColorAsync(url);
-      addCanvas({
-        imageSrc: url,
-        backgroundColor: color.hex,
-        textColor: getContrastColor(color.hex),
-        title: 'Amazing Feature',
-        subtitle: 'Describe your feature here',
-        layout: lastCanvas ? lastCanvas.layout : 'basic-top',
-        fontFamily: lastCanvas ? lastCanvas.fontFamily : 'inter'
-      });
-    } catch {
-      addCanvas({ 
-        imageSrc: url,
-        layout: lastCanvas ? lastCanvas.layout : 'basic-top',
-        fontFamily: lastCanvas ? lastCanvas.fontFamily : 'inter'
-      });
-    }
-    processedCount++;
-    if (onProgress) {
-      onProgress(Math.round((processedCount / imageFiles.length) * 100), processedCount, imageFiles.length);
-    }
-  }
-  
-  if (onProgress) {
-    onProgress(100, imageFiles.length, imageFiles.length);
-  }
+  useEditorStore.getState().importScreenshots(sources);
 }
