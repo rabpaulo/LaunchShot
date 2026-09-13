@@ -303,9 +303,9 @@ test('blank workspace supports fonts, resizing, decorations, templates and persi
   await page.getByRole('button', { name: 'Add blank slide', exact: true }).click();
   await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Font family')).toHaveValue('playfair');
-  await page.getByRole('button', { name: 'Remove', exact: true }).click();
-  await page.getByRole('button', { name: 'Remove', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Create a blank slide' })).toBeVisible();
-  await page.getByRole('button', { name: 'Create a blank slide' }).click();
+  await page.getByRole('button', { name: 'Delete design 2', exact: true }).click();
+  await page.getByRole('button', { name: 'Delete design 1', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Create a blank design' })).toBeVisible();
+  await page.getByRole('button', { name: 'Create a blank design' }).click();
   await expect(page.getByLabel('Headline', { exact: true })).toBeVisible();
 });

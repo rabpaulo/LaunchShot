@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@layer base {
+  /* Offsets add lengths to layout translations; unitless zero is invalid in calc(). */
+  [data-media-composition] { --tw-translate-x: 0px; --tw-translate-y: 0px; }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

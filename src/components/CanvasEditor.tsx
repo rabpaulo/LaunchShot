@@ -29,7 +29,7 @@ import {
 import TextareaAutosize from 'react-textarea-autosize';
 import { TARGET_SIZES, isAndroidDevice } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
-import { designKind, mediaPresentation, isTransparent, resolveCanvasSize, resolveDeviceTarget } from '@/config/creation';
+import { designKind, mediaPresentation, isTransparent, resolveCanvasSize, resolveDeviceTarget, resolveMediaImages } from '@/config/creation';
 import { DoodleAccentGroup, DoodleShape } from './DoodleAccent';
 import {
   DOODLE_PRESETS,
@@ -239,6 +239,15 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
   const sizeConfig = resolveCanvasSize(canvas, inheritedSettings);
   const canvasWidth = sizeConfig.logicalWidth;
   const canvasHeight = sizeConfig.logicalHeight;
+  // Legacy designs keep their per-device rotation until placement is edited.
+  const rotateMediaGroup = designKind(canvas) !== 'screenshot' && (canvas.mediaScale !== undefined || canvas.mediaOffset !== undefined);
+  // Compose with the layout's Tailwind transforms instead of replacing its positioning.
+  const mediaStyle: React.CSSProperties = {
+    zIndex: 10,
+    translate: canvas.mediaOffset ? `calc(var(--tw-translate-x, 0px) + ${canvas.mediaOffset.x * canvasWidth / 100}px) calc(var(--tw-translate-y, 0px) + ${canvas.mediaOffset.y * canvasHeight / 100}px)` : undefined,
+    scale: canvas.mediaScale === undefined ? undefined : `calc(var(--tw-scale-x, 1) * ${canvas.mediaScale}) calc(var(--tw-scale-y, 1) * ${canvas.mediaScale})`,
+    rotate: rotateMediaGroup && canvas.rotationAngle ? `${canvas.rotationAngle}deg` : undefined,
+  };
   const zoomScale = targetWidth ? (targetWidth / canvasWidth) : (globalSettings.zoomScale || 0.65);
   
   const currentLayout = canvas.layout || 'basic-top';
@@ -1822,21 +1831,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
 
           {/* Adaptive Phone Mockup Section */}
           {media !== 'none' && (() => {
-            if (media === 'image') return <div data-banner-image className={layoutConfig.phoneWrapperClass} style={{ zIndex: 10, height: canvasHeight * .48, width: canvasWidth * .46 }}><CanvasImage canvas={canvas} settings={globalSettings} /></div>;
-            const siblings = [prevCanvas, nextCanvas, nextNextCanvas].map(item => item && designKind(item) === designKind(canvas) ? item : undefined);
-            const [previous, next, nextNext] = siblings;
-            const slot2Image = currentLayout === 'multi-screen-right'
-              ? (canvas.secondaryImageSrc || next?.imageSrc || canvas.imageSrc)
-              : (canvas.secondaryImageSrc || previous?.imageSrc || canvas.imageSrc);
-
-            const slot3Image = currentLayout === 'multi-screen-right'
-              ? (canvas.tertiaryImageSrc || nextNext?.imageSrc || next?.imageSrc || canvas.imageSrc)
-              : (canvas.tertiaryImageSrc || next?.imageSrc || canvas.imageSrc);
+            if (media === 'image') return <div data-banner-image className={layoutConfig.phoneWrapperClass} data-media-composition style={{ ...mediaStyle, height: canvasHeight * .48, width: canvasWidth * .46 }}><CanvasImage canvas={canvas} settings={globalSettings} /></div>;
+            const [, slot2Image, slot3Image] = resolveMediaImages(canvas, prevCanvas, nextCanvas, nextNextCanvas);
 
             return (
               <div 
                 className={layoutConfig.phoneWrapperClass}
-                style={{ zIndex: 10 }}
+                data-media-composition
+                style={mediaStyle}
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 onDrop={handlePhoneDrop}
               >
@@ -1853,7 +1855,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDrop={(e) => handleSpecificPhoneDrop(e, 'secondary')}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   style={{
-                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                    transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                   }}
                 >
                   <MinimalPhoneFrame 
@@ -1908,7 +1910,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDrop={(e) => handleSpecificPhoneDrop(e, 'primary')}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   style={{
-                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                    transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                   }}
                 >
                   <MinimalPhoneFrame 
@@ -1964,7 +1966,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDrop={(e) => handleSpecificPhoneDrop(e, 'tertiary')}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   style={{
-                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                    transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                   }}
                 >
                   <MinimalPhoneFrame 
@@ -2021,7 +2023,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDrop={(e) => handleSpecificPhoneDrop(e, 'primary')}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   style={{
-                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                    transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                   }}
                 >
                   <MinimalPhoneFrame 
@@ -2077,7 +2079,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDrop={(e) => handleSpecificPhoneDrop(e, 'secondary')}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   style={{
-                    transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                    transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                   }}
                 >
                   <MinimalPhoneFrame 
@@ -2148,6 +2150,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -2212,6 +2215,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -2275,6 +2279,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {canvas.imageSrc ? (
                       <div className={`w-full h-full relative group/img bg-black flex items-center justify-center`}>
@@ -2333,7 +2338,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                      fileInputRef.current?.click();
                    }}
                    style={{
-                     transform: canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
+                     transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                    }}>
                 <MinimalPhoneFrame 
                   width={phoneW} 
@@ -2410,6 +2415,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -2431,6 +2437,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -2457,6 +2464,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -2478,6 +2486,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
                     {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
@@ -2504,10 +2513,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
-                    {canvas.imageSrc ? (
+                    {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage settings={globalSettings} canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot2Image || null }} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -2525,10 +2535,11 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     mockupStyle={globalSettings.mockupStyle}
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
+                    shadow={canvas.shadow || globalSettings.shadow}
                   >
-                    {canvas.imageSrc ? (
+                    {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage settings={globalSettings} canvas={canvas} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot3Image || null }} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">

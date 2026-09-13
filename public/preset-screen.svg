@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="850" viewBox="0 0 400 850">
+  <rect width="400" height="850" fill="#f5f5ef"/>
+  <g font-family="Arial, sans-serif" fill="#203b33">
+    <text x="32" y="94" font-size="16">YOUR DAILY SPACE</text>
+    <text x="32" y="142" font-size="34" font-weight="bold">Make room</text>
+    <text x="32" y="184" font-size="34" font-weight="bold">for good things.</text>
+    <rect x="28" y="220" width="344" height="245" rx="24" fill="#d3e2c5"/>
+    <circle cx="268" cy="300" r="48" fill="#f4e8a7"/>
+    <path d="M28 425Q130 260 230 390T372 370V441Q372 465 348 465H52Q28 465 28 441Z" fill="#86a282"/>
+    <path d="M28 450Q145 370 252 425T372 418V441Q372 465 348 465H52Q28 465 28 441Z" fill="#406b52"/>
+    <text x="32" y="515" font-size="23" font-weight="bold">A little progress, daily</text>
+    <rect x="28" y="540" width="344" height="82" rx="16" fill="#fff"/>
+    <circle cx="66" cy="581" r="19" fill="#d3e2c5"/>
+    <text x="101" y="578" font-size="18">Find your focus</text>
+    <text x="101" y="601" font-size="13" fill="#718074">Build a routine that feels right</text>
+    <rect x="28" y="638" width="344" height="82" rx="16" fill="#fff"/>
+    <circle cx="66" cy="679" r="19" fill="#f4e8a7"/>
+    <text x="101" y="676" font-size="18">Enjoy the journey</text>
+    <text x="101" y="699" font-size="13" fill="#718074">One small step at a time</text>
+    <rect x="28" y="754" width="344" height="54" rx="27" fill="#203b33"/>
+    <text x="200" y="788" text-anchor="middle" fill="#fff" font-size="17">Start your day</text>
+  </g>
+</svg>

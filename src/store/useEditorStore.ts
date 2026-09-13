@@ -116,6 +116,8 @@ export type CanvasItem = {
   shadow?: ShadowSettings;
   backdropEffects?: BackdropEffects;
   rotationAngle?: number;
+  mediaScale?: number;
+  mediaOffset?: { x: number; y: number };
 };
 
 export type MockupStyle = 'dark' | 'light' | 'glass' | 'clay-dark' | 'clay-light';
@@ -440,6 +442,7 @@ export const useEditorStore = create<EditorState>()(
             canUndo: newPast.length > 0,
             canRedo: newFuture.length > 0,
             canvases: previous.canvases,
+            selectedCanvasId: previous.canvases.some(c => c.id === state.selectedCanvasId) ? state.selectedCanvasId : previous.canvases[0]?.id || null,
             globalSettings: previous.globalSettings,
             projects: updatedProjects,
           };
@@ -464,6 +467,7 @@ export const useEditorStore = create<EditorState>()(
             canUndo: newPast.length > 0,
             canRedo: newFuture.length > 0,
             canvases: next.canvases,
+            selectedCanvasId: next.canvases.some(c => c.id === state.selectedCanvasId) ? state.selectedCanvasId : next.canvases[0]?.id || null,
             globalSettings: next.globalSettings,
             projects: updatedProjects,
           };
@@ -745,8 +749,15 @@ export const useEditorStore = create<EditorState>()(
 
       removeCanvas: (id) =>
         set((state) => {
+          const index = state.canvases.findIndex(c => c.id === id);
+          if (index === -1) return state;
           const nextCanvases = state.canvases.filter((c) => c.id !== id);
-          return pushHistory(state, nextCanvases);
+          return {
+            ...pushHistory(state, nextCanvases),
+            selectedCanvasId: state.selectedCanvasId === id
+              ? nextCanvases[Math.min(index, nextCanvases.length - 1)]?.id || null
+              : nextCanvases.some(c => c.id === state.selectedCanvasId) ? state.selectedCanvasId : nextCanvases[0]?.id || null,
+          };
         }),
 
       moveCanvas: (id, direction) =>

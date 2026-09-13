@@ -12,6 +12,10 @@ async function uploadImage(page) {
   });
   await page.getByLabel('Replace slide screenshot', { exact: true }).setInputFiles({ name: 'screen.png', mimeType: 'image/png', buffer: Buffer.from(base64, 'base64') });
 }
+async function openLayout(page) {
+  const group = page.locator('details').filter({ has: page.locator('summary', { hasText: /^Layout & device$/ }) });
+  if (await group.getAttribute('open') === null) await group.locator('summary').click();
+}
 async function add(page, kind) {
   const menu = page.locator('details').filter({ has: page.locator('summary', { hasText: /^Add design$/ }) });
   if (await menu.getAttribute('open') === null) await menu.locator('summary').click();
@@ -35,7 +39,7 @@ test('every selectable font loads and text stays above overlapping phone frames'
   }
   await fonts.selectOption('playfair');
   await page.getByRole('button', { name: 'Use this font on all slides' }).click();
-  await page.getByText('Layout & device', { exact: true }).click();
+  await openLayout(page);
   await page.getByLabel('Text box width').fill('100');
   for (const layout of ['banner-stack-right', 'banner-kinetic-stack']) {
     await page.getByLabel('Slide layout').selectOption(layout);
@@ -80,10 +84,10 @@ test('mixed designs persist and export independent dimensions and transparent ta
   expect(frame.width / frame.height).toBeCloseTo(2048 / 2732, 2);
   await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible();
   await page.reload();
-  await page.getByRole('button', { name: 'Select slide 2', exact: true }).click();
+  await page.getByRole('button', { name: 'Select design 2', exact: true }).click();
   await expect(page.getByLabel('Width (px)')).toHaveValue('900');
   await expect(page.getByLabel('Font family')).toHaveValue('playfair');
-  await page.getByRole('button', { name: 'Select slide 3', exact: true }).click();
+  await page.getByRole('button', { name: 'Select design 3', exact: true }).click();
   await expect(page.getByLabel('Transparent background')).toBeChecked();
   await page.getByRole('button', { name: 'Fit', exact: true }).click();
   await page.screenshot({ path: 'test-results/mixed-mockup-workspace.png' });
@@ -115,7 +119,7 @@ test('banner media, custom-size validation, and multiple tablet frames use the s
   await page.getByLabel('Headline', { exact: true }).fill('Make something memorable');
   await page.getByLabel('Banner media').selectOption('image');
   await uploadImage(page);
-  await page.getByText('Layout & device', { exact: true }).click();
+  await openLayout(page);
   await page.getByLabel('Slide layout').selectOption('banner-split');
   await expect(page.locator('[id^="workspace-"] [data-banner-image] img')).toBeVisible();
   await expect(page.locator('[id^="workspace-"] [data-device-frame]')).toHaveCount(0);
@@ -130,7 +134,7 @@ test('banner media, custom-size validation, and multiple tablet frames use the s
   await add(page, 'mockup');
   await uploadImage(page);
   await page.getByLabel('Device model').selectOption('ipad-12.9');
-  await page.getByText('Layout & device', { exact: true }).click();
+  await openLayout(page);
   await page.getByLabel('Slide layout').selectOption('trio-row');
   await expect(page.locator('[id^="workspace-"] [data-device-frame]')).toHaveCount(3);
   const framesFit = await page.locator('[id^="workspace-"]').evaluate(stage => {
@@ -141,6 +145,136 @@ test('banner media, custom-size validation, and multiple tablet frames use the s
     });
   });
   expect(framesFit).toBe(true);
-  await page.getByRole('button', { name: 'Select slide 2', exact: true }).click();
+  await page.getByRole('button', { name: 'Select design 2', exact: true }).click();
   await expect(page.getByLabel('Slide layout')).toHaveValue('banner-split');
 });
+
+test('design removal is visible, keyboard accessible, undoable, and image clearing persists', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Headline', { exact: true }).fill('Keep this headline');
+  await uploadImage(page);
+  await page.getByRole('button', { name: 'Clear image', exact: true }).click();
+  await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Keep this headline');
+  await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(1);
+  await add(page, 'mockup');
+  await uploadImage(page);
+  await page.getByRole('button', { name: 'Apply Dark device trio' }).click();
+  await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Clear secondary image', exact: true }).click();
+  await page.getByRole('button', { name: 'Clear third image', exact: true }).click();
+  await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(1);
+  await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Select design 2', exact: true }).click();
+  await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Duplicate design 2', exact: true }).click();
+  const remove = page.getByRole('button', { name: 'Delete design 3', exact: true });
+  await remove.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button', { name: 'Select design 2', exact: true })).toBeFocused();
+  await page.getByRole('button', { name: 'Delete design 2', exact: true }).click();
+  await page.getByRole('button', { name: 'Delete design 1', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Create a blank design', exact: true })).toBeFocused();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Keep this headline');
+  await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Create a blank design', exact: true })).toBeVisible();
+});
+
+test('six visual presets preserve copy and export positioned media at the chosen size', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Delete design 1', exact: true }).click();
+  const presets = [
+    ['banner', 'Clean split image'], ['banner', 'Bold centered headline'], ['banner', 'Dark layered devices'],
+    ['mockup', 'Clean single device'], ['mockup', 'Gradient device pair'], ['mockup', 'Dark device trio'],
+  ];
+  const previewBounds = [];
+  for (const [index, [kind, name]] of presets.entries()) {
+    await add(page, kind);
+    // Preview samples must not become real project content.
+    if (kind === 'banner') await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('');
+    await uploadImage(page);
+    if (kind === 'banner') await page.getByLabel('Headline', { exact: true }).fill('Make room for progress');
+    await page.getByRole('button', { name: `Apply ${name}`, exact: true }).click();
+    if (kind === 'banner') await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Make room for progress');
+    if (kind === 'mockup' || name === 'Dark layered devices') {
+      await page.getByLabel('Shadow style', { exact: true }).selectOption('none');
+      await expect.poll(() => page.locator('[id^="workspace-"] [data-device-frame]').evaluateAll(frames => frames.every(frame => getComputedStyle(frame).boxShadow === 'none'))).toBe(true);
+      await page.getByLabel('Shadow style', { exact: true }).selectOption('spread');
+    }
+    await page.getByRole('button', { name: 'Fit', exact: true }).click();
+    await page.screenshot({ path: `test-results/preset-default-${index + 1}.png` });
+    if (name !== 'Bold centered headline') {
+      await page.getByLabel('Media scale', { exact: true }).fill('75');
+      await page.getByLabel('Horizontal position', { exact: true }).fill('8');
+      await page.getByLabel('Vertical position', { exact: true }).fill('-5');
+      const transform = await page.locator('[id^="workspace-"] [data-media-composition]').evaluate(el => ({ scale: getComputedStyle(el).scale, translate: getComputedStyle(el).translate }));
+      expect(transform.scale).toContain('0.75');
+      expect(transform.translate).not.toBe('none');
+      await page.getByRole('button', { name: 'Center media', exact: true }).click();
+      await expect(page.getByLabel('Horizontal position', { exact: true })).toHaveValue('0');
+      await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('75');
+      await page.getByRole('button', { name: 'Reset placement', exact: true }).click();
+      await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('100');
+      await page.getByLabel('Media scale', { exact: true }).fill('75');
+      await page.getByLabel('Horizontal position', { exact: true }).fill('8');
+    }
+    if (name === 'Clean single device') await page.getByLabel('Transparent background').check();
+    await page.getByRole('button', { name: 'Fit', exact: true }).click();
+    await page.screenshot({ path: `test-results/preset-${index + 1}.png` });
+    previewBounds.push(await greenBounds(page, (await page.locator('[id^="workspace-"]').screenshot()).toString('base64')));
+  }
+  await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Select design 6', exact: true }).click();
+  await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('75');
+  await expect(page.getByLabel('Horizontal position', { exact: true })).toHaveValue('8');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('button', { name: 'Delete design 6', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'test-results/presets-narrow.png', fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Export designs', exact: true }).click();
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export 6 PNGs', exact: true }).click();
+  const zip = await JSZip.loadAsync(await readFile(await (await downloaded).path()));
+  const files = Object.values(zip.files).filter(file => file.name.endsWith('.png'));
+  expect(files).toHaveLength(6);
+  for (const file of files) {
+    const bytes = await file.async('nodebuffer');
+    expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual(file.name.includes('/banner-') ? [1200, 630] : [1080, 1080]);
+    const index = Number(file.name.match(/(\d+)\.png$/)[1]) - 1;
+    const bounds = await greenBounds(page, bytes.toString('base64'));
+    if (previewBounds[index] === null) expect(bounds).toBeNull();
+    else for (let edge = 0; edge < 4; edge++) expect(bounds[edge]).toBeCloseTo(previewBounds[index][edge], 2);
+    const alpha = await page.evaluate(async base64 => {
+      const image = new Image(); image.src = `data:image/png;base64,${base64}`; await image.decode();
+      const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+      return ctx.getImageData(0, 0, 1, 1).data[3];
+    }, bytes.toString('base64'));
+    expect(alpha).toBe(index === 3 ? 0 : 255);
+  }
+  await expect(page.getByText('6 PNGs exported successfully.')).toBeVisible();
+});
+
+// Compare the uploaded green image's normalized bounds in the workspace and exported PNG.
+async function greenBounds(page, base64) {
+  return page.evaluate(async source => {
+    const image = new Image(); image.src = `data:image/png;base64,${source}`; await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+    const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let left = canvas.width, top = canvas.height, right = -1, bottom = -1;
+    for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+      const i = (y * canvas.width + x) * 4;
+      if (Math.abs(pixels[i] - 77) < 3 && Math.abs(pixels[i + 1] - 136) < 3 && Math.abs(pixels[i + 2] - 96) < 3 && pixels[i + 3] > 200) {
+        left = Math.min(left, x); top = Math.min(top, y); right = Math.max(right, x); bottom = Math.max(bottom, y);
+      }
+    }
+    return right < 0 ? null : [left / canvas.width, top / canvas.height, right / canvas.width, bottom / canvas.height];
+  }, base64);
+}

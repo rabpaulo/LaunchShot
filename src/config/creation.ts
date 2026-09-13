@@ -13,6 +13,23 @@ export const BANNER_SIZES = [
 export const designKind = (canvas: CanvasItem): DesignKind => canvas.kind || 'screenshot';
 export const mediaPresentation = (canvas: CanvasItem) => canvas.mediaPresentation || (designKind(canvas) === 'banner' ? 'none' : 'device');
 export const isTransparent = (canvas: CanvasItem) => designKind(canvas) === 'mockup' && !!canvas.transparentBackground;
+export function mediaSlotCount(canvas: CanvasItem): number {
+  if (mediaPresentation(canvas) === 'none') return 0;
+  if (mediaPresentation(canvas) === 'image') return 1;
+  if (canvas.layout === 'duo-row') return 2;
+  return ['trio-row', 'multi-screen-right', 'multi-screen-left', 'multi-screen-center', 'banner-stack-right', 'banner-kinetic-stack', 'banner-triple-bottom', 'og-style-3'].includes(canvas.layout) ? 3 : 1;
+}
+
+/** An explicitly cleared slot stays blank; omitted slots keep legacy image reuse. */
+export function resolveMediaImages(canvas: CanvasItem, previous?: CanvasItem, next?: CanvasItem, nextNext?: CanvasItem) {
+  const siblings = [previous, next, nextNext].map(item => item && designKind(item) === designKind(canvas) ? item.imageSrc : undefined);
+  const forward = canvas.layout === 'multi-screen-right';
+  return [
+    canvas.imageSrc,
+    canvas.secondaryImageSrc === null ? null : canvas.secondaryImageSrc || siblings[forward ? 1 : 0] || canvas.imageSrc,
+    canvas.tertiaryImageSrc === null ? null : canvas.tertiaryImageSrc || (forward && siblings[2]) || siblings[1] || canvas.imageSrc,
+  ];
+}
 export function validOutputSize(value: unknown): value is OutputSize {
   if (!value || typeof value !== 'object') return false;
   return ['width', 'height'].every(key => {
@@ -26,6 +43,11 @@ export function validCreationFields(canvas: CanvasItem): boolean {
     && (canvas.deviceTarget === undefined || (typeof canvas.deviceTarget === 'string' && Object.hasOwn(TARGET_SIZES, canvas.deviceTarget) && TARGET_SIZES[canvas.deviceTarget].category !== 'Header'))
     && (canvas.mediaPresentation === undefined || ['none', 'image', 'device'].includes(canvas.mediaPresentation))
     && (canvas.transparentBackground === undefined || typeof canvas.transparentBackground === 'boolean')
+    && (canvas.mediaScale === undefined || (Number.isFinite(canvas.mediaScale) && canvas.mediaScale >= .25 && canvas.mediaScale <= 1.5))
+    && (canvas.mediaOffset === undefined || (canvas.mediaOffset !== null && typeof canvas.mediaOffset === 'object' && ['x', 'y'].every(key => {
+      const value = canvas.mediaOffset![key as 'x' | 'y'];
+      return Number.isFinite(value) && value >= -50 && value <= 50;
+    })))
     && (canvas.mockupStyle === undefined || ['dark', 'light', 'glass', 'clay-dark', 'clay-light'].includes(canvas.mockupStyle));
 }
 export function resolveCanvasSize(canvas: CanvasItem, settings: GlobalSettings) {

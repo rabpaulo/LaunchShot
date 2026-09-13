@@ -6,12 +6,20 @@ Turn raw app screenshots into a consistent App Store or Google Play listing.
 
 1. Upload PNG, JPEG, or WebP screenshots in story order. Optionally name your app and choose its store destination.
 2. Choose **Clean Light**, **Clean Dark**, or **Bold Gradient**. Each style previews your own screenshots and applies to the entire set in one undoable action.
-3. Select a slide in the thumbnail strip, write a benefit-led headline, and add optional supporting text. Replace, duplicate, remove, or reorder slides without changing the others.
+3. Select a slide in the thumbnail strip, write a benefit-led headline, and add optional supporting text. Use the visible **Duplicate** and **Delete** actions beside each thumbnail, or **Clear image** to empty a screenshot slot while keeping its design. Deletion and clearing support Undo/Redo; clearing a secondary or third image prevents automatic image reuse in that slot.
 4. Preview the listing and export full-resolution PNGs organized by language and destination.
 
 The workspace fits the selected slide to the available area. Longer headlines automatically shrink in the standard portrait layouts. Missing images, empty headlines, missing translations, and text that cannot fit are reported before or during export.
 
-**Advanced tools** opens the existing editor with the full template catalog, custom layouts, typography, device frames, image cropping and filters, backgrounds, shadows, panoramas, badges, doodles, and callouts. Existing projects keep their layouts and content. New projects start without ratings, review counts, awards, or status-bar overlays.
+The inspector includes layout, typography, device frames, cropping and filters, backgrounds, shadows, doodles, and status-bar controls. New projects start without ratings, review counts, awards, or status-bar overlays.
+
+## Banners and mockups
+
+Use **Add design** to add a banner or mockup alongside your store screenshots. **Start with a look** offers three presets per type: clean split image, bold centered headline, and dark layered devices for banners; clean single device, gradient device pair, and dark device trio for mockups. Scroll the visual cards to browse. Presets apply to the selected design in one undoable action, preserving its copy, images, translations, output size, and device model. Sample content appears only in preset previews.
+
+**Layout & device** includes media scale (25–150%), horizontal/vertical position (−50–50% of the canvas), rotation, and frame controls. **Center media** resets position; **Reset placement** also resets scale and rotation. Placement moves the complete media composition; **Crop & image filters** adjusts the screenshot inside it. Secondary and third image controls appear only for layouts that use them. Background and shadow settings remain editable, and mockups support transparent export.
+
+Placement persists locally, travels with portable project files, and is included in reusable templates. The workspace, thumbnails, preview, and PNG export use the same composition. Existing projects default to their original size and position when placement fields are absent.
 
 ## Saving and project files
 
@@ -56,11 +64,11 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The browser suite starts a local development server if one is not running. It covers upload, later-slide selection, style undo, durable image restoration, portable project transfer, invalid input, save failure/retry, partial PNG export/retry, translation failure, long headlines, and legacy image recovery. Generated screenshots and traces are written to ignored `test-results/`.
+The browser suite starts a local development server if one is not running. It covers design deletion and image clearing, all six presets, placement/export parity, narrow screens, upload, later-slide selection, style undo, durable image restoration, portable project transfer, invalid input, save failure/retry, partial PNG export/retry, translation failure, long headlines, and legacy image recovery. Generated screenshots and traces are written to ignored `test-results/`.
 
 ## Implementation boundaries
 
-- `StudioWorkspace` owns the focused interface; `AdvancedWorkspace` retains the existing editor.
+- `StudioWorkspace` owns the interface, with design controls and visual presets in the inspector.
 - `SlideRenderer` passes explicit slide data, settings, language, and dimensions to the shared canvas composition. Read-only text and controls are rendered separately from editing controls.
 - `projectStorage` persists image assets under stable IDs and resolves temporary display URLs when loading. Zustand retains its existing editor and history model.
 - `exportSurface` renders an isolated snapshot, waits for assets, validates text fit, and encodes opaque PNGs.
