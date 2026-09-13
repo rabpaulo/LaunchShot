@@ -9,6 +9,7 @@ import { DEFAULT_SHADOW } from '@/utils/shadowEngine';
 import { DOODLE_PRESETS, DOODLE_TYPE_OPTIONS, DOODLE_POSITION_OPTIONS, type DoodleItem } from '@/config/doodles';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
 import { captureDesign } from '@/config/designs';
+import { designKind } from '@/config/creation';
 import { LAYOUT_OPTIONS, getDefaultTextBoxWidth } from './CanvasEditor';
 import { DoodleShape } from './DoodleAccent';
 import styles from './StudioWorkspace.module.css';
@@ -75,9 +76,9 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
 
   return <div className={styles.designControls}>
     <Group title="Layout & device">
-      <label>Slide layout<select aria-label="Slide layout" value={canvas.layout} onChange={event => update({ layout: event.target.value as CanvasItem['layout'] })}>{LAYOUT_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-      <button className={styles.fullButton} onClick={() => state.applyLayoutToAll(canvas.layout)}>Use layout on all slides</button>
-      <label>Device frame <span>All slides</span><select value={state.globalSettings.mockupStyle} onChange={event => state.updateGlobalSettings({ mockupStyle: event.target.value as typeof state.globalSettings.mockupStyle })}>{['dark', 'light', 'glass', 'clay-dark', 'clay-light'].map(value => <option key={value}>{value}</option>)}</select></label>
+      <label>Slide layout<select aria-label="Slide layout" value={canvas.layout} onChange={event => update({ layout: event.target.value as CanvasItem['layout'] })}>{LAYOUT_OPTIONS.filter(option => designKind(canvas) === 'banner' ? ['banner-centered', 'banner-split', 'banner-stack-right', 'banner-triple-bottom', 'banner-kinetic-stack', 'og-style-1', 'og-style-2', 'og-style-3'].includes(option.value) : designKind(canvas) === 'mockup' ? ['device-only', 'duo-row', 'trio-row'].includes(option.value) : !['banner-centered', 'banner-split'].includes(option.value)).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+      <button className={styles.fullButton} onClick={() => state.applyLayoutToAll(canvas.layout)}>Use layout on this design type</button>
+      <label>Device frame<select aria-label="Device frame" value={canvas.mockupStyle || state.globalSettings.mockupStyle} onChange={event => update({ mockupStyle: event.target.value as CanvasItem['mockupStyle'] })}>{['dark', 'light', 'glass', 'clay-dark', 'clay-light'].map(value => <option key={value}>{value}</option>)}</select></label>
       <Toggle label="Show device notch" checked={state.globalSettings.showNotch} onChange={showNotch => state.updateGlobalSettings({ showNotch })} />
       <Range label="Device rotation" value={canvas.rotationAngle || 0} min={-180} max={180} unit="°" onChange={rotationAngle => update({ rotationAngle })} />
       <label>Screenshot fit<select aria-label="Screenshot fit" value={canvas.imageFit || state.globalSettings.imageFit} onChange={event => update({ imageFit: event.target.value as 'cover' | 'contain' })}><option value="contain">Show entire screenshot</option><option value="cover">Fill device screen</option></select></label>
@@ -139,12 +140,12 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
 
 
     <Group title="Reusable templates">
-      <button className={styles.fullButton} onClick={onTemplates}>Browse template gallery</button>
+      {designKind(canvas) === 'screenshot' && <button className={styles.fullButton} onClick={onTemplates}>Browse template gallery</button>}
       <label>Template name<input value={templateName} placeholder="My launch style" onChange={event => setTemplateName(event.target.value)} /></label>
       <p className={styles.hint}>Save this slide’s layout, colors, typography, shadows, decorations, background image, and app icon. Each slide keeps its screenshots and copy.</p>
       <button className={styles.fullButton} disabled={!templateName.trim()} onClick={() => { state.saveDesign(templateName, canvas.id); setTemplateName(''); toast.success('Template saved'); }}>Save as template</button>
-      {state.savedDesigns.map(template => <div className={styles.savedTemplate} key={template.id}><button onClick={() => state.applySlideDesign(template.design, canvas.id)}>Apply {template.name}</button><button aria-label={`Delete template ${template.name}`} onClick={() => state.removeDesign(template.id)}>Delete</button></div>)}
-      <button className={styles.fullButton} onClick={() => { state.applySlideDesign(captureDesign(canvas, state.globalSettings)); toast.success('Design applied to all slides'); }}>Apply this design to all slides</button>
+      {state.savedDesigns.filter(template => (template.design.kind || 'screenshot') === designKind(canvas)).map(template => <div className={styles.savedTemplate} key={template.id}><button onClick={() => state.applySlideDesign(template.design, canvas.id)}>Apply {template.name}</button><button aria-label={`Delete template ${template.name}`} onClick={() => state.removeDesign(template.id)}>Delete</button></div>)}
+      <button className={styles.fullButton} onClick={() => { state.applySlideDesign(captureDesign(canvas, state.globalSettings)); toast.success('Design applied to all slides'); }}>Apply design to this design type</button>
     </Group>
   </div>;
 }

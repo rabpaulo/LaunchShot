@@ -10,10 +10,10 @@ export const STUDIO_STYLES: { id: StudioStyleId; name: string; background: strin
 export function styleSlide(canvas: CanvasItem, id: StudioStyleId): CanvasItem {
   const style = STUDIO_STYLES.find(item => item.id === id)!;
   return {
-    ...canvas, layout: 'basic-top', backgroundColor: style.background, backgroundImageSrc: undefined,
+    ...canvas, layout: !canvas.kind || canvas.kind === 'screenshot' ? 'basic-top' : canvas.layout, backgroundColor: style.background, backgroundImageSrc: undefined,
     textColor: style.color, subtitleColor: style.color, fontFamily: 'inter',
     textAlign: 'center', textBoxWidth: 86, titleFontSize: 38, subtitleFontSize: 17,
-    gradientText: false, rotationAngle: 0, imageFit: 'contain',
+    gradientText: false, rotationAngle: 0, imageFit: 'contain', mockupStyle: 'dark',
     backdropEffects: { mode: id === 'bold-gradient' ? 'gradient' : 'solid', overlay: false, effects: false, pattern: false, vignette: false },
   };
 }

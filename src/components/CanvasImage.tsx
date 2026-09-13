@@ -1,6 +1,7 @@
 import React from 'react';
 import Cropper from 'react-easy-crop';
 import { CanvasItem, GlobalSettings, useEditorStore } from '@/store/useEditorStore';
+import { mediaAspectRatio } from '@/config/creation';
 
 interface CanvasImageProps {
   settings?: GlobalSettings;
@@ -24,7 +25,7 @@ export function CanvasImage({ canvas, className = '', settings }: CanvasImagePro
   const crop = canvas.imageCrop || { x: 0, y: 0 };
   const hasTransform = zoom !== 1 || rotation !== 0 || crop.x !== 0 || crop.y !== 0;
 
-  const isContain = canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain';
+  const isContain = (canvas.imageFit || globalSettings.imageFit) === 'contain';
 
   if (!hasTransform) {
     return (
@@ -44,6 +45,7 @@ export function CanvasImage({ canvas, className = '', settings }: CanvasImagePro
     <div className={`w-full h-full relative select-none ${className}`}>
       <Cropper
         image={canvas.imageSrc}
+        aspect={mediaAspectRatio(canvas, globalSettings)}
         crop={crop}
         zoom={zoom}
         rotation={rotation}

@@ -5,7 +5,7 @@ export interface FontOption {
   category: 'Modern Sans' | 'Display / Editorial' | 'Tech & Grotesk';
 }
 
-export const FONT_OPTIONS: FontOption[] = [
+const fonts: FontOption[] = [
   // Modern Sans
   { id: 'plus-jakarta', name: 'Plus Jakarta Sans', fontFamily: "'Plus Jakarta Sans', sans-serif", category: 'Modern Sans' },
   { id: 'inter', name: 'Inter', fontFamily: "'Inter', sans-serif", category: 'Modern Sans' },
@@ -30,3 +30,4 @@ export const FONT_OPTIONS: FontOption[] = [
 ];
 
 export const DEFAULT_FONT = 'plus-jakarta';
+export const FONT_OPTIONS = fonts.map(font => ({ ...font, fontFamily: `var(--font-${font.id}, ${font.fontFamily})` }));

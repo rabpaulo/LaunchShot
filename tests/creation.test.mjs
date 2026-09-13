@@ -1,0 +1,51 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { useEditorStore } from '../src/store/useEditorStore.ts';
+import { newDesign, resolveCanvasSize, resolveDeviceTarget, validCreationFields, validOutputSize } from '../src/config/creation.ts';
+import { slideExportIssue } from '../src/utils/export.ts';
+
+test('mixed designs keep dimensions, device proportions, history, and compatible styles', async () => {
+  const store = useEditorStore;
+  store.getState().createProject('Mixed designs');
+  const settings = store.getState().globalSettings;
+  const screenshot = store.getState().canvases[0];
+  store.getState().addCanvas(newDesign('banner', settings));
+  const banner = store.getState().canvases.at(-1);
+  store.getState().addCanvas({ ...newDesign('mockup', settings), deviceTarget: 'ipad-12.9', transparentBackground: true });
+  const mockup = store.getState().canvases.at(-1);
+  assert.equal(resolveCanvasSize(banner, settings).width, 1200);
+  assert.equal(resolveDeviceTarget(mockup, settings), 'ipad-12.9');
+  assert.equal(resolveCanvasSize(mockup, settings).width, 1080);
+  store.getState().updateCanvas(banner.id, { outputSize: { width: 900, height: 450 } });
+  assert.deepEqual(store.getState().canvases[0], screenshot);
+  store.getState().undo();
+  assert.deepEqual(store.getState().canvases[1], banner);
+  store.getState().redo();
+  store.getState().selectCanvas(banner.id);
+  store.getState().applyLayoutToAll('banner-split');
+  assert.equal(store.getState().canvases[2].layout, 'device-only');
+  store.getState().applyStudioStyle('bold-gradient');
+  assert.deepEqual(store.getState().canvases[0], screenshot);
+  assert.deepEqual(store.getState().canvases[2], mockup);
+  store.getState().loadTemplate([{ ...screenshot, backgroundColor: '#123456' }]);
+  assert.deepEqual(store.getState().canvases[2], mockup);
+  store.getState().duplicateCanvas(mockup.id);
+  assert.deepEqual(store.getState().canvases.at(-1).outputSize, mockup.outputSize);
+  const project = { name: 'Round trip', canvases: store.getState().canvases, globalSettings: settings };
+  assert.equal(await store.getState().importProjectFile(JSON.stringify({ version: '2.0.0', project })), true);
+  assert.deepEqual(store.getState().canvases, JSON.parse(JSON.stringify(project.canvases)));
+  assert.equal(await store.getState().importProjectFile(JSON.stringify({ project: { ...project, canvases: [{ ...mockup, outputSize: { width: 1e9, height: 100 } }] } })), false);
+});
+
+test('dimensions and presentation are validated and exports require only used content', () => {
+  const settings = useEditorStore.getState().globalSettings;
+  const banner = newDesign('banner', settings);
+  const mockup = newDesign('mockup', settings);
+  for (const width of [0, 63, 4097, 100.5, NaN, Infinity, '100']) assert.equal(validOutputSize({ width, height: 100 }), false);
+  assert.equal(validOutputSize({ width: 64, height: 4096 }), true);
+  assert.equal(validCreationFields({ ...banner, kind: 'unknown' }), false);
+  assert.equal(validCreationFields({ ...banner, deviceTarget: 'play-feature-graphic' }), false);
+  assert.equal(slideExportIssue(banner, 'en', 'en'), undefined);
+  assert.match(slideExportIssue({ ...banner, mediaPresentation: 'image' }, 'en', 'en'), /missing screenshot/);
+  assert.equal(slideExportIssue({ ...mockup, imageSrc: 'asset:example' }, 'en', 'en'), undefined);
+});

@@ -29,6 +29,7 @@ import {
 import TextareaAutosize from 'react-textarea-autosize';
 import { TARGET_SIZES, isAndroidDevice } from '@/config/sizes';
 import { FONT_OPTIONS } from '@/config/fonts';
+import { designKind, mediaPresentation, isTransparent, resolveCanvasSize, resolveDeviceTarget } from '@/config/creation';
 import { DoodleAccentGroup, DoodleShape } from './DoodleAccent';
 import {
   DOODLE_PRESETS,
@@ -57,6 +58,8 @@ export interface CanvasEditorProps {
 }
 
 export const LAYOUT_OPTIONS: { value: LayoutType; label: string }[] = [
+  { value: 'banner-centered', label: 'Banner Centered' },
+  { value: 'banner-split', label: 'Banner Split' },
   { value: 'basic-top', label: 'Basic Top (Standard)' },
   { value: 'basic-bottom', label: 'Basic Bottom (Header Phone)' },
   { value: 'split-vertical', label: 'Split Vertical' },
@@ -94,6 +97,7 @@ export const getDefaultTextBoxWidth = (layout: LayoutType): number => {
       return 88;
     case 'half-right':
     case 'half-left':
+    case 'banner-split':
       return 50;
     case 'banner-stack-right':
       return 48;
@@ -165,7 +169,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
     switchToAppStore: state.switchToAppStore,
     switchToPlayStore: state.switchToPlayStore,
   })));
-  const globalSettings = settings || liveSettings;
+  const inheritedSettings = settings || liveSettings;
+  const globalSettings = { ...inheritedSettings, targetSize: resolveDeviceTarget(canvas, inheritedSettings), mockupStyle: canvas.mockupStyle || inheritedSettings.mockupStyle };
+  const media = mediaPresentation(canvas);
+  const transparent = isTransparent(canvas);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showDoodleMenu, setShowDoodleMenu] = useState(false);
   const [showStatusBarMenu, setShowStatusBarMenu] = useState(false);
@@ -229,7 +236,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
     }
   };
 
-  const sizeConfig = TARGET_SIZES[globalSettings.targetSize] || TARGET_SIZES['ios-6.5'];
+  const sizeConfig = resolveCanvasSize(canvas, inheritedSettings);
   const canvasWidth = sizeConfig.logicalWidth;
   const canvasHeight = sizeConfig.logicalHeight;
   const zoomScale = targetWidth ? (targetWidth / canvasWidth) : (globalSettings.zoomScale || 0.65);
@@ -265,7 +272,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
     else if (isMultiScreen) heightFactor = 0.66;
     else if (isCompact) heightFactor = 0.54;
 
-    const phoneH = Math.round(canvasHeight * heightFactor);
+    let phoneH = Math.round(canvasHeight * heightFactor);
     
     // Determine the device frame aspect ratio based on the target size
     let aspectRatio = 0.48; // Default standard phone (approx 9:19.5)
@@ -282,6 +289,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
       aspectRatio = targetConfig.logicalWidth / targetConfig.logicalHeight;
     }
 
+    if (designKind(canvas) === 'mockup') {
+      const count = currentLayout === 'trio-row' ? 3 : currentLayout === 'duo-row' ? 2 : 1;
+      phoneH = Math.min(phoneH, (canvasWidth * .8 / count - (count > 1 ? 24 : 0)) / aspectRatio);
+    }
     const phoneW = Math.round(phoneH * aspectRatio);
     return { phoneW, phoneH };
   };
@@ -291,6 +302,10 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
   // Dynamic layout rendering config
   const getLayoutConfig = () => {
     switch (currentLayout) {
+      case 'banner-centered':
+        return { containerClass: 'flex flex-col justify-center items-center gap-6', textContainerClass: 'w-full px-8 text-center flex flex-col items-center gap-2', phoneWrapperClass: 'relative flex items-center justify-center', textAlign: 'center' as const };
+      case 'banner-split':
+        return { containerClass: 'flex flex-row items-center justify-between', textContainerClass: 'w-1/2 px-6 flex flex-col gap-2', phoneWrapperClass: 'relative w-1/2 flex items-center justify-center', textAlign: 'left' as const };
       case 'basic-top':
         return {
           containerClass: "flex flex-col justify-between items-center overflow-hidden",
@@ -1489,10 +1504,12 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
           style={{
             width: `${canvasWidth}px`,
             height: `${canvasHeight}px`,
-            background: canvas.backgroundColor || '#000000',
+            background: transparent ? 'transparent' : (canvas.backgroundColor || '#000000'),
+            isolation: 'isolate',
             fontFamily: fontConfig.fontFamily,
           }}
         >
+          {!transparent && <>
           {/* Custom Background Image */}
           {canvas.backgroundImageSrc && (
             <div
@@ -1549,11 +1566,14 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
             </div>
           )}
 
+          </>}
           {/* Text Section */}
           {currentLayout !== 'device-only' && (
             <div 
               className={`group/textbox relative transition-all ${layoutConfig.textContainerClass}`}
               style={{
+                zIndex: 40,
+                position: layoutConfig.textContainerClass.includes('absolute') ? 'absolute' : 'relative',
                 width: canvas.textBoxWidth ? `${canvas.textBoxWidth}%` : undefined,
                 height: ['basic-top', 'basic-bottom'].includes(currentLayout) ? canvasHeight * .32 : undefined,
               }}
@@ -1774,6 +1794,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
             <div 
               className={layoutConfig.subtitleContainerClass}
               style={{
+                zIndex: 40,
+                position: layoutConfig.textContainerClass.includes('absolute') ? 'absolute' : 'relative',
                 width: canvas.textBoxWidth ? `${canvas.textBoxWidth}%` : undefined,
               }}
             >
@@ -1799,18 +1821,22 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
           )}
 
           {/* Adaptive Phone Mockup Section */}
-          {(() => {
+          {media !== 'none' && (() => {
+            if (media === 'image') return <div data-banner-image className={layoutConfig.phoneWrapperClass} style={{ zIndex: 10, height: canvasHeight * .48, width: canvasWidth * .46 }}><CanvasImage canvas={canvas} settings={globalSettings} /></div>;
+            const siblings = [prevCanvas, nextCanvas, nextNextCanvas].map(item => item && designKind(item) === designKind(canvas) ? item : undefined);
+            const [previous, next, nextNext] = siblings;
             const slot2Image = currentLayout === 'multi-screen-right'
-              ? (canvas.secondaryImageSrc || nextCanvas?.imageSrc || canvas.imageSrc)
-              : (canvas.secondaryImageSrc || prevCanvas?.imageSrc || canvas.imageSrc);
+              ? (canvas.secondaryImageSrc || next?.imageSrc || canvas.imageSrc)
+              : (canvas.secondaryImageSrc || previous?.imageSrc || canvas.imageSrc);
 
             const slot3Image = currentLayout === 'multi-screen-right'
-              ? (canvas.tertiaryImageSrc || nextNextCanvas?.imageSrc || nextCanvas?.imageSrc || canvas.imageSrc)
-              : (canvas.tertiaryImageSrc || nextCanvas?.imageSrc || canvas.imageSrc);
+              ? (canvas.tertiaryImageSrc || nextNext?.imageSrc || next?.imageSrc || canvas.imageSrc)
+              : (canvas.tertiaryImageSrc || next?.imageSrc || canvas.imageSrc);
 
             return (
               <div 
                 className={layoutConfig.phoneWrapperClass}
+                style={{ zIndex: 10 }}
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 onDrop={handlePhoneDrop}
               >
@@ -2385,9 +2411,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
-                    {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
+                    {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage settings={globalSettings} canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot2Image || null }} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -2406,9 +2432,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
-                    {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
+                    {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage settings={globalSettings} canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot3Image || null }} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -2432,9 +2458,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
-                    {nextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
+                    {slot2Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage settings={globalSettings} canvas={nextCanvas?.imageSrc ? nextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot2Image || null }} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">
@@ -2453,9 +2479,9 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                     showNotch={globalSettings.showNotch}
                     statusBar={canvas.statusBar || globalSettings.statusBar}
                   >
-                    {nextNextCanvas?.imageSrc || canvas.imageSrc || undefined ? (
+                    {slot3Image ? (
                       <div className="w-full h-full relative group/img bg-black flex items-center justify-center">
-                        <CanvasImage settings={globalSettings} canvas={nextNextCanvas?.imageSrc ? nextNextCanvas : canvas} />
+                        <CanvasImage settings={globalSettings} canvas={{ ...canvas, imageSrc: slot3Image || null }} />
                       </div>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-4">

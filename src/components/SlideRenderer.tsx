@@ -2,7 +2,7 @@
 
 import { CanvasEditor } from './CanvasEditor';
 import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
-import { TARGET_SIZES } from '@/config/sizes';
+import { resolveCanvasSize } from '@/config/creation';
 
 export interface SlideRendererProps {
   canvas: CanvasItem;
@@ -28,7 +28,7 @@ export function SlideRenderer({ canvas, canvases, settings, width, renderId, edi
     nextNextCanvas={resolve(canvases[index + 2])}
     isPreviewMode
     editableTextBox={editableTextBox}
-    targetWidth={width || TARGET_SIZES[settings.targetSize].logicalWidth}
+    targetWidth={width || resolveCanvasSize(canvas, settings).logicalWidth}
     renderId={renderId}
   />;
 }

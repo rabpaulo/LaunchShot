@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { toBlob } from 'html-to-image';
 import { SlideRenderer, type SlideRendererProps } from '@/components/SlideRenderer';
-import { TARGET_SIZES } from '@/config/sizes';
+import { resolveCanvasSize, isTransparent } from '@/config/creation';
 
 export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId'>): Promise<Blob> {
   const host = document.createElement('div');
@@ -16,10 +16,18 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     flushSync(() => root.render(<SlideRenderer {...props} renderId={renderId} />));
     const node = host.querySelector<HTMLElement>(`#${renderId}`);
     if (!node) throw new Error('Could not render this slide.');
+    await Promise.all(Array.from(node.querySelectorAll<HTMLElement>('[data-render-text]')).map(async text => {
+      const style = getComputedStyle(text);
+      const family = style.fontFamily.split(',')[0];
+      try {
+        const faces = await document.fonts.load(`${style.fontWeight} ${style.fontSize} ${family}`, text.textContent || 'Aa');
+        if (!faces.length) throw new Error('Font is unavailable');
+      } catch { throw new Error('The selected font could not load. Check your connection and retry.'); }
+    }));
     await document.fonts.ready;
     await Promise.all(Array.from(node.querySelectorAll('img')).map(image => image.decode()));
     // Background assets do not have image elements, so decode them explicitly too.
-    if (props.canvas.backgroundImageSrc) {
+    if (props.canvas.backgroundImageSrc && !isTransparent(props.canvas)) {
       const background = new Image();
       background.src = props.canvas.backgroundImageSrc;
       await background.decode();
@@ -27,7 +35,7 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     const overflowingText = Array.from(node.querySelectorAll<HTMLElement>('[data-render-text]')).some(text => text.scrollHeight > text.clientHeight + 1 || text.scrollWidth > text.clientWidth + 1);
     if (overflowingText) throw new Error('Text does not fit at its chosen size. Widen the text box, reduce the font size, or shorten the copy.');
-    const size = TARGET_SIZES[props.settings.targetSize];
+    const size = resolveCanvasSize(props.canvas, props.settings);
     const blob = await toBlob(node, {
       width: size.logicalWidth, height: size.logicalHeight,
       canvasWidth: size.width, canvasHeight: size.height, pixelRatio: 1,
@@ -35,6 +43,7 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
       filter: child => !(child instanceof HTMLElement && child.classList.contains('no-export')),
     });
     if (!blob) throw new Error('The browser could not create the PNG.');
+    if (isTransparent(props.canvas)) return blob;
     // Stores require opaque PNGs. An alpha:false surface also removes the alpha channel.
     const bitmap = await createImageBitmap(blob);
     try {

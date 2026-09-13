@@ -4,6 +4,7 @@ import Cropper from 'react-easy-crop';
 import { IoClose, IoColorWandOutline, IoCropOutline } from 'react-icons/io5';
 import { CanvasItem, useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES } from '@/config/sizes';
+import { resolveCanvasSize, resolveDeviceTarget, mediaPresentation, mediaAspectRatio } from '@/config/creation';
 
 interface ImageEditorModalProps {
   canvas: CanvasItem;
@@ -13,7 +14,7 @@ interface ImageEditorModalProps {
 export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
   const updateCanvas = useEditorStore(s => s.updateCanvas);
   const globalSettings = useEditorStore(s => s.globalSettings);
-  const sizeConfig = TARGET_SIZES[globalSettings.targetSize as keyof typeof TARGET_SIZES] || TARGET_SIZES['ios-6.5'];
+  const sizeConfig = mediaPresentation(canvas) === 'image' ? resolveCanvasSize(canvas, globalSettings) : TARGET_SIZES[resolveDeviceTarget(canvas, globalSettings)];
   const phoneW = sizeConfig.logicalWidth;
   const phoneH = sizeConfig.logicalHeight;
   // calculate scale to fit the preview container in the modal
@@ -75,6 +76,7 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
               crop={crop}
               zoom={zoom}
               rotation={rotation}
+              aspect={mediaAspectRatio(canvas, globalSettings)}
               onCropChange={setCrop}
               onCropComplete={onCropComplete}
               onZoomChange={setZoom}
@@ -82,7 +84,7 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
               style={{
                 mediaStyle: {
                   filter: `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%) blur(${filters.blur}px) grayscale(${filters.grayscale}%)`,
-                  objectFit: canvas.imageFit === 'contain' || globalSettings.imageFit === 'contain' ? 'contain' : 'cover'
+                  objectFit: (canvas.imageFit || globalSettings.imageFit) === 'contain' ? 'contain' : 'cover'
                 }
               }}
             />

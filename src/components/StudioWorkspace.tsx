@@ -14,6 +14,8 @@ import { copyCanvasToClipboard } from '@/utils/export';
 import { SlideRenderer } from './SlideRenderer';
 import { WorkspaceDesignControls, WorkspaceTypography } from './WorkspaceDesignControls';
 import { captureDesign } from '@/config/designs';
+import { CreationControls } from './CreationControls';
+import { designKind, newDesign, resolveCanvasSize, isTransparent, type DesignKind } from '@/config/creation';
 import styles from './StudioWorkspace.module.css';
 
 const TemplateGalleryModal = dynamic(() => import('./TemplateGalleryModal').then(module => module.TemplateGalleryModal));
@@ -37,11 +39,13 @@ export function StudioWorkspace() {
   const selected = state.canvases.find(canvas => canvas.id === state.selectedCanvasId) || state.canvases[0];
   const index = selected ? state.canvases.indexOf(selected) : 0;
   const project = state.projects.find(item => item.id === state.activeProjectId);
-  const isEmpty = state.canvases.length === 0 || (state.canvases.length === 1 && !selected?.imageSrc && !selected?.title);
-  const size = TARGET_SIZES[state.globalSettings.targetSize] || TARGET_SIZES[DEFAULT_IPHONE_SIZE];
+  const isEmpty = state.canvases.length === 0 || (state.canvases.length === 1 && designKind(selected) === 'screenshot' && !selected?.imageSrc && !selected?.title);
+  const mixed = state.canvases.some(canvas => designKind(canvas) !== 'screenshot');
+  const exportLabel = mixed ? 'Export designs' : 'Export screenshots';
+  const size = selected ? resolveCanvasSize(selected, state.globalSettings) : TARGET_SIZES[DEFAULT_IPHONE_SIZE];
   const fit = Math.min((available.width - 80) / size.logicalWidth, (available.height - 80) / size.logicalHeight, 1.2);
   const width = Math.max(120, size.logicalWidth * (zoom ?? .65));
-  const platform = isAndroidDevice(state.globalSettings.targetSize) ? 'android' : 'ios';
+  const platform = isAndroidDevice(selected?.deviceTarget || state.globalSettings.targetSize) ? 'android' : 'ios';
 
   useEffect(() => {
     let mounted = true;
@@ -57,7 +61,9 @@ export function StudioWorkspace() {
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       setAvailable({ width, height });
-      const target = TARGET_SIZES[useEditorStore.getState().globalSettings.targetSize] || TARGET_SIZES[DEFAULT_IPHONE_SIZE];
+      const current = useEditorStore.getState();
+      const item = current.canvases.find(canvas => canvas.id === current.selectedCanvasId) || current.canvases[0];
+      const target = item ? resolveCanvasSize(item, current.globalSettings) : TARGET_SIZES[DEFAULT_IPHONE_SIZE];
       // Fit once on opening. Later panel/window changes must not change the chosen scale.
       setZoom(current => current ?? Math.max(.2, Math.min((width - 80) / target.logicalWidth, (height - 80) / target.logicalHeight, 1.2)));
     });
@@ -99,7 +105,13 @@ export function StudioWorkspace() {
   }
 
   function choosePlatform(value: string) {
-    state.updateGlobalSettings({ targetSize: value === 'ios' ? DEFAULT_IPHONE_SIZE : DEFAULT_ANDROID_SIZE });
+    const target = TARGET_SIZES[value === 'ios' ? DEFAULT_IPHONE_SIZE : DEFAULT_ANDROID_SIZE];
+    if (selected) state.updateCanvas(selected.id, { deviceTarget: target.id, outputSize: { width: target.width, height: target.height } });
+  }
+
+  function addDesign(kind: DesignKind) {
+    state.addCanvas(newDesign(kind, state.globalSettings));
+    state.selectCanvas(useEditorStore.getState().canvases.at(-1)!.id);
   }
 
   if (!hydrated) return <main className={styles.loading}>
@@ -131,29 +143,30 @@ export function StudioWorkspace() {
         <button aria-label="Redo" title="Redo" disabled={!state.canRedo} onClick={state.redo}><IoArrowRedoOutline /></button>
         <span className={styles.divider} />
         <button disabled={isEmpty} onClick={() => setModal('preview')}>Preview</button>
-        <button className={styles.primary} disabled={isEmpty || busy} onClick={() => setModal('export')}><IoDownloadOutline />Export screenshots</button>
+        <button className={styles.primary} disabled={isEmpty || busy} onClick={() => setModal('export')}><IoDownloadOutline />{exportLabel}</button>
       </div>
     </header>
 
     <main className={styles.editor}>
       <aside className={styles.filmstrip} aria-label="Slides">
-        <div className={styles.sectionHeading}><h2>Your story</h2><span>{state.canvases.length} slides</span></div>
+        <div className={styles.sectionHeading}><h2>Your designs</h2><span>{state.canvases.length} items</span></div>
+        <details className={styles.controlGroup}><summary>Add design</summary><div>{(['screenshot', 'banner', 'mockup'] as const).map(kind => <button key={kind} className={styles.fullButton} onClick={() => addDesign(kind)}>Add {kind}</button>)}</div></details>
         <div className={styles.thumbnails}>
           {state.canvases.map((canvas, position) => <button key={canvas.id} className={`${styles.thumbnail} ${canvas.id === selected?.id ? styles.selected : ''}`} onClick={() => state.selectCanvas(canvas.id)} aria-label={`Select slide ${position + 1}`} aria-pressed={canvas.id === selected?.id}>
             <div className={styles.thumbnailImage}>
               <SlideRenderer canvas={canvas} canvases={state.canvases} settings={state.globalSettings} width={108} renderId={`thumb-${canvas.id}`} />
             </div>
-            <span><b>{String(position + 1).padStart(2, '0')}</b>{canvas.title || 'Add a headline'}</span>
+            <span><b>{String(position + 1).padStart(2, '0')}</b>{canvas.title || designKind(canvas)}</span>
           </button>)}
         </div>
-        <button className={styles.addSlide} onClick={() => { state.addCanvas(selected ? captureDesign(selected, state.globalSettings) : { layout: 'basic-top', backgroundColor: '#f2f0eb', textColor: '#0f172a' }); state.selectCanvas(useEditorStore.getState().canvases.at(-1)!.id); }}><IoAddOutline />Add blank slide</button>
+        <button className={styles.addSlide} onClick={() => { state.addCanvas(selected ? { ...captureDesign(selected, state.globalSettings), outputSize: selected.outputSize, deviceTarget: selected.deviceTarget } : { layout: 'basic-top', backgroundColor: '#f2f0eb', textColor: '#0f172a' }); state.selectCanvas(useEditorStore.getState().canvases.at(-1)!.id); }}><IoAddOutline />Add blank slide</button>
         <button className={styles.addSlide} disabled={busy} onClick={() => uploadRef.current?.click()}><IoCloudUploadOutline />{busy ? 'Reading screenshots…' : isEmpty ? 'Upload screenshots' : 'Add screenshots'}</button>
       </aside>
 
       <section className={styles.canvasArea}>
-        <div className={styles.canvasHeading}><span>SLIDE {String(index + 1).padStart(2, '0')} <i>/</i> {String(state.canvases.length).padStart(2, '0')}</span><span>{platform === 'ios' ? 'App Store' : 'Google Play'} · {size.width} × {size.height}</span></div>
+        <div className={styles.canvasHeading}><span>SLIDE {String(index + 1).padStart(2, '0')} <i>/</i> {String(state.canvases.length).padStart(2, '0')}</span><span>{selected && designKind(selected) !== 'screenshot' ? designKind(selected) : platform === 'ios' ? 'App Store' : 'Google Play'} · {size.width} × {size.height}</span></div>
         <div ref={stageRef} className={styles.stage}>
-          {selected && <div className={styles.canvasPreview} style={{ width, height: width * size.logicalHeight / size.logicalWidth }}>
+          {selected && <div className={`${styles.canvasPreview} ${isTransparent(selected) ? styles.checkerboard : ''}`} style={{ width, height: width * size.logicalHeight / size.logicalWidth }}>
             <SlideRenderer key={selected.id} canvas={selected} canvases={state.canvases} settings={state.globalSettings} width={width} renderId={`workspace-${selected.id}`} editableTextBox />
           </div>}
           {!selected && <button className={styles.primary} onClick={() => state.addCanvas({ layout: 'basic-top', backgroundColor: '#f2f0eb', textColor: '#0f172a' })}>Create a blank slide</button>}
@@ -167,21 +180,22 @@ export function StudioWorkspace() {
       <aside className={styles.inspector} aria-label="Slide inspector">
         {selected ? <>
         <div className={styles.sectionHeading}><h2>Make it yours</h2><span>Slide {index + 1}</span></div>
-        <section><span className={styles.eyebrow}>THE MESSAGE</span>
-          <label>Headline<textarea aria-label="Headline" rows={3} value={selected?.title || ''} placeholder="What can someone do with your app?" onChange={event => state.updateCanvas(selected.id, { title: event.target.value })} /></label>
+        <CreationControls key={`creation-${selected.id}`} canvas={selected} />
+        {designKind(selected) !== 'mockup' && <section><span className={styles.eyebrow}>THE MESSAGE</span>
+          <label>Headline<textarea aria-label="Headline" rows={3} value={selected?.title || ''} placeholder={designKind(selected) === 'banner' ? 'Write your banner headline' : 'What can someone do with your app?'} onChange={event => state.updateCanvas(selected.id, { title: event.target.value })} /></label>
           <p className={styles.hint}>Lead with one clear benefit. Keep it easy to read.</p>
           <label>Supporting text <span>Optional</span><textarea aria-label="Supporting text" rows={2} value={selected?.subtitle || ''} placeholder="Add a little more context" onChange={event => state.updateCanvas(selected.id, { subtitle: event.target.value })} /></label>
-          {!selected?.title.trim() && <p className={styles.notice}>Add a headline before exporting this slide.</p>}
+          {designKind(selected) === 'screenshot' && selected.layout !== 'device-only' && !selected?.title.trim() && <p className={styles.notice}>Add a headline before exporting this slide.</p>}
           <WorkspaceTypography canvas={selected} />
-        </section>
-        <section><span className={styles.eyebrow}>THE SCREENSHOT</span>
-          <button className={styles.fullButton} onClick={() => replaceRef.current?.click()}><IoCloudUploadOutline />{selected?.imageSrc ? 'Replace screenshot' : 'Add missing screenshot'}</button>
+        </section>}
+        <section><span className={styles.eyebrow}>{designKind(selected) === 'banner' ? 'THE IMAGE' : 'THE SCREENSHOT'}</span>
+          <button className={styles.fullButton} onClick={() => replaceRef.current?.click()}><IoCloudUploadOutline />{designKind(selected) === 'banner' ? (selected.imageSrc ? 'Replace image' : 'Upload image') : selected?.imageSrc ? 'Replace screenshot' : 'Add missing screenshot'}</button>
           <div className={styles.row}>
             <button onClick={() => state.duplicateCanvas(selected.id)}><IoCopyOutline />Duplicate</button>
             <button onClick={() => state.removeCanvas(selected.id)}><IoTrashOutline />Remove</button>
           </div>
         </section>
-        <section><div className={styles.sectionHeading}><span className={styles.eyebrow}>THE STYLE</span><span>Applies to all slides</span></div>
+        <section><div className={styles.sectionHeading}><span className={styles.eyebrow}>THE STYLE</span><span>Applies to this design type</span></div>
           <div className={styles.styleOptions}>{STUDIO_STYLES.map(style => <button key={style.id} aria-label={`Apply ${style.name}`} aria-pressed={state.globalSettings.studioStyle === style.id} onClick={() => state.applyStudioStyle(style.id)}>
             <div style={{ background: style.background }}><SlideRenderer canvas={styleSlide(selected, style.id)} canvases={state.canvases} settings={styleSettings(state.globalSettings, style.id)} width={62} renderId={`style-${style.id}`} /></div>
             <span>{style.name}</span>
@@ -189,8 +203,7 @@ export function StudioWorkspace() {
         </section>
         <WorkspaceDesignControls key={selected.id} canvas={selected} onTemplates={() => setModal('templates')} onImageEdit={() => setModal('image')} />
         <section><label>App name<input value={state.globalSettings.appName || ''} placeholder="Your app name" onChange={event => state.renameProject(state.activeProjectId, event.target.value)} /></label></section>
-        <section><label>Store destination<select value={platform} onChange={event => choosePlatform(event.target.value)}><option value="ios">Apple App Store</option><option value="android">Google Play</option></select></label>
-          <label>Canvas size<select value={state.globalSettings.targetSize} onChange={event => { state.updateGlobalSettings({ targetSize: event.target.value as typeof state.globalSettings.targetSize }); }}>{Object.entries(TARGET_SIZES).map(([id, target]) => <option key={id} value={id}>{target.name} · {target.width} × {target.height}</option>)}</select></label>
+        <section>{designKind(selected) === 'screenshot' && <label>Store destination<select value={platform} onChange={event => choosePlatform(event.target.value)}><option value="ios">Apple App Store</option><option value="android">Google Play</option></select></label>}
           <button className={styles.fullButton} onClick={() => setModal('translations')}>Languages & translations</button>
         </section>
         <div className={styles.inspectorFooter}>
@@ -207,9 +220,9 @@ export function StudioWorkspace() {
     {modal === 'templates' && <TemplateGalleryModal onClose={() => setModal(null)} />}
     {modal === 'image' && selected && <ImageEditorModal canvas={selected} onClose={() => setModal(null)} />}
     {modal === 'preview' && <div className={styles.previewOverlay} role="dialog" aria-modal="true" aria-label="Listing preview" onKeyDown={event => { if (event.key === 'Escape') setModal(null); }}>
-      <header><div><span className={styles.eyebrow}>LISTING PREVIEW</span><h2>{state.globalSettings.appName || project?.name}</h2><p>Review your screenshots together, at listing scale.</p></div><button autoFocus onClick={() => setModal(null)}><IoCloseOutline />Close preview</button></header>
+      <header><div><span className={styles.eyebrow}>{mixed ? 'DESIGN PREVIEW' : 'LISTING PREVIEW'}</span><h2>{state.globalSettings.appName || project?.name}</h2><p>{mixed ? 'Review your designs together.' : 'Review your screenshots together, at listing scale.'}</p></div><button autoFocus onClick={() => setModal(null)}><IoCloseOutline />Close preview</button></header>
       <div className={styles.previewSlides}>{state.canvases.map(canvas => <SlideRenderer key={canvas.id} canvas={canvas} canvases={state.canvases} settings={state.globalSettings} width={250} renderId={`preview-${canvas.id}`} />)}</div>
-      <button className={styles.primary} onClick={() => setModal('export')}><IoDownloadOutline />Export screenshots</button>
+      <button className={styles.primary} onClick={() => setModal('export')}><IoDownloadOutline />{exportLabel}</button>
     </div>}
   </div>;
 }

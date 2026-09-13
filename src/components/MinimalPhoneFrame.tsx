@@ -82,7 +82,7 @@ export function MinimalPhoneFrame({
         style={{ borderRadius: `${innerRadius}px` }}
       >
         {/* Device-Specific Cutout (Apple Dynamic Island vs Samsung Punch Hole) */}
-        {showNotch && (
+        {showNotch && style !== 'ipad' && style !== 'android-tablet' && (
           style === 'apple' ? (
           /* Apple Dynamic Island */
           <div 

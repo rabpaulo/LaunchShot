@@ -139,3 +139,8 @@
 .designControls { min-width:0; }
 .canvasPreview [title^="Drag"] { touch-action:none; }
 @media (max-width:850px) { .inspector { display:block; } }
+.checkerboard {
+  background-color: #fff;
+  background-image: conic-gradient(#d9dedb 25%, transparent 0 50%, #d9dedb 0 75%, transparent 0);
+  background-size: 20px 20px;
+}

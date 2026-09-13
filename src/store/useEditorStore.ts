@@ -4,6 +4,7 @@ import { projectStorage, portableProject, restoreProjectImages } from '@/utils/p
 import { styleSlide, styleSettings, type StudioStyleId } from '@/config/styles';
 import { type TargetSizeId, DEFAULT_SIZE, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE, isAndroidDevice, isAppleDevice } from '@/config/sizes';
 import { DEFAULT_FONT } from '@/config/fonts';
+import { designKind, validCreationFields, type DesignKind, type OutputSize } from '@/config/creation';
 import { type BadgeConfig, getBadgeStore } from '@/config/badges';
 import type { DoodleConfig } from '@/config/doodles';
 import { DEFAULT_LANGUAGE } from '@/config/languages';
@@ -38,6 +39,8 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export type LayoutType = 
+  | 'banner-centered'
+  | 'banner-split'
   | 'basic-top' 
   | 'basic-bottom' 
   | 'split-vertical'
@@ -68,6 +71,12 @@ export type LayoutType =
   | 'duo-row';
 
 export type CanvasItem = {
+  kind?: DesignKind;
+  outputSize?: OutputSize;
+  deviceTarget?: TargetSizeId;
+  mediaPresentation?: 'none' | 'image' | 'device';
+  transparentBackground?: boolean;
+  mockupStyle?: MockupStyle;
   id: string;
   imageSrc: string | null;
   secondaryImageSrc?: string | null;
@@ -384,13 +393,16 @@ export const useEditorStore = create<EditorState>()(
         return { savedDesigns: [...state.savedDesigns, { id: crypto.randomUUID(), name: name.trim(), design: captureDesign(canvas, state.globalSettings) }] };
       }),
       removeDesign: (id) => set(state => ({ savedDesigns: state.savedDesigns.filter(item => item.id !== id) })),
-      applySlideDesign: (design, canvasId) => set(state => pushHistory(state, state.canvases.map(canvas => !canvasId || canvas.id === canvasId ? applyDesign(canvas, design) : canvas))),
+      applySlideDesign: (design, canvasId) => set(state => pushHistory(state, state.canvases.map(canvas => (!canvasId || canvas.id === canvasId) && designKind(canvas) === (design.kind || 'screenshot') ? applyDesign(canvas, design) : canvas))),
       selectedCanvasId: null,
       selectCanvas: (id) => set({ selectedCanvasId: id }),
-      applyStudioStyle: (id) => set(state => pushHistory(state,
-        state.canvases.map(canvas => styleSlide(canvas, id)), styleSettings(state.globalSettings, id))),
+      applyStudioStyle: (id) => set(state => {
+        const selected = state.canvases.find(canvas => canvas.id === state.selectedCanvasId) || state.canvases[0];
+        const mixed = state.canvases.some(canvas => designKind(canvas) !== 'screenshot');
+        return pushHistory(state, state.canvases.map(canvas => selected && designKind(canvas) === designKind(selected) ? styleSlide(canvas, id) : canvas), mixed ? { ...state.globalSettings, studioStyle: id } : styleSettings(state.globalSettings, id));
+      }),
       importScreenshots: (sources) => set(state => {
-        const empty = state.canvases.length === 1 && !state.canvases[0].imageSrc && !state.canvases[0].title;
+        const empty = state.canvases.length === 1 && designKind(state.canvases[0]) === 'screenshot' && !state.canvases[0].imageSrc && !state.canvases[0].title;
         const additions = sources.map(source => empty ? {
           ...state.canvases[0], id: crypto.randomUUID(), imageSrc: source,
         } : styleSlide({
@@ -638,7 +650,7 @@ export const useEditorStore = create<EditorState>()(
             throw new Error('Invalid project file: missing canvases');
           }
 
-          if (projectData.canvases.some((canvas: CanvasItem) => !canvas || typeof canvas.title !== 'string' || typeof canvas.subtitle !== 'string' || typeof canvas.id !== 'string' || (canvas.imageSrc != null && typeof canvas.imageSrc !== 'string'))) return false;
+          if (projectData.canvases.some((canvas: CanvasItem) => !canvas || typeof canvas.title !== 'string' || typeof canvas.subtitle !== 'string' || typeof canvas.id !== 'string' || (canvas.imageSrc != null && typeof canvas.imageSrc !== 'string') || !validCreationFields(canvas))) return false;
           const newId = `project-${crypto.randomUUID()}`;
           const importedProject: Project = {
             id: newId,
@@ -945,7 +957,8 @@ export const useEditorStore = create<EditorState>()(
 
       applyLayoutToAll: (layout) =>
         set((state) => {
-          const nextCanvases = state.canvases.map((c) => ({ ...c, layout }));
+          const selected = state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          const nextCanvases = state.canvases.map(c => selected && designKind(c) === designKind(selected) ? { ...c, layout } : c);
           return pushHistory(state, nextCanvases);
         }),
 
@@ -1196,6 +1209,14 @@ export const useEditorStore = create<EditorState>()(
 
       loadTemplate: (newCanvases) =>
         set((state) => {
+          if (state.canvases.some(canvas => designKind(canvas) !== 'screenshot')) {
+            let index = 0;
+            return pushHistory(state, state.canvases.map(canvas => {
+              if (designKind(canvas) !== 'screenshot' || !newCanvases.length) return canvas;
+              const template = newCanvases[Math.min(index++, newCanvases.length - 1)];
+              return applyDesign(canvas, captureDesign(template, state.globalSettings));
+            }));
+          }
           const updatedCanvases = [...newCanvases];
 
           for (let i = 0; i < Math.min(updatedCanvases.length, state.canvases.length); i++) {

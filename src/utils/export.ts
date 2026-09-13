@@ -3,6 +3,7 @@ import FileSaver from 'file-saver';
 import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES, type TargetSizeId } from '@/config/sizes';
+import { designKind, mediaPresentation, resolveCanvasSize } from '@/config/creation';
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
 export function downloadBlob(blob: Blob, filename: string) {
@@ -18,10 +19,11 @@ export function downloadBlob(blob: Blob, filename: string) {
 export interface ExportFailure { slide: number; size: string; language: string; message: string }
 export interface ExportResult { exported: number; failures: ExportFailure[] }
 export function slideExportIssue(canvas: CanvasItem, language: string, currentLanguage: string): string | undefined {
-  if (!canvas.imageSrc) return 'Replace the missing screenshot.';
+  if (mediaPresentation(canvas) !== 'none' && !canvas.imageSrc) return 'Replace the missing screenshot.';
+  if (designKind(canvas) === 'mockup') return;
   const copy = canvas.translations?.[language] || (language === currentLanguage ? canvas : undefined);
   if (!copy) return `Add the ${language} translation first.`;
-  if (canvas.layout !== 'device-only' && !copy.title.trim()) return 'Write a headline before exporting.';
+  if (designKind(canvas) === 'screenshot' && !['device-only', 'duo-row', 'trio-row'].includes(canvas.layout) && !copy.title.trim()) return 'Write a headline before exporting.';
 }
 
 /** The job owns a snapshot; rendering never changes the editor or its history. */
@@ -31,24 +33,29 @@ export async function exportImages(
 ): Promise<ExportResult> {
   const settings: GlobalSettings = structuredClone(useEditorStore.getState().globalSettings);
   const snapshot = structuredClone(canvases);
-  const sizes = selectedSizes?.length ? selectedSizes : [settings.targetSize];
+  const sizes = selectedSizes?.length ? selectedSizes : ['original'];
   const languages = selectedLanguages?.length ? selectedLanguages : [settings.activeLanguage || 'en'];
   const zip = new JSZip();
   const result: ExportResult = { exported: 0, failures: [] };
   const { renderSlideImage } = await import('./exportSurface');
   let completed = 0;
-  const total = sizes.length * languages.length * snapshot.length;
+  const total = languages.length * sizes.reduce((count, size) => count + snapshot.filter(canvas => size === 'original' || designKind(canvas) === 'screenshot').length, 0);
   for (const language of languages) {
     for (const size of sizes) {
-      for (const [index, canvas] of snapshot.entries()) {
+      for (const [index, original] of snapshot.entries()) {
+        if (size !== 'original' && designKind(original) !== 'screenshot') continue;
+        const canvas = size === 'original' ? original : { ...original, outputSize: undefined, deviceTarget: TARGET_SIZES[size as TargetSizeId]?.category === 'Header' ? original.deviceTarget : size as TargetSizeId };
+        const renderSettings = { ...settings, targetSize: size === 'original' ? settings.targetSize : size as TargetSizeId, activeLanguage: language };
         try {
-          if (!TARGET_SIZES[size as TargetSizeId]) throw new Error('Unknown export dimensions.');
+          if (size !== 'original' && !TARGET_SIZES[size as TargetSizeId]) throw new Error('Unknown export dimensions.');
           const issue = slideExportIssue(canvas, language, settings.activeLanguage || 'en');
           if (issue) throw new Error(issue);
           const blob = await renderSlideImage({ canvas, canvases: snapshot,
-            settings: { ...settings, targetSize: size as TargetSizeId, activeLanguage: language },
+            settings: renderSettings,
           });
-          zip.file(`${language}/${size}/${String(index + 1).padStart(2, '0')}.png`, blob);
+          const dimensions = resolveCanvasSize(canvas, renderSettings);
+          const destination = size === 'original' ? `${designKind(canvas)}-${dimensions.width}x${dimensions.height}` : size;
+          zip.file(`${language}/${destination}/${String(index + 1).padStart(2, '0')}.png`, blob);
           result.exported++;
         } catch (error) {
           result.failures.push({ slide: index + 1, size, language,
@@ -61,7 +68,7 @@ export async function exportImages(
   }
   if (result.exported) {
     if (result.failures.length) zip.file('export-errors.json', JSON.stringify(result.failures, null, 2));
-    downloadBlob(await zip.generateAsync({ type: 'blob' }), 'launchshot-screenshots.zip');
+    downloadBlob(await zip.generateAsync({ type: 'blob' }), snapshot.some(canvas => designKind(canvas) !== 'screenshot') ? 'launchshot-designs.zip' : 'launchshot-screenshots.zip');
   }
   onProgress?.(100);
   return result;
