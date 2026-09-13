@@ -46,7 +46,7 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
     finally { setBusy(false); }
   }
 
-  return createPortal(<div className={`${styles.workspace} ${styles.dialogBackdrop}`} role="presentation">
+  return createPortal(<div className={`${styles.workspace} ${globalSettings.theme === 'dark' ? styles.dark : ''} ${styles.dialogBackdrop}`} role="presentation">
     <div className={styles.dialog} role="dialog" aria-modal="true" aria-label={label} onKeyDown={event => { if (event.key === 'Escape' && !busy) onClose(); }}>
       <header><div><span className={styles.eyebrow}>READY FOR YOUR LISTING</span><h2>{label}</h2></div><button autoFocus aria-label="Close export" disabled={busy} onClick={onClose}><IoCloseOutline /></button></header>
       <p>Full-resolution PNGs, organized by language and destination.</p>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
-import { IoArrowBackOutline, IoArrowForwardOutline, IoArrowRedoOutline, IoArrowUndoOutline, IoCheckmarkOutline, IoCloudUploadOutline, IoCopyOutline, IoDownloadOutline, IoExpandOutline, IoFolderOpenOutline, IoAddOutline, IoTrashOutline, IoCloseOutline } from 'react-icons/io5';
+import { IoArrowBackOutline, IoArrowForwardOutline, IoArrowRedoOutline, IoArrowUndoOutline, IoCheckmarkOutline, IoCloudUploadOutline, IoCopyOutline, IoDownloadOutline, IoExpandOutline, IoFolderOpenOutline, IoAddOutline, IoTrashOutline, IoCloseOutline, IoMoonOutline, IoSunnyOutline } from 'react-icons/io5';
 import { useEditorStore } from '@/store/useEditorStore';
 import { STUDIO_STYLES, styleSlide, styleSettings } from '@/config/styles';
 import { TARGET_SIZES, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE, isAndroidDevice } from '@/config/sizes';
@@ -48,6 +48,7 @@ export function StudioWorkspace() {
   const fit = Math.min((available.width - 80) / size.logicalWidth, (available.height - 80) / size.logicalHeight, 1.2);
   const width = Math.max(120, size.logicalWidth * (zoom ?? .65));
   const platform = isAndroidDevice(selected?.deviceTarget || state.globalSettings.targetSize) ? 'android' : 'ios';
+  const isDark = state.globalSettings.theme === 'dark';
 
   useEffect(() => { inspectorRef.current?.scrollTo({ top: 0 }); }, [selected?.id]);
 
@@ -136,7 +137,7 @@ export function StudioWorkspace() {
     }}>Retry opening workspace</button>}
   </main>;
 
-  return <div className={styles.workspace}
+  return <div className={`${styles.workspace} ${isDark ? styles.dark : ''}`}
     onDragOver={event => { if (event.dataTransfer.types.includes('Files')) { event.preventDefault(); setDragging(true); } }}
     onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }}
     onDrop={event => { event.preventDefault(); void upload(Array.from(event.dataTransfer.files)); }}>
@@ -153,6 +154,16 @@ export function StudioWorkspace() {
         {saveStatus === 'error' && <button onClick={() => void retrySave()}>Retry save</button>}
       </div>
       <div className={styles.headerActions}>
+        <button
+          className={styles.themeToggle}
+          aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+          title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+          aria-pressed={isDark}
+          onClick={state.toggleTheme}
+        >
+          {isDark ? <IoSunnyOutline /> : <IoMoonOutline />}
+        </button>
+        <span className={styles.divider} />
         <button aria-label="Undo" title="Undo" disabled={!state.canUndo} onClick={state.undo}><IoArrowUndoOutline /></button>
         <button aria-label="Redo" title="Redo" disabled={!state.canRedo} onClick={state.redo}><IoArrowRedoOutline /></button>
         <span className={styles.divider} />

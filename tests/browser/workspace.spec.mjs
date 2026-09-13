@@ -26,6 +26,38 @@ async function upload(page, count = 2) {
 }
 async function saved(page) { await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible(); }
 
+test('dark mode themes only the editor UI and persists after reload', async ({ page }) => {
+  await page.goto('/');
+  const canvas = page.locator('[id^="workspace-"]').first();
+  await page.getByLabel('Headline', { exact: true }).fill('Design stays the same');
+  await expect(canvas).toHaveCSS('background-color', 'rgb(242, 240, 235)');
+  const lightDesign = await canvas.evaluate(element => {
+    const text = element.querySelector('[data-render-text]');
+    const root = getComputedStyle(element);
+    const copy = getComputedStyle(text);
+    return { background: root.background, color: copy.color, fontFamily: copy.fontFamily, fontSize: copy.fontSize };
+  });
+
+  await page.getByRole('button', { name: 'Switch to dark mode', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Switch to light mode', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('header').first()).toHaveCSS('background-color', 'rgb(23, 31, 26)');
+  expect(await canvas.evaluate(element => {
+    const text = element.querySelector('[data-render-text]');
+    const root = getComputedStyle(element);
+    const copy = getComputedStyle(text);
+    return { background: root.background, color: copy.color, fontFamily: copy.fontFamily, fontSize: copy.fontSize };
+  })).toEqual(lightDesign);
+
+  await page.getByRole('button', { name: 'Export screenshots', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Export screenshots' })).toHaveCSS('background-color', 'rgb(23, 31, 26)');
+  await page.getByRole('button', { name: 'Back to editing', exact: true }).click();
+
+  await saved(page);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Switch to light mode', exact: true })).toBeVisible();
+  await expect(page.locator('header').first()).toHaveCSS('background-color', 'rgb(23, 31, 26)');
+});
+
 test('chosen text size stays fixed when copy wraps and the text box narrows', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Headline', { exact: true }).fill('A short headline');
