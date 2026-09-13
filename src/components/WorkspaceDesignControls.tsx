@@ -119,7 +119,8 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <Range label="Horizontal position" value={canvas.mediaOffset?.x ?? 0} min={-50} max={50} unit="%" onChange={x => update({ mediaOffset: { x, y: canvas.mediaOffset?.y ?? 0 } })} />
       <Range label="Vertical position" value={canvas.mediaOffset?.y ?? 0} min={-50} max={50} unit="%" onChange={y => update({ mediaOffset: { x: canvas.mediaOffset?.x ?? 0, y } })} />
       <Range label="Device rotation" value={canvas.rotationAngle || 0} min={-180} max={180} unit="°" onChange={rotationAngle => update({ rotationAngle, mediaScale: canvas.mediaScale ?? 1 })} />
-      <div className={styles.row}><button onClick={() => update({ mediaOffset: { x: 0, y: 0 } })}>Center media</button><button onClick={() => update({ mediaScale: 1, mediaOffset: { x: 0, y: 0 }, rotationAngle: 0 })}>Reset placement</button></div>
+      {mediaPresentation(canvas) === 'device' && <Range label="Device yaw" value={canvas.yawAngle ?? 0} min={-60} max={60} unit="°" onChange={yawAngle => update({ yawAngle })} />}
+      <div className={styles.row}><button onClick={() => update({ mediaOffset: { x: 0, y: 0 } })}>Center media</button><button onClick={() => update({ mediaScale: 1, mediaOffset: { x: 0, y: 0 }, rotationAngle: 0, yawAngle: 0 })}>Reset placement</button></div>
       <label>Screenshot fit<select aria-label="Screenshot fit" value={canvas.imageFit || state.globalSettings.imageFit} onChange={event => update({ imageFit: event.target.value as 'cover' | 'contain' })}><option value="contain">Show entire screenshot</option><option value="cover">Fill device screen</option></select></label>
       <button className={styles.fullButton} disabled={!canvas.imageSrc} onClick={onImageEdit}>Crop & image filters</button>
       </>}

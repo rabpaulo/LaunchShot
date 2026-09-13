@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { Buffer } from 'node:buffer';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import JSZip from 'jszip';
 
 async function uploadImage(page) {
@@ -204,6 +204,7 @@ test('six visual presets preserve copy and export positioned media at the chosen
       await page.getByLabel('Shadow style', { exact: true }).selectOption('none');
       await expect.poll(() => page.locator('[id^="workspace-"] [data-device-frame]').evaluateAll(frames => frames.every(frame => getComputedStyle(frame).boxShadow === 'none'))).toBe(true);
       await page.getByLabel('Shadow style', { exact: true }).selectOption('spread');
+      await page.getByLabel('Device yaw', { exact: true }).fill('30');
     }
     await page.getByRole('button', { name: 'Fit', exact: true }).click();
     await page.screenshot({ path: `test-results/preset-default-${index + 1}.png` });
@@ -219,6 +220,10 @@ test('six visual presets preserve copy and export positioned media at the chosen
       await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('75');
       await page.getByRole('button', { name: 'Reset placement', exact: true }).click();
       await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('100');
+      if (kind === 'mockup' || name === 'Dark layered devices') {
+        await expect(page.getByLabel('Device yaw', { exact: true })).toHaveValue('0');
+        await page.getByLabel('Device yaw', { exact: true }).fill(index % 2 ? '-40' : '40');
+      }
       await page.getByLabel('Media scale', { exact: true }).fill('75');
       await page.getByLabel('Horizontal position', { exact: true }).fill('8');
     }
@@ -232,6 +237,7 @@ test('six visual presets preserve copy and export positioned media at the chosen
   await page.getByRole('button', { name: 'Select design 6', exact: true }).click();
   await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('75');
   await expect(page.getByLabel('Horizontal position', { exact: true })).toHaveValue('8');
+  await expect(page.getByLabel('Device yaw', { exact: true })).toHaveValue('-40');
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('button', { name: 'Delete design 6', exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/presets-narrow.png', fullPage: true });
@@ -247,9 +253,10 @@ test('six visual presets preserve copy and export positioned media at the chosen
     const bytes = await file.async('nodebuffer');
     expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual(file.name.includes('/banner-') ? [1200, 630] : [1080, 1080]);
     const index = Number(file.name.match(/(\d+)\.png$/)[1]) - 1;
+    await writeFile(`test-results/yaw-export-${index + 1}.png`, bytes);
     const bounds = await greenBounds(page, bytes.toString('base64'));
     if (previewBounds[index] === null) expect(bounds).toBeNull();
-    else for (let edge = 0; edge < 4; edge++) expect(bounds[edge]).toBeCloseTo(previewBounds[index][edge], 2);
+    else for (let edge = 0; edge < 4; edge++) expect(bounds[edge], `design ${index + 1}, edge ${edge}, preview ${previewBounds[index]}, export ${bounds}`).toBeCloseTo(previewBounds[index][edge], 2);
     const alpha = await page.evaluate(async base64 => {
       const image = new Image(); image.src = `data:image/png;base64,${base64}`; await image.decode();
       const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
@@ -271,10 +278,55 @@ async function greenBounds(page, base64) {
     let left = canvas.width, top = canvas.height, right = -1, bottom = -1;
     for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
       const i = (y * canvas.width + x) * 4;
-      if (Math.abs(pixels[i] - 77) < 3 && Math.abs(pixels[i + 1] - 136) < 3 && Math.abs(pixels[i + 2] - 96) < 3 && pixels[i + 3] > 200) {
+      // Include dimmed secondary screens: perspective rasterization and shadows
+      // vary exact RGB values between viewport and PNG, but preserve their green hue.
+      const [red, green, blue, alpha] = pixels.subarray(i, i + 4);
+      if (green > 70 && green > red * 1.4 && green > blue * 1.15 && alpha > 200) {
         left = Math.min(left, x); top = Math.min(top, y); right = Math.max(right, x); bottom = Math.max(bottom, y);
       }
     }
     return right < 0 ? null : [left / canvas.width, top / canvas.height, right / canvas.width, bottom / canvas.height];
   }, base64);
 }
+
+test('device yaw turns every phone while preserving layout, flat rotation and copy', async ({ page }) => {
+  await page.goto('/');
+  await uploadImage(page);
+  await page.getByLabel('Headline', { exact: true }).fill('A new angle');
+  await openLayout(page);
+  const stage = page.locator('[id^="workspace-"]');
+  const frames = stage.locator('[data-device-frame]');
+  const yaw = page.getByLabel('Device yaw', { exact: true });
+  await expect(yaw).toHaveValue('0');
+  await expect(frames).toHaveCSS('transform', 'none');
+  for (const [layout, count] of [['basic-top', 1], ['duo-row', 2], ['trio-row', 3], ['3d-isometric-right', 1]]) {
+    await page.getByLabel('Slide layout').selectOption(layout);
+    await page.getByLabel('Media scale', { exact: true }).fill('75');
+    await page.getByLabel('Horizontal position', { exact: true }).fill('8');
+    await page.getByLabel('Device rotation', { exact: true }).fill('15');
+    await expect(frames).toHaveCount(count);
+    await page.mouse.move(0, 0);
+    const title = stage.locator('[data-render-text]').first();
+    const titleBounds = await title.boundingBox();
+    const composition = stage.locator('[data-media-composition]');
+    const before = await composition.getAttribute('style');
+    for (const angle of [-60, 60, 0]) {
+      await yaw.fill(String(angle));
+      await expect.poll(() => frames.evaluateAll((elements, value) => elements.every(el => value === 0 ? getComputedStyle(el).transform === 'none' : el.style.transform.includes(`rotateY(${value}deg)`)), angle)).toBe(true);
+      expect(await title.boundingBox()).toEqual(titleBounds);
+      expect(await composition.getAttribute('style')).toBe(before);
+    }
+  }
+  await yaw.fill('35');
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(yaw).toHaveValue('0');
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect(yaw).toHaveValue('35');
+  await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible();
+  await page.reload();
+  await openLayout(page);
+  await expect(yaw).toHaveValue('35');
+  await page.getByRole('button', { name: 'Reset placement', exact: true }).click();
+  await expect(yaw).toHaveValue('0');
+  await expect(frames).toHaveCSS('transform', 'none');
+});

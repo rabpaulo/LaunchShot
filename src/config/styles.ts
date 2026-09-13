@@ -13,7 +13,7 @@ export function styleSlide(canvas: CanvasItem, id: StudioStyleId): CanvasItem {
     ...canvas, layout: !canvas.kind || canvas.kind === 'screenshot' ? 'basic-top' : canvas.layout, backgroundColor: style.background, backgroundImageSrc: undefined,
     textColor: style.color, subtitleColor: style.color, fontFamily: 'inter',
     textAlign: 'center', textBoxWidth: 86, titleFontSize: 38, subtitleFontSize: 17,
-    gradientText: false, rotationAngle: 0, imageFit: 'contain', mockupStyle: 'dark',
+    gradientText: false, rotationAngle: 0, yawAngle: 0, imageFit: 'contain', mockupStyle: 'dark',
     backdropEffects: { mode: id === 'bold-gradient' ? 'gradient' : 'solid', overlay: false, effects: false, pattern: false, vignette: false },
   };
 }

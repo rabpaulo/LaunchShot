@@ -16,6 +16,7 @@ interface MinimalPhoneFrameProps {
   showNotch?: boolean;
   statusBar?: StatusBarConfig;
   shadow?: ShadowSettings;
+  yawAngle?: number;
 }
 
 export function getDeviceStyle(targetSizeId?: TargetSizeId): DeviceStyle {
@@ -36,7 +37,8 @@ export function MinimalPhoneFrame({
   mockupStyle = 'dark',
   showNotch = true,
   statusBar,
-  shadow
+  shadow,
+  yawAngle = 0,
 }: MinimalPhoneFrameProps) {
   const style = getDeviceStyle(targetSizeId);
 
@@ -73,6 +75,8 @@ export function MinimalPhoneFrame({
         height: `${height}px`,
         borderRadius: `${borderRadius}px`,
         padding: `${bezelPadding}px`,
+        transform: yawAngle ? `perspective(${width * 4}px) rotateY(${yawAngle}deg)` : undefined,
+        transformOrigin: yawAngle ? 'center center' : undefined,
         ...(customShadow ? { boxShadow: customShadow } : {}),
       }}
     >

@@ -1859,6 +1859,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={Math.round(phoneW * 0.74)} 
                     height={Math.round(phoneH * 0.74)} 
                     targetSizeId={globalSettings.targetSize}
@@ -1914,6 +1915,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={Math.round(phoneW * 0.74)} 
                     height={Math.round(phoneH * 0.74)} 
                     targetSizeId={globalSettings.targetSize}
@@ -1970,6 +1972,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={Math.round(phoneW * 0.74)} 
                     height={Math.round(phoneH * 0.74)} 
                     targetSizeId={globalSettings.targetSize}
@@ -2027,6 +2030,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={Math.round(phoneW * 0.86)} 
                     height={Math.round(phoneH * 0.86)} 
                     targetSizeId={globalSettings.targetSize}
@@ -2083,6 +2087,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={Math.round(phoneW * 0.86)} 
                     height={Math.round(phoneH * 0.86)} 
                     targetSizeId={globalSettings.targetSize}
@@ -2144,6 +2149,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2209,6 +2215,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2273,6 +2280,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 >
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2341,6 +2349,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                      transform: !rotateMediaGroup && canvas.rotationAngle ? `rotate(${canvas.rotationAngle}deg)` : undefined,
                    }}>
                 <MinimalPhoneFrame 
+                  yawAngle={canvas.yawAngle}
                   width={phoneW} 
                   height={phoneH} 
                   targetSizeId={globalSettings.targetSize}
@@ -2409,6 +2418,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 <div className="absolute top-8 -left-[28%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 opacity-95 scale-[0.85]"
                      onClick={() => fileInputRef.current?.click()}>
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2431,6 +2441,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 <div className="absolute top-16 -left-[56%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-20 opacity-80 scale-[0.7]"
                      onClick={() => fileInputRef.current?.click()}>
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2458,6 +2469,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 <div className="absolute top-12 -left-[95%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 scale-[0.85]"
                      onClick={() => fileInputRef.current?.click()}>
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2480,6 +2492,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 <div className="absolute top-12 -right-[95%] group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 scale-[0.85]"
                      onClick={() => fileInputRef.current?.click()}>
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2507,6 +2520,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 <div className="absolute top-12 left-16 group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-10 opacity-90 scale-95"
                      onClick={() => fileInputRef.current?.click()}>
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}
@@ -2529,6 +2543,7 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 <div className="absolute top-24 left-32 group/phone transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-[40px] cursor-pointer -z-20 opacity-80 scale-90"
                      onClick={() => fileInputRef.current?.click()}>
                   <MinimalPhoneFrame 
+                    yawAngle={canvas.yawAngle}
                     width={phoneW} 
                     height={phoneH} 
                     targetSizeId={globalSettings.targetSize}

@@ -13,7 +13,7 @@ export const DESIGN_PRESETS: { id: string; name: string; kind: 'banner' | 'mocku
 export function presetChanges(preset: typeof DESIGN_PRESETS[number]): Partial<CanvasItem> {
   return {
     fontFamily: 'inter', gradientText: false, subtitleColor: preset.changes.textColor,
-    mockupStyle: 'dark', rotationAngle: 0, mediaScale: 1, mediaOffset: { x: 0, y: 0 },
+    mockupStyle: 'dark', rotationAngle: 0, yawAngle: 0, mediaScale: 1, mediaOffset: { x: 0, y: 0 },
     backdropEffects: { mode: preset.changes.backgroundColor?.includes('gradient') ? 'gradient' : 'solid', overlay: false, effects: false, pattern: false, vignette: false },
     shadow: { style: 'spread', intensity: 'medium', lightSource: [0, 1] },
     ...structuredClone(preset.changes),

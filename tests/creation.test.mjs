@@ -108,20 +108,22 @@ test('presets preserve content and placement survives templates and portable pro
   for (const preset of DESIGN_PRESETS) {
     store.getState().createProject('Preset');
     const sibling = structuredClone(store.getState().canvases[0]);
-    store.getState().addCanvas({ ...newDesign(preset.kind, store.getState().globalSettings), title: 'Keep my copy', subtitle: 'And this', imageSrc: 'https://example.com/image.png', secondaryImageSrc: null, deviceTarget: 'ipad-12.9' });
+    store.getState().addCanvas({ ...newDesign(preset.kind, store.getState().globalSettings), title: 'Keep my copy', subtitle: 'And this', imageSrc: 'https://example.com/image.png', secondaryImageSrc: null, deviceTarget: 'ipad-12.9', yawAngle: 35 });
     const before = structuredClone(store.getState().canvases[1]);
     store.getState().updateCanvas(before.id, presetChanges(preset));
     const after = store.getState().canvases[1];
     for (const key of ['title', 'subtitle', 'translations', 'imageSrc', 'secondaryImageSrc', 'outputSize', 'deviceTarget']) assert.deepEqual(after[key], before[key]);
     assert.deepEqual(store.getState().canvases[0], sibling);
     assert.equal(validCreationFields(after), true);
+    assert.equal(after.yawAngle, 0);
     store.getState().undo();
     assert.deepEqual(store.getState().canvases[1], before);
     store.getState().redo();
-    store.getState().updateCanvas(before.id, { mediaScale: .75, mediaOffset: { x: 12, y: -8 } });
+    store.getState().updateCanvas(before.id, { mediaScale: .75, mediaOffset: { x: 12, y: -8 }, yawAngle: -40 });
     const positioned = store.getState().canvases[1];
     const design = captureDesign(positioned, store.getState().globalSettings);
     assert.deepEqual(applyDesign(before, design).mediaOffset, positioned.mediaOffset);
+    assert.equal(applyDesign(before, design).yawAngle, -40);
     const project = { name: 'Transfer', canvases: store.getState().canvases, globalSettings: store.getState().globalSettings };
     assert.equal(await store.getState().importProjectFile(JSON.stringify({ version: '2.0.0', project })), true);
     assert.deepEqual(store.getState().canvases[1], JSON.parse(JSON.stringify(positioned)));
@@ -129,4 +131,35 @@ test('presets preserve content and placement survives templates and portable pro
   const canvas = store.getState().canvases[1];
   for (const mediaScale of [NaN, Infinity, '1', null, .24, 1.51]) assert.equal(validCreationFields({ ...canvas, mediaScale }), false);
   for (const mediaOffset of [null, {}, { x: '1', y: 0 }, { x: Infinity, y: 0 }, { x: 0, y: 51 }]) assert.equal(validCreationFields({ ...canvas, mediaOffset }), false);
+});
+
+test('yaw survives history, duplication and project import, and old designs reset it', async () => {
+  const store = useEditorStore;
+  store.getState().createProject('Yaw');
+  const original = structuredClone(store.getState().canvases[0]);
+  store.getState().updateCanvas(original.id, { yawAngle: 45 });
+  store.getState().undo();
+  assert.deepEqual(store.getState().canvases[0], original);
+  store.getState().redo();
+  assert.equal(store.getState().canvases[0].yawAngle, 45);
+  store.getState().duplicateCanvas(original.id);
+  const duplicate = store.getState().canvases[1];
+  assert.equal(duplicate.yawAngle, 45);
+  store.getState().resetCanvasAdjustments(original.id);
+  assert.equal(store.getState().canvases[0].yawAngle, 0);
+  assert.equal(store.getState().canvases[1].yawAngle, 45);
+  const { styleSlide } = await import('../src/config/styles.ts');
+  assert.equal(styleSlide(duplicate, 'clean-light').yawAngle, 0);
+  const legacy = { ...original };
+  delete legacy.yawAngle;
+  store.getState().applySlideDesign(legacy, duplicate.id);
+  assert.equal(store.getState().canvases[1].yawAngle, undefined);
+  assert.equal(validCreationFields(legacy), true);
+  for (const yawAngle of [-60, 0, 60]) assert.equal(validCreationFields({ ...legacy, yawAngle }), true);
+  for (const yawAngle of [NaN, Infinity, null, '30', -61, 61]) assert.equal(validCreationFields({ ...legacy, yawAngle }), false);
+  for (const yawAngle of [-61, 61, null, '30']) {
+    assert.equal(await store.getState().importProjectFile(JSON.stringify({ canvases: [{ ...legacy, yawAngle }] })), false);
+  }
+  assert.equal(await store.getState().importProjectFile(JSON.stringify({ canvases: [legacy] })), true);
+  assert.equal(store.getState().canvases[0].yawAngle, undefined);
 });

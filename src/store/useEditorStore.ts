@@ -116,6 +116,7 @@ export type CanvasItem = {
   shadow?: ShadowSettings;
   backdropEffects?: BackdropEffects;
   rotationAngle?: number;
+  yawAngle?: number;
   mediaScale?: number;
   mediaOffset?: { x: number; y: number };
 };
@@ -289,6 +290,7 @@ const initialDefaultCanvas: CanvasItem = {
   shadow: DEFAULT_SHADOW,
   backdropEffects: DEFAULT_BACKDROP_EFFECTS,
   rotationAngle: 0,
+  yawAngle: 0,
   badge: {
     enabled: false,
     icon: 'star',
@@ -919,6 +921,7 @@ export const useEditorStore = create<EditorState>()(
               return {
                 ...c,
                 rotationAngle: 0,
+                yawAngle: 0,
                 imageZoom: 1,
                 imageRotation: 0,
                 shadow: DEFAULT_SHADOW,

@@ -43,6 +43,7 @@ export function validCreationFields(canvas: CanvasItem): boolean {
     && (canvas.deviceTarget === undefined || (typeof canvas.deviceTarget === 'string' && Object.hasOwn(TARGET_SIZES, canvas.deviceTarget) && TARGET_SIZES[canvas.deviceTarget].category !== 'Header'))
     && (canvas.mediaPresentation === undefined || ['none', 'image', 'device'].includes(canvas.mediaPresentation))
     && (canvas.transparentBackground === undefined || typeof canvas.transparentBackground === 'boolean')
+    && (canvas.yawAngle === undefined || (Number.isFinite(canvas.yawAngle) && canvas.yawAngle >= -60 && canvas.yawAngle <= 60))
     && (canvas.mediaScale === undefined || (Number.isFinite(canvas.mediaScale) && canvas.mediaScale >= .25 && canvas.mediaScale <= 1.5))
     && (canvas.mediaOffset === undefined || (canvas.mediaOffset !== null && typeof canvas.mediaOffset === 'object' && ['x', 'y'].every(key => {
       const value = canvas.mediaOffset![key as 'x' | 'y'];

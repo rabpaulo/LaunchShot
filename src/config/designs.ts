@@ -1,6 +1,6 @@
 import type { CanvasItem, GlobalSettings } from '@/store/useEditorStore';
 
-const DESIGN_KEYS = ['kind', 'mediaPresentation', 'mockupStyle', 'transparentBackground', 'layout', 'backgroundColor', 'backgroundImageSrc', 'appIconSrc', 'textColor', 'subtitleColor', 'fontFamily', 'gradientText', 'textBoxWidth', 'titleFontSize', 'subtitleFontSize', 'textAlign', 'shadow', 'backdropEffects', 'rotationAngle', 'mediaScale', 'mediaOffset', 'doodle', 'statusBar'] as const;
+const DESIGN_KEYS = ['kind', 'mediaPresentation', 'mockupStyle', 'transparentBackground', 'layout', 'backgroundColor', 'backgroundImageSrc', 'appIconSrc', 'textColor', 'subtitleColor', 'fontFamily', 'gradientText', 'textBoxWidth', 'titleFontSize', 'subtitleFontSize', 'textAlign', 'shadow', 'backdropEffects', 'rotationAngle', 'yawAngle', 'mediaScale', 'mediaOffset', 'doodle', 'statusBar'] as const;
 export type SlideDesign = Pick<CanvasItem, typeof DESIGN_KEYS[number]>;
 export interface SavedDesign { id: string; name: string; design: SlideDesign }
 
