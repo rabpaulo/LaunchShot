@@ -13,11 +13,13 @@ The workspace fits the selected slide to the available area. Longer headlines au
 
 The inspector includes layout, typography, device frames, cropping and filters, backgrounds, shadows, doodles, and status-bar controls. New projects start without ratings, review counts, awards, or status-bar overlays.
 
+The header provides Undo/Redo actions (also accessible via `Cmd+Z` / `Ctrl+Z` and `Shift+Cmd+Z` / `Shift+Ctrl+Z`), project switching, listing preview, export, and a studio theme toggle. The theme toggle switches between light and dark modes for the editor chrome without altering slide artwork, canvas backgrounds, or exported colors, and persists in local settings.
+
 ## Banners and mockups
 
-Use **Add design** to add a banner or mockup alongside your store screenshots. **Start with a look** offers three presets per type: clean split image, bold centered headline, and dark layered devices for banners; clean single device, gradient device pair, and dark device trio for mockups. Scroll the visual cards to browse. Presets apply to the selected design in one undoable action, preserving its copy, images, translations, output size, and device model. Sample content appears only in preset previews.
+Use **Add design** to add a banner or mockup alongside your store screenshots. **Start with a look** offers three presets per type: clean split image, bold centered headline, and dark layered devices for banners; clean single device, gradient device pair, and dark device trio for mockups. Scroll the visual cards to browse. Presets apply to the selected design in one undoable action, preserving its copy, images, translations, output size, and device model. Sample content appears only in preset previews. Designs support standard store dimensions, social banner presets, or custom dimensions from 64 to 4,096 pixels. Banners configure media presentation as text and background only, unframed images, or device mockups.
 
-**Layout & device** includes media scale (25–150%), horizontal/vertical position (−50–50% of the canvas), rotation, and frame controls. **Center media** resets position; **Reset placement** also resets scale and rotation. Placement moves the complete media composition; **Crop & image filters** adjusts the screenshot inside it. Secondary and third image controls appear only for layouts that use them. Background and shadow settings remain editable, and mockups support transparent export.
+**Layout & device** includes media scale (25–150%), horizontal/vertical position (−50–50% of the canvas), 2D rotation (−180–180°), device yaw (−60–60°), and frame controls. Device yaw turns phone frames in 3D perspective without moving headlines or overflowing layout bounds. **Center media** resets position; **Reset placement** also resets scale, rotation, and yaw angle. Placement moves the complete media composition; **Crop & image filters** adjusts the screenshot inside it. Secondary and third image controls appear only for layouts that use them. Background and shadow settings remain editable, and mockups support transparent export.
 
 Placement persists locally, travels with portable project files, and is included in reusable templates. The workspace, thumbnails, preview, and PNG export use the same composition. Existing projects default to their original size and position when placement fields are absent.
 
@@ -64,11 +66,12 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The browser suite starts a local development server if one is not running. It covers design deletion and image clearing, all six presets, placement/export parity, narrow screens, upload, later-slide selection, style undo, durable image restoration, portable project transfer, invalid input, save failure/retry, partial PNG export/retry, translation failure, long headlines, and legacy image recovery. Generated screenshots and traces are written to ignored `test-results/`.
+The browser suite starts a local development server if one is not running. It covers design deletion and image clearing, all six presets, placement/export parity, narrow screens, upload, later-slide selection, style undo, durable image restoration, portable project transfer, invalid input, save failure/retry, partial PNG export/retry, translation failure, long headlines, legacy image recovery, studio dark mode theming and persistence, per-slide phone yaw rotation, and typography font loading. Generated screenshots and traces are written to ignored `test-results/`.
 
 ## Implementation boundaries
 
-- `StudioWorkspace` owns the interface, with design controls and visual presets in the inspector.
+- `StudioWorkspace` owns the interface, with design controls and visual presets in the inspector, UI theme switching, zoom and stage fitting, and keyboard shortcuts.
+- `MinimalPhoneFrame` renders authentic device styling (Apple, Samsung, Android, iPad), bezels, shadows, status bars, and 3D yaw perspective transforms.
 - `SlideRenderer` passes explicit slide data, settings, language, and dimensions to the shared canvas composition. Read-only text and controls are rendered separately from editing controls.
 - `projectStorage` persists image assets under stable IDs and resolves temporary display URLs when loading. Zustand retains its existing editor and history model.
 - `exportSurface` renders an isolated snapshot, waits for assets, validates text fit, and encodes opaque PNGs.
