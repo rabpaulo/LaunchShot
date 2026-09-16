@@ -49,7 +49,7 @@ export function WorkspacePresets({ canvas }: { canvas: CanvasItem }) {
   const size = resolveCanvasSize(canvas, state.globalSettings);
   const width = Math.min(195, 145 * size.logicalWidth / size.logicalHeight);
   return <section>
-    <div className={styles.sectionHeading}><h2>Start with a look</h2><span>This design only</span></div>
+    <div className={styles.sectionHeading}><h2>Start with a look</h2><span>Choose style</span></div>
     <div className={styles.presetCards}>{presets.map(preset => {
       const preview = { ...canvas, ...presetChanges(preset), title: canvas.title || 'Make room for good things.', subtitle: canvas.subtitle || 'A little progress. Every day.', imageSrc: canvas.imageSrc || '/preset-screen.svg', translations: undefined };
       return <button key={preset.id} aria-label={`Apply ${preset.name}`} onClick={() => { state.updateCanvas(canvas.id, presetChanges(preset)); toast.success(`${preset.name} applied`); }}>
@@ -57,6 +57,7 @@ export function WorkspacePresets({ canvas }: { canvas: CanvasItem }) {
         <span>{preset.name}</span>
       </button>;
     })}</div>
+    {state.canvases.length > 1 && <button className={styles.applyAllButton} onClick={() => { state.applyAllDesignToAll(canvas.id); toast.success('Preset design applied to all screenshots'); }}>Apply this look to all screenshots</button>}
     <p className={styles.hint}>Scroll for more looks. Empty previews use sample content; your images and copy stay yours.</p>
   </section>;
 }
@@ -89,7 +90,8 @@ export function WorkspaceTypography({ canvas }: { canvas: CanvasItem }) {
     <label>Text alignment<select aria-label="Text alignment" value={canvas.textAlign || ''} onChange={event => update({ textAlign: (event.target.value || undefined) as CanvasItem['textAlign'] })}><option value="">Layout default</option>{['left', 'center', 'right'].map(value => <option key={value}>{value}</option>)}</select></label>
     <div className={styles.controlColumns}><Color label="Headline color" value={canvas.textColor} onChange={textColor => update({ textColor })} /><Color label="Subtitle color" value={canvas.subtitleColor || canvas.textColor} onChange={subtitleColor => update({ subtitleColor })} /></div>
     <Toggle label="Gradient headline" checked={!!canvas.gradientText} onChange={gradientText => update({ gradientText })} />
-    <button className={styles.fullButton} onClick={() => state.applyFontToAll(canvas.fontFamily || state.globalSettings.fontFamily)}>Use this font on all slides</button>
+    <button className={styles.applyAllButton} onClick={() => { state.applyTextStyleToAll({ fontFamily: canvas.fontFamily || state.globalSettings.fontFamily, titleFontSize: canvas.titleFontSize, subtitleFontSize: canvas.subtitleFontSize, textBoxWidth: canvas.textBoxWidth, textAlign: canvas.textAlign, textColor: canvas.textColor, subtitleColor: canvas.subtitleColor, gradientText: canvas.gradientText }); toast.success('Typography and colors applied to all screenshots'); }}>Apply text style and colors to all screenshots</button>
+    <button className={styles.fullButton} onClick={() => { state.applyFontToAll(canvas.fontFamily || state.globalSettings.fontFamily); toast.success('Font applied to all screenshots'); }}>Apply font to all screenshots</button>
     <button className={styles.fullButton} onClick={() => update({ textBoxWidth: undefined, titleFontSize: undefined, subtitleFontSize: undefined, textAlign: undefined })}>Reset text sizing</button>
   </Group>;
 }
@@ -109,7 +111,7 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
   return <div className={styles.designControls}>
     <Group title="Layout & device" open={designKind(canvas) !== 'screenshot'}>
       <label>Slide layout<select aria-label="Slide layout" value={canvas.layout} onChange={event => update({ layout: event.target.value as CanvasItem['layout'] })}>{LAYOUT_OPTIONS.filter(option => designKind(canvas) === 'banner' ? ['banner-centered', 'banner-split', 'banner-stack-right', 'banner-triple-bottom', 'banner-kinetic-stack', 'og-style-1', 'og-style-2', 'og-style-3'].includes(option.value) : designKind(canvas) === 'mockup' ? ['device-only', 'duo-row', 'trio-row'].includes(option.value) : !['banner-centered', 'banner-split'].includes(option.value)).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-      <button className={styles.fullButton} onClick={() => state.applyLayoutToAll(canvas.layout)}>Use layout on this design type</button>
+      <button className={styles.fullButton} onClick={() => { state.applyLayoutToAll(canvas.layout); toast.success('Layout applied to all screenshots'); }}>Apply layout to all screenshots</button>
       {mediaPresentation(canvas) === 'device' && <>
       <label>Device frame<select aria-label="Device frame" value={canvas.mockupStyle || state.globalSettings.mockupStyle} onChange={event => update({ mockupStyle: event.target.value as CanvasItem['mockupStyle'] })}>{['dark', 'light', 'glass', 'clay-dark', 'clay-light'].map(value => <option key={value}>{value}</option>)}</select></label>
       <Toggle label="Show device notch" checked={state.globalSettings.showNotch} onChange={showNotch => state.updateGlobalSettings({ showNotch })} />
@@ -124,8 +126,12 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <label>Screenshot fit<select aria-label="Screenshot fit" value={canvas.imageFit || state.globalSettings.imageFit} onChange={event => update({ imageFit: event.target.value as 'cover' | 'contain' })}><option value="contain">Show entire screenshot</option><option value="cover">Fill device screen</option></select></label>
       <button className={styles.fullButton} disabled={!canvas.imageSrc} onClick={onImageEdit}>Crop & image filters</button>
       </>}
+      <button className={styles.applyAllButton} onClick={() => { state.applyDeviceSettingsToAll({ layout: canvas.layout, mockupStyle: canvas.mockupStyle || state.globalSettings.mockupStyle, showNotch: state.globalSettings.showNotch, mediaScale: canvas.mediaScale, mediaOffset: canvas.mediaOffset, rotationAngle: canvas.rotationAngle, yawAngle: canvas.yawAngle, imageFit: canvas.imageFit || state.globalSettings.imageFit }); toast.success('Layout and device settings applied to all screenshots'); }}>Apply layout and device settings to all screenshots</button>
       <AssetInput label="App icon" onChange={appIconSrc => update({ appIconSrc })} />
-      {canvas.appIconSrc && <button className={styles.fullButton} onClick={() => update({ appIconSrc: undefined })}>Remove app icon</button>}
+      {canvas.appIconSrc && <>
+        <button className={styles.applyAllButton} onClick={() => { if (canvas.appIconSrc) { state.applyAppIconToAll(canvas.appIconSrc); toast.success('App icon applied to all screenshots'); } }}>Apply app icon to all screenshots</button>
+        <button className={styles.fullButton} onClick={() => update({ appIconSrc: undefined })}>Remove app icon</button>
+      </>}
     </Group>
 
     <Group title="Background & colors" open={designKind(canvas) !== 'screenshot'}>
@@ -139,6 +145,7 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <AssetInput label="Background image" onChange={backgroundImageSrc => update({ backgroundImageSrc })} />
       {canvas.backgroundImageSrc && <button className={styles.fullButton} onClick={() => update({ backgroundImageSrc: undefined })}>Remove background image</button>}
       {(['overlay', 'effects', 'pattern', 'vignette'] as const).map(key => <Toggle key={key} label={{ overlay: 'Soft overlay', effects: 'Ambient glow', pattern: 'Dot pattern', vignette: 'Vignette' }[key]} checked={effects[key]} onChange={value => update({ backdropEffects: { ...effects, [key]: value } })} />)}
+      <button className={styles.applyAllButton} onClick={() => { state.applyBackgroundToAll(canvas.backgroundColor, canvas.textColor, canvas.backdropEffects || state.globalSettings.backdropEffects, canvas.backgroundImageSrc); toast.success('Background and effects applied to all screenshots'); }}>Apply background to all screenshots</button>
     </Group>
 
     {mediaPresentation(canvas) === 'device' && <Group title="Shadows & lighting" open={designKind(canvas) !== 'screenshot'}>
@@ -146,6 +153,7 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <label>Shadow intensity<select aria-label="Shadow intensity" value={shadow.intensity} onChange={event => update({ shadow: { ...shadow, intensity: event.target.value as typeof shadow.intensity } })}>{['low', 'medium', 'high'].map(value => <option key={value}>{value}</option>)}</select></label>
       <p className={styles.hint}>Choose where the light comes from.</p>
       <div className={styles.lightGrid} aria-label="Light source">{Array.from({ length: 25 }, (_, index) => { const row = Math.floor(index / 5), col = index % 5; return <button key={index} aria-label={`Light row ${row + 1} column ${col + 1}`} aria-pressed={shadow.lightSource[0] === row && shadow.lightSource[1] === col} onClick={() => update({ shadow: { ...shadow, lightSource: [row, col] } })}><span /></button>; })}</div>
+      <button className={styles.applyAllButton} onClick={() => { state.applyShadowToAll(shadow); toast.success('Shadow and lighting applied to all screenshots'); }}>Apply shadow to all screenshots</button>
     </Group>}
 
     <Group title="Doodles">
@@ -163,7 +171,7 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
         <button className={styles.fullButton} onClick={() => update({ doodle: { ...doodle, doodles: doodle.doodles.filter((_, position) => position !== index) } })}>Remove doodle {index + 1}</button>
       </div>)}
       <button className={styles.fullButton} onClick={() => update({ doodle: { ...doodle, enabled: true, doodles: [...doodle.doodles, { type: 'star', position: 'top-right' }] } })}>Add doodle</button>
-      <button className={styles.fullButton} onClick={() => state.applyDoodlesToAll(doodle)}>Use doodles on all slides</button>
+      <button className={styles.applyAllButton} onClick={() => { state.applyDoodlesToAll(doodle); toast.success('Doodles applied to all screenshots'); }}>Apply doodles to all screenshots</button>
     </Group>
 
 
@@ -174,6 +182,7 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <Range label="Battery level" value={statusBar.batteryLevel} min={0} max={100} unit="%" onChange={batteryLevel => update({ statusBar: { ...statusBar, batteryLevel } })} />
       <Toggle label="Show Wi-Fi" checked={statusBar.showWifi} onChange={showWifi => update({ statusBar: { ...statusBar, showWifi } })} />
       <Toggle label="Show cellular signal" checked={statusBar.showCellular} onChange={showCellular => update({ statusBar: { ...statusBar, showCellular } })} />
+      <button className={styles.applyAllButton} onClick={() => { state.applyStatusBarToAll(statusBar); toast.success('Status bar applied to all screenshots'); }}>Apply status bar to all screenshots</button>
     </Group>
 
 
@@ -183,7 +192,7 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <p className={styles.hint}>Save this slide’s layout, colors, typography, shadows, decorations, background image, and app icon. Each slide keeps its screenshots and copy.</p>
       <button className={styles.fullButton} disabled={!templateName.trim()} onClick={() => { state.saveDesign(templateName, canvas.id); setTemplateName(''); toast.success('Template saved'); }}>Save as template</button>
       {state.savedDesigns.filter(template => (template.design.kind || 'screenshot') === designKind(canvas)).map(template => <div className={styles.savedTemplate} key={template.id}><button onClick={() => state.applySlideDesign(template.design, canvas.id)}>Apply {template.name}</button><button aria-label={`Delete template ${template.name}`} onClick={() => state.removeDesign(template.id)}>Delete</button></div>)}
-      <button className={styles.fullButton} onClick={() => { state.applySlideDesign(captureDesign(canvas, state.globalSettings)); toast.success('Design applied to all slides'); }}>Apply design to this design type</button>
+      <button className={styles.applyAllButton} onClick={() => { state.applyAllDesignToAll(canvas.id); toast.success('Full design applied to all screenshots'); }}>Apply complete design to all screenshots</button>
     </Group>
   </div>;
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
-import { IoArrowBackOutline, IoArrowForwardOutline, IoArrowRedoOutline, IoArrowUndoOutline, IoCheckmarkOutline, IoCloudUploadOutline, IoCopyOutline, IoDownloadOutline, IoExpandOutline, IoFolderOpenOutline, IoAddOutline, IoTrashOutline, IoCloseOutline, IoMoonOutline, IoSunnyOutline } from 'react-icons/io5';
+import { IoArrowBackOutline, IoArrowForwardOutline, IoArrowRedoOutline, IoArrowUndoOutline, IoCheckmarkOutline, IoCloudUploadOutline, IoCopyOutline, IoDownloadOutline, IoExpandOutline, IoFolderOpenOutline, IoAddOutline, IoTrashOutline, IoCloseOutline, IoMoonOutline, IoSunnyOutline, IoLayersOutline, IoSparklesOutline } from 'react-icons/io5';
 import { useEditorStore } from '@/store/useEditorStore';
 import { STUDIO_STYLES, styleSlide, styleSettings } from '@/config/styles';
 import { TARGET_SIZES, DEFAULT_IPHONE_SIZE, DEFAULT_ANDROID_SIZE, isAndroidDevice } from '@/config/sizes';
@@ -210,6 +210,7 @@ export function StudioWorkspace() {
       <aside ref={inspectorRef} className={styles.inspector} aria-label={mixed ? "Design inspector" : "Slide inspector"}>
         {selected ? <>
         <div className={styles.sectionHeading}><h2>Make it yours</h2><span>{mixed ? "Design" : "Slide"} {index + 1}</span></div>
+        {state.canvases.length > 1 && <button className={styles.applyAllButton} onClick={() => { state.applyAllDesignToAll(selected.id); toast.success(`Applied ${itemLabel} ${index + 1} design to all ${state.canvases.length} ${mixed ? 'designs' : 'screenshots'}`); }}><IoLayersOutline />Apply this {itemLabel} look to all {mixed ? 'designs' : 'screenshots'}</button>}
         <WorkspacePresets canvas={selected} />
         <section><span className={styles.eyebrow}>{designKind(selected) === 'banner' ? 'THE IMAGE' : 'THE SCREENSHOT'}</span>
           <button className={styles.fullButton} onClick={() => replaceRef.current?.click()}><IoCloudUploadOutline />{designKind(selected) === 'banner' ? (selected.imageSrc ? 'Replace image' : 'Upload image') : selected?.imageSrc ? 'Replace screenshot' : 'Add missing screenshot'}</button>
