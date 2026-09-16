@@ -3,10 +3,111 @@ import { flushSync } from 'react-dom';
 import { toBlob } from 'html-to-image';
 import { SlideRenderer, type SlideRendererProps } from '@/components/SlideRenderer';
 import { resolveCanvasSize, isTransparent } from '@/config/creation';
+import { FONT_OPTIONS } from '@/config/fonts';
+import { editorFontVariables } from '@/app/editorFonts';
+
+const fontDataUrlCache = new Map<string, string>();
+
+async function getCachedFontDataUrl(url: string): Promise<string> {
+  if (fontDataUrlCache.has(url)) {
+    return fontDataUrlCache.get(url)!;
+  }
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    fontDataUrlCache.set(url, dataUrl);
+    return dataUrl;
+  } catch (err) {
+    console.warn(`Could not load font at ${url}`, err);
+    return url;
+  }
+}
+
+export async function collectAllFontEmbedCSS(): Promise<string> {
+  const cssRulesList: string[] = [];
+
+  // Collect CSS variables defined on root/html
+  const computedRoot = typeof window !== 'undefined' ? getComputedStyle(document.documentElement) : null;
+  const rootVariables: string[] = [];
+
+  if (computedRoot) {
+    FONT_OPTIONS.forEach(font => {
+      const varName = `--font-${font.id}`;
+      const val = computedRoot.getPropertyValue(varName);
+      if (val) {
+        rootVariables.push(`${varName}: ${val};`);
+      }
+    });
+  }
+
+  // Extract all @font-face rules from stylesheets
+  const sheets = typeof document !== 'undefined' ? Array.from(document.styleSheets) : [];
+  const fontFaceRules: CSSFontFaceRule[] = [];
+
+  for (const sheet of sheets) {
+    try {
+      const rules = Array.from(sheet.cssRules || []);
+      for (const rule of rules) {
+        if (rule instanceof CSSFontFaceRule) {
+          fontFaceRules.push(rule);
+        }
+      }
+    } catch {
+      // Cross-origin stylesheet access might throw
+    }
+  }
+
+  // Convert font URLs to base64 Data URLs
+  for (const rule of fontFaceRules) {
+    let ruleCss = rule.cssText;
+    const urlMatches = Array.from(ruleCss.matchAll(/url\((['"]?)([^'")]+)\1\)/g));
+
+    for (const match of urlMatches) {
+      const fullMatch = match[0];
+      const fontUrl = match[2];
+      if (!fontUrl.startsWith('data:')) {
+        const resolvedUrl = new URL(fontUrl, window.location.href).href;
+        const dataUrl = await getCachedFontDataUrl(resolvedUrl);
+        ruleCss = ruleCss.replace(fullMatch, `url("${dataUrl}")`);
+      }
+    }
+
+    cssRulesList.push(ruleCss);
+
+    // If the font-family is a Next.js generated name (e.g. '__Plus_Jakarta_Sans_...'),
+    // also create alias rules for the clean font name (e.g. 'Plus Jakarta Sans', 'plus-jakarta')
+    const familyName = rule.style.fontFamily.replace(/['"]/g, '').trim();
+    for (const font of FONT_OPTIONS) {
+      const cleanName = font.name;
+      const normalizedName = font.id.replace(/-/g, '_').toLowerCase();
+      if (familyName.toLowerCase().includes(normalizedName) || familyName.toLowerCase() === cleanName.toLowerCase()) {
+        const alias1 = ruleCss.replace(
+          new RegExp(`font-family:\\s*['"]?${familyName}['"]?`, 'g'),
+          `font-family: "${cleanName}"`
+        );
+        const alias2 = ruleCss.replace(
+          new RegExp(`font-family:\\s*['"]?${familyName}['"]?`, 'g'),
+          `font-family: "${font.id}"`
+        );
+        cssRulesList.push(alias1);
+        cssRulesList.push(alias2);
+      }
+    }
+  }
+
+  const rootBlock = rootVariables.length ? `:root, * { ${rootVariables.join(' ')} }\n` : '';
+  return rootBlock + cssRulesList.join('\n');
+}
 
 export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId'>): Promise<Blob> {
   const host = document.createElement('div');
-  host.className = 'export-surface';
+  host.className = `export-surface ${editorFontVariables}`;
   host.style.cssText = 'position:fixed;left:-30000px;top:0;pointer-events:none;';
   host.setAttribute('aria-hidden', 'true');
   document.body.appendChild(host);
@@ -16,14 +117,6 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     flushSync(() => root.render(<SlideRenderer {...props} renderId={renderId} />));
     const node = host.querySelector<HTMLElement>(`#${renderId}`);
     if (!node) throw new Error('Could not render this slide.');
-    await Promise.all(Array.from(node.querySelectorAll<HTMLElement>('[data-render-text]')).map(async text => {
-      const style = getComputedStyle(text);
-      const family = style.fontFamily.split(',')[0];
-      try {
-        const faces = await document.fonts.load(`${style.fontWeight} ${style.fontSize} ${family}`, text.textContent || 'Aa');
-        if (!faces.length) throw new Error('Font is unavailable');
-      } catch { throw new Error('The selected font could not load. Check your connection and retry.'); }
-    }));
     await document.fonts.ready;
     await Promise.all(Array.from(node.querySelectorAll('img')).map(image => image.decode()));
     // Background assets do not have image elements, so decode them explicitly too.
@@ -36,10 +129,11 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     const overflowingText = Array.from(node.querySelectorAll<HTMLElement>('[data-render-text]')).some(text => text.scrollHeight > text.clientHeight + 1 || text.scrollWidth > text.clientWidth + 1);
     if (overflowingText) throw new Error('Text does not fit at its chosen size. Widen the text box, reduce the font size, or shorten the copy.');
     const size = resolveCanvasSize(props.canvas, props.settings);
+    const fontEmbedCSS = await collectAllFontEmbedCSS();
     const blob = await toBlob(node, {
       width: size.logicalWidth, height: size.logicalHeight,
       canvasWidth: size.width, canvasHeight: size.height, pixelRatio: 1,
-      preferredFontFormat: 'woff2',
+      fontEmbedCSS,
       filter: child => !(child instanceof HTMLElement && child.classList.contains('no-export')),
     });
     if (!blob) throw new Error('The browser could not create the PNG.');
@@ -60,3 +154,4 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     host.remove();
   }
 }
+

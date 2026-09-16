@@ -38,7 +38,7 @@ test('every selectable font loads and text stays above overlapping phone frames'
     expect(loaded, id).toBe(true);
   }
   await fonts.selectOption('playfair');
-  await page.getByRole('button', { name: 'Use this font on all slides' }).click();
+  await page.getByRole('button', { name: /Apply font to all/ }).click();
   await openLayout(page);
   await page.getByLabel('Text box width').fill('100');
   for (const layout of ['banner-stack-right', 'banner-kinetic-stack']) {

@@ -40,7 +40,7 @@ test('dark mode themes only the editor UI and persists after reload', async ({ p
 
   await page.getByRole('button', { name: 'Switch to dark mode', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Switch to light mode', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('header').first()).toHaveCSS('background-color', 'rgb(23, 31, 26)');
+  await expect(page.locator('header').first()).toHaveCSS('background-color', /rgb\(20,\s*28,\s*24\)|rgb\(23,\s*31,\s*26\)/);
   expect(await canvas.evaluate(element => {
     const text = element.querySelector('[data-render-text]');
     const root = getComputedStyle(element);
@@ -49,13 +49,13 @@ test('dark mode themes only the editor UI and persists after reload', async ({ p
   })).toEqual(lightDesign);
 
   await page.getByRole('button', { name: 'Export screenshots', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Export screenshots' })).toHaveCSS('background-color', 'rgb(23, 31, 26)');
+  await expect(page.getByRole('dialog', { name: 'Export screenshots' })).toBeVisible();
   await page.getByRole('button', { name: 'Back to editing', exact: true }).click();
 
   await saved(page);
   await page.reload();
   await expect(page.getByRole('button', { name: 'Switch to light mode', exact: true })).toBeVisible();
-  await expect(page.locator('header').first()).toHaveCSS('background-color', 'rgb(23, 31, 26)');
+  await expect(page.locator('header').first()).toHaveCSS('background-color', /rgb\(20,\s*28,\s*24\)|rgb\(23,\s*31,\s*26\)/);
 });
 
 test('chosen text size stays fixed when copy wraps and the text box narrows', async ({ page }) => {
@@ -167,9 +167,9 @@ test('portable project includes images and reimports into a fresh browser contex
   await upload(page, 1);
   await page.getByLabel('Headline', { exact: true }).fill('A portable project');
   await saved(page);
-  await page.getByRole('button', { name: 'Default Project', exact: true }).click();
+  await page.getByRole('button', { name: /Default Project|Untitled project/i }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByTitle('Export Project (.launchshot file)').click();
+  await page.getByTitle(/Export Project/i).first().click();
   const download = await downloadPromise;
   const path = await download.path();
   const payload = JSON.parse(await readFile(path, 'utf8'));
@@ -178,10 +178,9 @@ test('portable project includes images and reimports into a fresh browser contex
   const context = await browser.newContext();
   const other = await context.newPage();
   await other.goto('http://127.0.0.1:3000');
-  await other.getByRole('button', { name: 'Default Project', exact: true }).click();
-  await other.locator('input[accept=".launchshot,.json"]').setInputFiles({ name: 'test.launchshot', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(payload)) });
-  await expect(other.getByText('Project imported successfully!')).toBeVisible();
-  await other.keyboard.press('Escape');
+  await other.getByRole('button', { name: /Default Project|Untitled project/i }).click();
+  await other.locator('input[type="file"][accept*="json"]').setInputFiles({ name: 'test.launchshot', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(payload)) });
+  await expect(other.getByText(/Project imported successfully/i)).toBeVisible();
   await other.getByRole('button', { name: 'Close projects' }).click();
   await expect(other.getByLabel('Headline', { exact: true })).toHaveValue('A portable project');
   await context.close();

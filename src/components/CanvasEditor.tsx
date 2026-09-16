@@ -132,9 +132,9 @@ function CanvasButton({ readOnly, ...props }: React.ComponentProps<'button'> & {
 }
 
 function CanvasText({ maxRenderHeight, ...props }: React.ComponentProps<typeof TextareaAutosize> & { maxRenderHeight?: number }) {
-  if (!props.readOnly) return <TextareaAutosize {...props} />;
+  if (!props.readOnly) return <TextareaAutosize data-render-text {...props} />;
   if (!props.value) return null;
-  return <div data-render-text className={props.className} style={{ ...props.style, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', maxHeight: maxRenderHeight, overflow: 'hidden', transition: 'none' }}>{props.value}</div>;
+  return <div data-render-text className={props.className} style={{ ...props.style, whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxHeight: maxRenderHeight, overflow: 'hidden', transition: 'none' }}>{props.value}</div>;
 }
 
 export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanvas, index, total, isPreviewMode = false, editableTextBox = false, targetWidth, prevCanvas, nextCanvas, nextNextCanvas, settings, renderId }: CanvasEditorProps) {
@@ -239,15 +239,6 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
   const sizeConfig = resolveCanvasSize(canvas, inheritedSettings);
   const canvasWidth = sizeConfig.logicalWidth;
   const canvasHeight = sizeConfig.logicalHeight;
-  // Legacy designs keep their per-device rotation until placement is edited.
-  const rotateMediaGroup = designKind(canvas) !== 'screenshot' && (canvas.mediaScale !== undefined || canvas.mediaOffset !== undefined);
-  // Compose with the layout's Tailwind transforms instead of replacing its positioning.
-  const mediaStyle: React.CSSProperties = {
-    zIndex: 10,
-    translate: canvas.mediaOffset ? `calc(var(--tw-translate-x, 0px) + ${canvas.mediaOffset.x * canvasWidth / 100}px) calc(var(--tw-translate-y, 0px) + ${canvas.mediaOffset.y * canvasHeight / 100}px)` : undefined,
-    scale: canvas.mediaScale === undefined ? undefined : `calc(var(--tw-scale-x, 1) * ${canvas.mediaScale}) calc(var(--tw-scale-y, 1) * ${canvas.mediaScale})`,
-    rotate: rotateMediaGroup && canvas.rotationAngle ? `${canvas.rotationAngle}deg` : undefined,
-  };
   const zoomScale = targetWidth ? (targetWidth / canvasWidth) : (globalSettings.zoomScale || 0.65);
   
   const currentLayout = canvas.layout || 'basic-top';
@@ -516,6 +507,19 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
   };
 
   const layoutConfig = getLayoutConfig();
+
+  // Legacy designs keep their per-device rotation until placement is edited.
+  const rotateMediaGroup = designKind(canvas) !== 'screenshot' && (canvas.mediaScale !== undefined || canvas.mediaOffset !== undefined);
+  const hasTranslateYHalf = layoutConfig.phoneWrapperClass.includes('-translate-y-1/2');
+  // Compose with the layout's Tailwind transforms instead of replacing its positioning.
+  const mediaStyle: React.CSSProperties = {
+    zIndex: 10,
+    translate: canvas.mediaOffset
+      ? `${canvas.mediaOffset.x * canvasWidth / 100}px calc(${hasTranslateYHalf ? '-50% + ' : ''}${canvas.mediaOffset.y * canvasHeight / 100}px)`
+      : (hasTranslateYHalf ? '0px -50%' : undefined),
+    scale: canvas.mediaScale === undefined ? undefined : `${canvas.mediaScale}`,
+    rotate: rotateMediaGroup && canvas.rotationAngle ? `${canvas.rotationAngle}deg` : undefined,
+  };
 
 
   const defaultTextBoxWidth = getDefaultTextBoxWidth(currentLayout);
@@ -1760,7 +1764,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                       style={{ 
                         fontSize: `${effectiveTitleFontSize}px`,
                         color: canvas.gradientText ? undefined : (canvas.textColor || '#ffffff'), 
-                        textAlign: effectiveTextAlign 
+                        textAlign: effectiveTextAlign,
+                        fontFamily: fontConfig.fontFamily,
                       }}
                       placeholder="Enter Title"
                     />
@@ -1787,7 +1792,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                       style={{
                         fontSize: `${effectiveSubtitleFontSize}px`,
                         color: canvas.subtitleColor || canvas.textColor || '#ffffff',
-                        textAlign: effectiveTextAlign
+                        textAlign: effectiveTextAlign,
+                        fontFamily: fontConfig.fontFamily,
                       }}
                       placeholder="Enter Subtitle"
                     />
@@ -1822,7 +1828,8 @@ export const CanvasEditor = React.memo(function CanvasEditor({ canvas: savedCanv
                 style={{
                   fontSize: `${effectiveSubtitleFontSize}px`,
                   color: canvas.subtitleColor || canvas.textColor || '#ffffff',
-                  textAlign: effectiveTextAlign
+                  textAlign: effectiveTextAlign,
+                  fontFamily: fontConfig.fontFamily,
                 }}
                 placeholder="Enter Subtitle"
               />
