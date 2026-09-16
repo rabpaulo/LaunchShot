@@ -293,34 +293,40 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/65 backdrop-blur-md p-4 animate-in fade-in duration-200">
       <div
-        className={`w-full max-w-5xl h-[88vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col border ${
-          isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'
+        className={`w-full max-w-5xl h-[88vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col border-[1.5px] ${
+          isDark ? 'bg-[#141c18] border-[#34443a] text-[#f3f6f4]' : 'bg-white border-[#c5cec2] text-[#14201d]'
         }`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between px-6 py-4 border-b flex-shrink-0 ${
-            isDark ? 'border-zinc-800 bg-zinc-900/60' : 'border-zinc-200 bg-zinc-50/80'
+          className={`flex items-center justify-between px-6 py-4 border-b-[1.5px] flex-shrink-0 ${
+            isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
+            <div className={`p-2.5 rounded-xl border flex-shrink-0 ${
+              isDark
+                ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40'
+                : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+            }`}>
               <IoGlobeOutline className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold">Screenshot Translations & Localization</h2>
                 <span
-                  className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
-                    isDark ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-200 text-zinc-700'
+                  className={`text-xs px-2.5 py-0.5 rounded-full font-semibold border ${
+                    isDark
+                      ? 'bg-[#1b2620] border-[#34443a] text-[#a3b2aa]'
+                      : 'bg-[#f2f5ee] border-[#c5cec2] text-[#4a5752]'
                   }`}
                 >
                   {canvases.length} {canvases.length === 1 ? 'Slide' : 'Slides'}
                 </span>
               </div>
-              <p className={`text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+              <p className={`text-xs mt-0.5 ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
                 Translate your screenshot headlines and descriptions for global App Store & Google Play listings
               </p>
             </div>
@@ -329,8 +335,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className={`p-2 rounded-xl transition-all ${
-                isDark ? 'hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'hover:bg-zinc-100 text-zinc-500 hover:text-black'
+              className={`p-2 rounded-xl border-[1.5px] transition-all ${
+                isDark
+                  ? 'border-[#44594c] hover:bg-[#283a2f] text-[#f3f6f4]'
+                  : 'border-[#b6c4b2] hover:bg-[#e7efe3] text-[#14201d]'
               }`}
             >
               <IoClose className="w-5 h-5" />
@@ -340,11 +348,11 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
 
         {/* Sub-header / Languages Scroll Bar */}
         <div
-          className={`px-6 py-3 border-b flex items-center gap-2 overflow-x-auto scrollbar-hide flex-shrink-0 ${
-            isDark ? 'border-zinc-800 bg-zinc-900/30' : 'border-zinc-200 bg-zinc-50/50'
+          className={`px-6 py-3 border-b-[1.5px] flex items-center gap-2 overflow-x-auto scrollbar-hide flex-shrink-0 ${
+            isDark ? 'border-[#34443a] bg-[#111814]/50' : 'border-[#c5cec2] bg-[#f8f9f5]/50'
           }`}
         >
-          <span className={`text-xs font-bold uppercase tracking-wider mr-1 flex-shrink-0 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+          <span className={`text-[10px] font-bold tracking-[1.5px] uppercase mr-1 flex-shrink-0 ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
             Language:
           </span>
           {SUPPORTED_LANGUAGES.map((lang) => {
@@ -357,28 +365,32 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
               <button
                 key={lang.code}
                 onClick={() => setSelectedLang(lang.code)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all flex-shrink-0 border ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all flex-shrink-0 border-[1.5px] ${
                   isSelected
                     ? isDark
-                      ? 'bg-blue-600 border-blue-500 text-white shadow-md'
-                      : 'bg-blue-600 border-blue-600 text-white shadow-md'
+                      ? 'bg-[#2e855c] border-[#2e855c] text-white shadow-sm font-bold'
+                      : 'bg-[#1f5c3f] border-[#1f5c3f] text-white shadow-sm font-bold'
                     : isDark
-                    ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
-                    : 'bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300'
+                    ? 'bg-[#1d2922] border-[#44594c] text-[#f3f6f4] hover:border-[#73aa84]'
+                    : 'bg-white border-[#b6c4b2] text-[#14201d] hover:border-[#4a7855]'
                 }`}
               >
                 <span>{lang.name}</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
                     isSelected
-                      ? 'bg-blue-700/80 text-white'
+                      ? isDark
+                        ? 'bg-[#203828] text-white'
+                        : 'bg-[#16452f] text-white'
                       : isAllTranslated
-                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                      ? isDark
+                        ? 'bg-[#203828] text-[#73aa84]'
+                        : 'bg-[#e8f1e2] text-[#1f5c3f]'
                       : count > 0
                       ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                       : isDark
-                      ? 'bg-zinc-800 text-zinc-500'
-                      : 'bg-zinc-100 text-zinc-400'
+                      ? 'bg-[#1b2620] text-[#a3b2aa]'
+                      : 'bg-[#f2f5ee] text-[#4a5752]'
                   }`}
                 >
                   {count}/{canvases.length}
@@ -393,20 +405,24 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
 
         {/* Top Controls & Batch Actions Bar */}
         <div
-          className={`px-6 py-3 border-b flex flex-wrap items-center justify-between gap-3 flex-shrink-0 ${
-            isDark ? 'border-zinc-800 bg-zinc-900/40' : 'border-zinc-200 bg-zinc-100/50'
+          className={`px-6 py-3 border-b-[1.5px] flex flex-wrap items-center justify-between gap-3 flex-shrink-0 ${
+            isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
           }`}
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold flex items-center gap-2">
               <span>{selectedLangObj.name}</span>
-              <span className={`text-xs font-normal ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+              <span className={`text-xs font-normal ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
                 ({selectedLangObj.nativeName})
               </span>
             </span>
 
             {currentActiveLanguage === selectedLang ? (
-              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
+                isDark
+                  ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40'
+                  : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+              }`}>
                 Active on Canvas
               </span>
             ) : (
@@ -415,10 +431,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                   batchUpdateTranslations(localTranslations, selectedLang);
                   toast.success(`Set ${selectedLangObj.name} as active canvas language!`);
                 }}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
+                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border-[1.5px] transition-all ${
                   isDark
-                    ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white'
-                    : 'bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100'
+                    ? 'bg-[#1d2922] border-[#44594c] text-[#f3f6f4] hover:border-[#73aa84]'
+                    : 'bg-white border-[#b6c4b2] text-[#14201d] hover:border-[#4a7855]'
                 }`}
               >
                 Set as Active
@@ -426,15 +442,15 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Auto Translate Single Language */}
             <button
               onClick={handleTranslateSelectedLanguage}
               disabled={isTranslatingCurrent || isTranslatingAll}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl border-[1.5px] text-xs font-bold transition-all flex items-center gap-1.5 ${
                 isDark
-                  ? 'bg-blue-600/20 border-blue-500/40 text-blue-300 hover:bg-blue-600/30'
-                  : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                  ? 'bg-[#203828] border-[#73aa84]/40 text-[#73aa84] hover:bg-[#283a2f]'
+                  : 'bg-[#e8f1e2] border-[#4a7855]/40 text-[#1f5c3f] hover:bg-[#e7efe3]'
               } disabled:opacity-50`}
             >
               {isTranslatingCurrent ? (
@@ -449,10 +465,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
             <button
               onClick={handleTranslateAllLanguages}
               disabled={isTranslatingCurrent || isTranslatingAll}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 text-white ${
                 isDark
-                  ? 'bg-purple-600/20 border-purple-500/40 text-purple-300 hover:bg-purple-600/30'
-                  : 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100'
+                  ? 'bg-[#2e855c] border-[#2e855c] hover:bg-[#38a16f]'
+                  : 'bg-[#1f5c3f] border-[#1f5c3f] hover:bg-[#16452f]'
               } disabled:opacity-50`}
             >
               {isTranslatingAll ? (
@@ -473,10 +489,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
             />
             <button
               onClick={() => document.getElementById('translation-modal-import')?.click()}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl border-[1.5px] text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isDark
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                  : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+                  ? 'bg-[#1d2922] border-[#44594c] text-[#f3f6f4] hover:bg-[#283a2f] hover:border-[#73aa84]'
+                  : 'bg-white border-[#b6c4b2] text-[#14201d] hover:bg-[#e7efe3] hover:border-[#4a7855]'
               }`}
             >
               <IoCloudUploadOutline className="w-3.5 h-3.5" />
@@ -490,10 +506,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                 exportSingleLanguageJson(prepared, selectedLang, globalSettings.appName || 'app');
                 toast.success(`Exported ${selectedLangObj.name} translations JSON!`);
               }}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl border-[1.5px] text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isDark
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                  : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+                  ? 'bg-[#1d2922] border-[#44594c] text-[#f3f6f4] hover:bg-[#283a2f] hover:border-[#73aa84]'
+                  : 'bg-white border-[#b6c4b2] text-[#14201d] hover:bg-[#e7efe3] hover:border-[#4a7855]'
               }`}
             >
               <IoDownloadOutline className="w-3.5 h-3.5" />
@@ -506,10 +522,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                 exportAllLanguagesJson(prepared, globalSettings.appName || 'app');
                 toast.success('Exported all languages translations JSON!');
               }}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl border-[1.5px] text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isDark
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                  : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+                  ? 'bg-[#1d2922] border-[#44594c] text-[#f3f6f4] hover:bg-[#283a2f] hover:border-[#73aa84]'
+                  : 'bg-white border-[#b6c4b2] text-[#14201d] hover:bg-[#e7efe3] hover:border-[#4a7855]'
               }`}
             >
               <IoDownloadOutline className="w-3.5 h-3.5" />
@@ -522,10 +538,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                 toast.success('Downloaded translation template JSON!');
               }}
               title="Download empty JSON template structure"
-              className={`p-2 rounded-xl border text-xs font-semibold transition-all ${
+              className={`p-2 rounded-xl border-[1.5px] text-xs font-semibold transition-all ${
                 isDark
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-                  : 'bg-white border-zinc-200 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50'
+                  ? 'bg-[#1d2922] border-[#44594c] text-[#a3b2aa] hover:text-[#f3f6f4] hover:bg-[#283a2f]'
+                  : 'bg-white border-[#b6c4b2] text-[#4a5752] hover:text-[#14201d] hover:bg-[#e7efe3]'
               }`}
             >
               <IoDocumentTextOutline className="w-3.5 h-3.5" />
@@ -536,12 +552,12 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
         {/* Translation Progress Indicator */}
         {translationProgress && (
           <div
-            className={`px-6 py-2 border-b flex items-center justify-between text-xs ${
-              isDark ? 'bg-purple-950/40 border-purple-900/50 text-purple-300' : 'bg-purple-50 border-purple-100 text-purple-800'
+            className={`px-6 py-2 border-b-[1.5px] flex items-center justify-between text-xs ${
+              isDark ? 'bg-[#203828]/60 border-[#73aa84]/40 text-[#73aa84]' : 'bg-[#e8f1e2] border-[#4a7855]/30 text-[#1f5c3f]'
             }`}
           >
             <div className="flex items-center gap-2">
-              <IoSyncOutline className="w-4 h-4 animate-spin text-purple-500" />
+              <IoSyncOutline className={`w-4 h-4 animate-spin ${isDark ? 'text-[#73aa84]' : 'text-[#1f5c3f]'}`} />
               <span>Translating all languages in progress...</span>
             </div>
             <span className="font-mono font-bold">
@@ -554,9 +570,9 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {canvases.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
-              <IoGlobeOutline className={`w-12 h-12 mb-3 ${isDark ? 'text-zinc-700' : 'text-zinc-300'}`} />
+              <IoGlobeOutline className={`w-12 h-12 mb-3 ${isDark ? 'text-[#34443a]' : 'text-[#c5cec2]'}`} />
               <h3 className="font-bold text-base mb-1">No screenshot slides found</h3>
-              <p className={`text-xs max-w-sm ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+              <p className={`text-xs max-w-sm ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
                 Add slides to your canvas or upload screenshots in the studio to start translating.
               </p>
             </div>
@@ -573,17 +589,21 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
               return (
                 <div
                   key={canvas.id}
-                  className={`p-5 rounded-2xl border transition-all ${
-                    isDark ? 'bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700' : 'bg-zinc-50 border-zinc-200 hover:border-zinc-300'
+                  className={`p-5 rounded-2xl border-[1.5px] transition-all ${
+                    isDark ? 'bg-[#141c18] border-[#34443a] hover:border-[#4e6557]' : 'bg-[#f8f9f5] border-[#c5cec2] hover:border-[#8fa895]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20 text-xs font-bold flex items-center justify-center">
+                      <span className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center border ${
+                        isDark
+                          ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40'
+                          : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+                      }`}>
                         {index + 1}
                       </span>
                       <h4 className="font-bold text-sm">Slide {index + 1}</h4>
-                      <span className={`text-[11px] font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                      <span className={`text-[11px] font-mono ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
                         Layout: {canvas.layout}
                       </span>
                     </div>
@@ -593,10 +613,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                         <>
                           <button
                             onClick={() => handleCopyFromSource(canvas)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold border-[1.5px] flex items-center gap-1.5 transition-all ${
                               isDark
-                                ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white'
-                                : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-100'
+                                ? 'bg-[#1d2922] border-[#44594c] text-[#f3f6f4] hover:bg-[#283a2f]'
+                                : 'bg-white border-[#b6c4b2] text-[#14201d] hover:bg-[#e7efe3]'
                             }`}
                             title="Copy text from English source"
                           >
@@ -607,10 +627,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                           <button
                             onClick={() => handleTranslateSingleSlide(canvas)}
                             disabled={isSlideTranslating}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border flex items-center gap-1.5 transition-all ${
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border-[1.5px] flex items-center gap-1.5 transition-all ${
                               isDark
-                                ? 'bg-blue-600/20 border-blue-500/30 text-blue-300 hover:bg-blue-600/30'
-                                : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                                ? 'bg-[#203828] border-[#73aa84]/40 text-[#73aa84] hover:bg-[#283a2f]'
+                                : 'bg-[#e8f1e2] border-[#4a7855]/30 text-[#1f5c3f] hover:bg-[#e7efe3]'
                             } disabled:opacity-50`}
                           >
                             {isSlideTranslating ? (
@@ -629,20 +649,22 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                     {/* Source Reference Column (English) */}
                     {selectedLang !== 'en' && (
                       <div
-                        className={`p-3.5 rounded-xl border text-xs space-y-2.5 ${
-                          isDark ? 'bg-zinc-950/60 border-zinc-800/60 text-zinc-400' : 'bg-white border-zinc-200 text-zinc-600'
+                        className={`p-3.5 rounded-xl border-[1.5px] text-xs space-y-2.5 ${
+                          isDark ? 'bg-[#111814] border-[#34443a] text-[#a3b2aa]' : 'bg-white border-[#c5cec2] text-[#4a5752]'
                         }`}
                       >
-                        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                        <div className={`flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${
+                          isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'
+                        }`}>
                           <span>English (Source Reference)</span>
                         </div>
                         <div>
                           <span className="block text-[10px] uppercase font-bold text-zinc-500 mb-0.5">Title:</span>
-                          <p className="font-semibold text-zinc-800 dark:text-zinc-200">{enSourceTitle || 'No title'}</p>
+                          <p className={`font-semibold ${isDark ? 'text-[#f3f6f4]' : 'text-[#14201d]'}`}>{enSourceTitle || 'No title'}</p>
                         </div>
                         <div>
                           <span className="block text-[10px] uppercase font-bold text-zinc-500 mb-0.5">Subtitle:</span>
-                          <p className="text-zinc-700 dark:text-zinc-300">{enSourceSubtitle || 'No subtitle'}</p>
+                          <p className={isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}>{enSourceSubtitle || 'No subtitle'}</p>
                         </div>
                       </div>
                     )}
@@ -650,7 +672,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                     {/* Target Language Translation Column */}
                     <div className={`${selectedLang === 'en' ? 'md:col-span-2' : ''} space-y-3`}>
                       <div>
-                        <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                        <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-[#f3f6f4]' : 'text-[#14201d]'}`}>
                           Title ({selectedLangObj.name}):
                         </label>
                         <input
@@ -659,16 +681,16 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                           onChange={(e) => handleInputChange(canvas.id, 'title', e.target.value)}
                           placeholder={`Enter headline in ${selectedLangObj.name}...`}
                           dir={selectedLangObj.direction || 'ltr'}
-                          className={`w-full px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          className={`w-full px-3.5 py-2 rounded-xl text-xs font-semibold border-[1.5px] transition-all outline-none ${
                             isDark
-                              ? 'bg-zinc-900 border-zinc-700 text-white placeholder-zinc-500'
-                              : 'bg-white border-zinc-300 text-zinc-900 placeholder-zinc-400'
+                              ? 'bg-[#1b2620] border-[#44594c] text-[#f3f6f4] placeholder-[#a3b2aa] focus:border-[#73aa84] focus:ring-2 focus:ring-[#2e855c]/25'
+                              : 'bg-white border-[#b6c4b2] text-[#14201d] placeholder-[#4a5752] focus:border-[#1f5c3f] focus:ring-2 focus:ring-[#1f5c3f]/20'
                           }`}
                         />
                       </div>
 
                       <div>
-                        <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                        <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-[#f3f6f4]' : 'text-[#14201d]'}`}>
                           Subtitle ({selectedLangObj.name}):
                         </label>
                         <textarea
@@ -677,10 +699,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                           placeholder={`Enter description in ${selectedLangObj.name}...`}
                           dir={selectedLangObj.direction || 'ltr'}
                           rows={2}
-                          className={`w-full px-3.5 py-2 rounded-xl text-xs font-medium border transition-all resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          className={`w-full px-3.5 py-2 rounded-xl text-xs font-medium border-[1.5px] transition-all resize-none outline-none ${
                             isDark
-                              ? 'bg-zinc-900 border-zinc-700 text-white placeholder-zinc-500'
-                              : 'bg-white border-zinc-300 text-zinc-900 placeholder-zinc-400'
+                              ? 'bg-[#1b2620] border-[#44594c] text-[#f3f6f4] placeholder-[#a3b2aa] focus:border-[#73aa84] focus:ring-2 focus:ring-[#2e855c]/25'
+                              : 'bg-white border-[#b6c4b2] text-[#14201d] placeholder-[#4a5752] focus:border-[#1f5c3f] focus:ring-2 focus:ring-[#1f5c3f]/20'
                           }`}
                         />
                       </div>
@@ -694,12 +716,12 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
 
         {/* Footer */}
         <div
-          className={`px-6 py-4 border-t flex items-center justify-between flex-shrink-0 ${
-            isDark ? 'border-zinc-800 bg-zinc-900/60' : 'border-zinc-200 bg-zinc-50/80'
+          className={`px-6 py-4 border-t-[1.5px] flex items-center justify-between flex-shrink-0 ${
+            isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
           }`}
         >
           <div className="flex items-center gap-2">
-            <span className={`text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+            <span className={`text-xs ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
               Selected language: <strong className={isDark ? 'text-white' : 'text-black'}>{selectedLangObj.name}</strong>
             </span>
           </div>
@@ -707,8 +729,8 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                isDark ? 'text-zinc-400 hover:bg-zinc-800 hover:text-white' : 'text-zinc-600 hover:bg-zinc-200 hover:text-black'
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border-[1.5px] ${
+                isDark ? 'border-[#44594c] text-[#a3b2aa] hover:bg-[#1d2922] hover:text-[#f3f6f4]' : 'border-[#b6c4b2] text-[#4a5752] hover:bg-[#e7efe3] hover:text-[#14201d]'
               }`}
             >
               Cancel
@@ -716,10 +738,10 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
 
             <button
               onClick={handleSaveAndApply}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md ${
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm text-white ${
                 isDark
-                  ? 'bg-blue-600 text-white hover:bg-blue-500'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-[#2e855c] hover:bg-[#38a16f] border border-[#2e855c]'
+                  : 'bg-[#1f5c3f] hover:bg-[#16452f] border border-[#1f5c3f]'
               }`}
             >
               <IoCheckmark className="w-4 h-4" />

@@ -61,15 +61,21 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
     // CSS transforms handle cropping rendering
   }, []);
 
+  const isDark = globalSettings.theme !== 'light';
+
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden shadow-2xl h-[85vh]">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/65 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className={`border-[1.5px] rounded-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden shadow-2xl h-[85vh] ${
+        isDark ? 'bg-[#141c18] border-[#34443a] text-[#f3f6f4]' : 'bg-white border-[#c5cec2] text-[#14201d]'
+      }`}>
         
         {/* Cropper Area */}
-        <div className="flex-1 bg-black min-h-[300px] flex items-center justify-center overflow-hidden p-8">
-          <div style={{ width: phoneW, height: phoneH, transform: `scale(${scale})`, position: 'relative', backgroundColor: '#111' }}>
+        <div className={`flex-1 min-h-[300px] flex items-center justify-center overflow-hidden p-8 ${
+          isDark ? 'bg-[#090e0b]' : 'bg-[#e6ebe1]'
+        }`}>
+          <div style={{ width: phoneW, height: phoneH, transform: `scale(${scale})`, position: 'relative', backgroundColor: isDark ? '#111' : '#f0f0f0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
             {canvas.imageSrc && (
             <Cropper
               image={canvas.imageSrc}
@@ -93,24 +99,56 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
         </div>
 
         {/* Controls */}
-        <div className="w-full md:w-80 bg-zinc-900 border-l border-zinc-800 flex flex-col">
-          <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-            <h3 className="text-white font-semibold">Edit Image</h3>
-            <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
+        <div className={`w-full md:w-80 border-l-[1.5px] flex flex-col ${
+          isDark ? 'bg-[#141c18] border-[#34443a]' : 'bg-white border-[#c5cec2]'
+        }`}>
+          <div className={`p-4 border-b-[1.5px] flex items-center justify-between ${
+            isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
+          }`}>
+            <div>
+              <span className={`text-[10px] font-bold tracking-[1.5px] uppercase block ${
+                isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'
+              }`}>
+                Adjust & Crop
+              </span>
+              <h3 className="font-bold text-base">Edit Image</h3>
+            </div>
+            <button
+              onClick={onClose}
+              className={`p-1.5 rounded-xl border-[1.5px] transition-colors ${
+                isDark ? 'border-[#44594c] hover:bg-[#283a2f] text-[#f3f6f4]' : 'border-[#b6c4b2] hover:bg-[#e7efe3] text-[#14201d]'
+              }`}
+            >
               <IoClose className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex border-b border-zinc-800">
+          <div className={`flex border-b-[1.5px] ${isDark ? 'border-[#34443a] bg-[#111814]/50' : 'border-[#c5cec2] bg-[#f8f9f5]/50'}`}>
             <button 
               onClick={() => setActiveTab('crop')}
-              className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${activeTab === 'crop' ? 'text-white border-b-2 border-indigo-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-2 border-b-2 transition-colors ${
+                activeTab === 'crop'
+                  ? isDark
+                    ? 'text-white border-[#2e855c] bg-[#203828]/50'
+                    : 'text-[#14201d] border-[#1f5c3f] bg-[#e8f1e2]/50'
+                  : isDark
+                    ? 'text-[#a3b2aa] border-transparent hover:text-white'
+                    : 'text-[#4a5752] border-transparent hover:text-[#14201d]'
+              }`}
             >
               <IoCropOutline className="w-4 h-4" /> Transform
             </button>
             <button 
               onClick={() => setActiveTab('filters')}
-              className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${activeTab === 'filters' ? 'text-white border-b-2 border-indigo-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-2 border-b-2 transition-colors ${
+                activeTab === 'filters'
+                  ? isDark
+                    ? 'text-white border-[#2e855c] bg-[#203828]/50'
+                    : 'text-[#14201d] border-[#1f5c3f] bg-[#e8f1e2]/50'
+                  : isDark
+                    ? 'text-[#a3b2aa] border-transparent hover:text-white'
+                    : 'text-[#4a5752] border-transparent hover:text-[#14201d]'
+              }`}
             >
               <IoColorWandOutline className="w-4 h-4" /> Filters
             </button>
@@ -120,25 +158,25 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
             {activeTab === 'crop' && (
               <>
                 <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Zoom</span>
-                    <span className="text-zinc-200">{zoom.toFixed(2)}x</span>
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className={isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}>Zoom</span>
+                    <span className={isDark ? 'text-[#f3f6f4]' : 'text-[#14201d]'}>{zoom.toFixed(2)}x</span>
                   </div>
                   <input 
                     type="range" min="1" max="5" step="0.1" 
                     value={zoom} onChange={(e) => setZoom(Number(e.target.value))}
-                    className="w-full accent-indigo-500"
+                    className="w-full accent-[#1f5c3f] dark:accent-[#2e855c]"
                   />
                 </div>
                 <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Rotation</span>
-                    <span className="text-zinc-200">{rotation}°</span>
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className={isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}>Rotation</span>
+                    <span className={isDark ? 'text-[#f3f6f4]' : 'text-[#14201d]'}>{rotation}°</span>
                   </div>
                   <input 
                     type="range" min="-180" max="180" step="1" 
                     value={rotation} onChange={(e) => setRotation(Number(e.target.value))}
-                    className="w-full accent-indigo-500"
+                    className="w-full accent-[#1f5c3f] dark:accent-[#2e855c]"
                   />
                 </div>
               </>
@@ -154,15 +192,15 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
                   { label: 'Blur', key: 'blur', min: 0, max: 20, unit: 'px' },
                 ].map((f) => (
                   <div key={f.key} className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">{f.label}</span>
-                      <span className="text-zinc-200">{filters[f.key as keyof typeof filters]}{f.unit}</span>
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className={isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}>{f.label}</span>
+                      <span className={isDark ? 'text-[#f3f6f4]' : 'text-[#14201d]'}>{filters[f.key as keyof typeof filters]}{f.unit}</span>
                     </div>
                     <input 
                       type="range" min={f.min} max={f.max} step="1" 
                       value={filters[f.key as keyof typeof filters]} 
                       onChange={(e) => setFilters(prev => ({ ...prev, [f.key]: Number(e.target.value) }))}
-                      className="w-full accent-indigo-500"
+                      className="w-full accent-[#1f5c3f] dark:accent-[#2e855c]"
                     />
                   </div>
                 ))}
@@ -170,16 +208,24 @@ export function ImageEditorModal({ canvas, onClose }: ImageEditorModalProps) {
             )}
           </div>
 
-          <div className="p-4 border-t border-zinc-800 flex gap-3 bg-zinc-900/90">
+          <div className={`p-4 border-t-[1.5px] flex gap-3 ${
+            isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
+          }`}>
             <button 
               onClick={handleReset}
-              className="px-4 py-2 text-sm font-semibold text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors flex-1"
+              className={`px-4 py-2 text-xs font-bold rounded-xl border-[1.5px] transition-colors flex-1 ${
+                isDark ? 'bg-[#1d2922] hover:bg-[#283a2f] border-[#44594c] text-[#f3f6f4]' : 'bg-white hover:bg-[#e7efe3] border-[#b6c4b2] text-[#14201d]'
+              }`}
             >
               Reset
             </button>
             <button 
               onClick={handleSave}
-              className="px-4 py-2 text-sm font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors flex-[2]"
+              className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex-[2] text-white shadow-sm ${
+                isDark
+                  ? 'bg-[#2e855c] hover:bg-[#38a16f] border border-[#2e855c]'
+                  : 'bg-[#1f5c3f] hover:bg-[#16452f] border border-[#1f5c3f]'
+              }`}
             >
               Save Changes
             </button>

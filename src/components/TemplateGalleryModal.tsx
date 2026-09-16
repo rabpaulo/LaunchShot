@@ -258,15 +258,15 @@ const TemplateCard = React.memo(function TemplateCard({
   return (
     <div
       onClick={onSelect}
-      className={`group cursor-pointer rounded-2xl border-2 transition-all duration-200 flex flex-col overflow-hidden shadow-sm hover:shadow-xl ${
+      className={`group cursor-pointer rounded-2xl border-[1.5px] transition-all duration-200 flex flex-col overflow-hidden shadow-sm hover:shadow-xl ${
         isDark
-          ? 'border-gray-800 bg-gray-900/50 hover:border-blue-500 hover:bg-gray-800/80'
-          : 'border-gray-200 bg-white hover:border-blue-500 hover:bg-gray-50'
+          ? 'border-[#34443a] bg-[#141c18] hover:border-[#73aa84] hover:bg-[#18221c]'
+          : 'border-[#c5cec2] bg-white hover:border-[#4a7855] hover:bg-[#f8f9f5]'
       }`}
     >
       {/* Card Header with Unique Logo & Style Badge */}
-      <div className={`px-4 py-3 border-b flex items-center justify-between gap-3 ${
-        isDark ? 'border-gray-800/80 bg-zinc-900/60' : 'border-gray-100 bg-gray-50/70'
+      <div className={`px-4 py-3 border-b-[1.5px] flex items-center justify-between gap-3 ${
+        isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
       }`}>
         <div className="flex items-center gap-3 min-w-0">
           {/* Unique Template Logo */}
@@ -280,17 +280,21 @@ const TemplateCard = React.memo(function TemplateCard({
           </div>
 
           <div className="flex flex-col min-w-0">
-            <h3 className={`font-bold text-sm leading-snug truncate group-hover:text-blue-400 transition-colors ${
-              isDark ? 'text-gray-100' : 'text-gray-900'
+            <h3 className={`font-bold text-sm leading-snug truncate transition-colors ${
+              isDark ? 'text-[#f3f6f4] group-hover:text-[#73aa84]' : 'text-[#14201d] group-hover:text-[#1f5c3f]'
             }`}>
               {name}
             </h3>
             <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
               {/* Unique Style Pill */}
-              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-400 border border-blue-500/25 whitespace-nowrap">
+              <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-md border whitespace-nowrap ${
+                isDark
+                  ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40'
+                  : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+              }`}>
                 {style}
               </span>
-              <span className={`text-[10px] font-medium truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span className={`text-[10px] font-medium truncate ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
                 {category}
               </span>
             </div>
@@ -299,8 +303,8 @@ const TemplateCard = React.memo(function TemplateCard({
 
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
           isDark
-            ? 'bg-zinc-800 border-zinc-700 text-zinc-300'
-            : 'bg-zinc-100 border-zinc-200 text-zinc-600'
+            ? 'bg-[#1b2620] border-[#34443a] text-[#a3b2aa]'
+            : 'bg-[#f2f5ee] border-[#c5cec2] text-[#4a5752]'
         }`}>
           {canvases.length} {canvases.length === 1 ? 'Screen' : 'Screens'}
         </span>
@@ -308,7 +312,7 @@ const TemplateCard = React.memo(function TemplateCard({
 
       {/* Screen Sequence Preview Container */}
       <div className={`p-3.5 h-[190px] flex items-center overflow-x-auto scrollbar-none relative ${
-        isDark ? 'bg-black/40' : 'bg-gray-100/60'
+        isDark ? 'bg-[#090e0b]' : 'bg-[#e6ebe1]'
       }`}>
         <div className="flex items-center gap-2.5 mx-auto">
           {canvases.slice(0, 5).map((canvas, i) => (
@@ -322,7 +326,7 @@ const TemplateCard = React.memo(function TemplateCard({
           ))}
           {canvases.length > 5 && (
             <div className={`w-8 h-[154px] rounded-xl border border-dashed flex items-center justify-center flex-shrink-0 ${
-              isDark ? 'border-gray-700 text-gray-400' : 'border-gray-300 text-gray-500'
+              isDark ? 'border-[#44594c] text-[#a3b2aa]' : 'border-[#b6c4b2] text-[#4a5752]'
             }`}>
               <span className="text-[10px] font-bold">+{canvases.length - 5}</span>
             </div>
@@ -360,23 +364,32 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-150">
-      <div className={`w-full max-w-[1100px] h-[88vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden border ${
-        isDark ? 'bg-zinc-950 border-gray-800' : 'bg-white border-gray-200'
+    <div className="fixed inset-0 z-[99999] bg-black/65 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-150">
+      <div className={`w-full max-w-[1100px] h-[88vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden border-[1.5px] ${
+        isDark ? 'bg-[#141c18] border-[#34443a] text-[#f3f6f4]' : 'bg-white border-[#c5cec2] text-[#14201d]'
       }`}>
         {/* Header */}
-        <div className={`p-5 sm:p-6 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-          isDark ? 'border-gray-800 bg-zinc-950' : 'border-gray-200 bg-white'
+        <div className={`p-5 sm:p-6 border-b-[1.5px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+          isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
         }`}>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/20 flex-shrink-0">
+            <div className={`p-2.5 rounded-xl border flex-shrink-0 ${
+              isDark
+                ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40'
+                : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+            }`}>
               <IoColorPaletteOutline className="w-6 h-6" />
             </div>
             <div>
-              <h2 className={`text-xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <span className={`text-[10px] font-bold tracking-[1.5px] uppercase block ${
+                isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'
+              }`}>
+                App Store & Google Play
+              </span>
+              <h2 className="text-xl font-bold tracking-tight">
                 Template Gallery
               </h2>
-              <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className={`text-xs font-normal mt-0.5 ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`}>
                 {PARSED_TEMPLATES.length} pre-designed layout sequences. Choose one to apply instantly.
               </p>
             </div>
@@ -385,24 +398,28 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 sm:w-64">
-              <IoSearchOutline className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <IoSearchOutline className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${
+                isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'
+              }`} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search templates..."
-                className={`w-full pl-9 pr-3 py-1.5 rounded-xl border text-xs outline-none transition-all ${
+                className={`w-full pl-9 pr-3 py-2 rounded-xl border-[1.5px] text-xs outline-none transition-all ${
                   isDark
-                    ? 'bg-zinc-900 border-zinc-800 text-white placeholder-zinc-500 focus:border-blue-500'
-                    : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                    ? 'bg-[#1b2620] border-[#44594c] text-[#f3f6f4] placeholder-[#a3b2aa] focus:border-[#73aa84] focus:ring-2 focus:ring-[#2e855c]/25'
+                    : 'bg-white border-[#b6c4b2] text-[#14201d] placeholder-[#4a5752] focus:border-[#1f5c3f] focus:ring-2 focus:ring-[#1f5c3f]/20'
                 }`}
               />
             </div>
 
             <button
               onClick={onClose}
-              className={`p-2 rounded-full transition-colors ${
-                isDark ? 'bg-zinc-900 hover:bg-zinc-800 text-gray-400 hover:text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black'
+              className={`p-2 rounded-xl border-[1.5px] transition-colors ${
+                isDark
+                  ? 'border-[#44594c] hover:bg-[#283a2f] text-[#f3f6f4]'
+                  : 'border-[#b6c4b2] hover:bg-[#e7efe3] text-[#14201d]'
               }`}
             >
               <IoClose className="w-5 h-5" />
@@ -411,8 +428,8 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Category Tabs */}
-        <div className={`px-6 py-2.5 border-b flex items-center gap-1.5 overflow-x-auto scrollbar-none ${
-          isDark ? 'border-gray-800 bg-zinc-900/50' : 'border-gray-100 bg-gray-50/80'
+        <div className={`px-6 py-2.5 border-b-[1.5px] flex items-center gap-1.5 overflow-x-auto scrollbar-none ${
+          isDark ? 'border-[#34443a] bg-[#111814]' : 'border-[#c5cec2] bg-[#f8f9f5]'
         }`}>
           {CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat;
@@ -420,14 +437,14 @@ export function TemplateGalleryModal({ onClose }: { onClose: () => void }) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   isSelected
                     ? isDark
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-blue-600 text-white shadow-sm'
+                      ? 'bg-[#2e855c] text-white shadow-sm font-bold'
+                      : 'bg-[#1f5c3f] text-white shadow-sm font-bold'
                     : isDark
-                      ? 'text-gray-400 hover:text-gray-200 hover:bg-zinc-800'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60'
+                      ? 'text-[#a3b2aa] hover:text-[#f3f6f4] hover:bg-[#1d2922]'
+                      : 'text-[#4a5752] hover:text-[#14201d] hover:bg-[#e7efe3]'
                 }`}
               >
                 {cat}

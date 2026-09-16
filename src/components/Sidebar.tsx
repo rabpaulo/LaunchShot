@@ -464,7 +464,7 @@ export function Sidebar() {
                     Smart ASO Copywriter
                   </h2>
                   <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
-                    isDark ? 'bg-blue-950/80 text-blue-400 border border-blue-800/60' : 'bg-blue-50 text-blue-700 border border-blue-200'
+                    isDark ? 'bg-[#203828] text-[#73aa84] border border-[#73aa84]/40' : 'bg-[#e8f1e2] text-[#1f5c3f] border border-[#4a7855]/30'
                   }`}>
                     CRO
                   </span>
@@ -534,7 +534,7 @@ export function Sidebar() {
                 value={asoDescription}
                 onChange={(e) => setAsoDescription(e.target.value)}
                 placeholder="Describe your app (e.g. sleep tracker for insomnia)"
-                className={`w-full mb-2 border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs transition-colors ${
+                className={`w-full mb-2 border rounded-xl shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#1f5c3f] text-xs transition-colors ${
                   isDark 
                     ? 'bg-gray-900/60 border-gray-700/80 text-gray-200 placeholder-gray-500' 
                     : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400'
@@ -568,11 +568,11 @@ export function Sidebar() {
                   }}
                   className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.01] flex items-center justify-center gap-1.5 ${
                     isDark
-                      ? 'bg-blue-900/40 border-blue-500/50 text-blue-100 hover:bg-blue-800/50'
-                      : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                      ? 'bg-[#203828] border-[#73aa84]/40 text-[#73aa84] hover:bg-[#283a2f]'
+                      : 'bg-[#e8f1e2] border-[#4a7855]/30 text-[#1f5c3f] hover:bg-[#e7efe3]'
                   }`}
                 >
-                  <IoSparklesOutline className="w-3.5 h-3.5 text-blue-400" />
+                  <IoSparklesOutline className={`w-3.5 h-3.5 ${isDark ? 'text-[#73aa84]' : 'text-[#1f5c3f]'}`} />
                   Apply ASO Copy
                 </button>
 
@@ -585,16 +585,16 @@ export function Sidebar() {
                       toast.error("Add or load screenshots first!");
                       return;
                     }
-                    const nextVar = asoVariationIndex + 1;
-                    setAsoVariationIndex(nextVar);
-                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize, nextVar);
+                    const nextIndex = asoVariationIndex + 1;
+                    setAsoVariationIndex(nextIndex);
+                    const updated = applyAsoCopy(canvases, asoDescription, selectedAsoTone, globalSettings.targetSize, nextIndex);
                     loadTemplate(updated);
-                    toast.success(`Generated variation angle #${(nextVar % 3) + 1}!`);
+                    toast.success(`Switched to angle #${(nextIndex % 3) + 1}`);
                   }}
-                  className={`py-2 px-2.5 rounded-xl border text-xs font-medium transition-all hover:scale-[1.02] flex items-center justify-center gap-1 ${
+                  className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1 transition-all ${
                     isDark
-                      ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white'
-                      : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
+                      ? 'bg-zinc-800/80 border-zinc-700/80 text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                      : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
                   }`}
                 >
                   <IoRefreshOutline className="w-3.5 h-3.5" />
@@ -608,7 +608,9 @@ export function Sidebar() {
               }`}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-semibold text-[10px] text-zinc-300">5-Screen Conversion Arc:</span>
-                  <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-blue-500/10 text-blue-400">
+                  <span className={`text-[9px] font-mono px-1 py-0.2 rounded border ${
+                    isDark ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40' : 'bg-[#e8f1e2] text-[#1f5c3f] border border-[#4a7855]/30'
+                  }`}>
                     {detectAsoDomain(asoDescription) === 'universal' ? 'Dynamic' : detectAsoDomain(asoDescription).toUpperCase()}
                   </span>
                 </div>
@@ -640,8 +642,8 @@ export function Sidebar() {
             }`}>
               Translations & Localization
             </h2>
-            <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-              isDark ? 'bg-zinc-800 text-blue-400' : 'bg-blue-50 text-blue-700'
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${
+              isDark ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40' : 'bg-[#e8f1e2] text-[#1f5c3f] border border-[#4a7855]/30'
             }`}>
               {(globalSettings.activeLanguage || 'en').toUpperCase()}
             </span>
@@ -671,11 +673,11 @@ export function Sidebar() {
               onClick={() => setShowTranslationModal(true)}
               className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 shadow-sm ${
                 isDark
-                  ? 'bg-blue-600/20 border-blue-500/40 text-blue-200 hover:bg-blue-600/30'
-                  : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                  ? 'bg-[#203828] border-[#73aa84]/40 text-[#73aa84] hover:bg-[#283a2f]'
+                  : 'bg-[#e8f1e2] border-[#4a7855]/30 text-[#1f5c3f] hover:bg-[#e7efe3]'
               }`}
             >
-              <IoGlobeOutline className="w-4 h-4 text-blue-400" />
+              <IoGlobeOutline className={`w-4 h-4 ${isDark ? 'text-[#73aa84]' : 'text-[#1f5c3f]'}`} />
               Manage All Translations
             </button>
 
@@ -704,7 +706,7 @@ export function Sidebar() {
                     : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
                 } disabled:opacity-50`}
               >
-                <IoSparklesOutline className="w-3.5 h-3.5 text-blue-400" />
+                <IoSparklesOutline className={`w-3.5 h-3.5 ${isDark ? 'text-[#73aa84]' : 'text-[#1f5c3f]'}`} />
                 {isQuickTranslating ? 'Translating...' : `Auto-Translate to ${(globalSettings.activeLanguage || '').toUpperCase()}`}
               </button>
             )}

@@ -129,7 +129,7 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
         isDark ? 'border-zinc-800/80' : 'border-zinc-200'
       }`}>
         <div className="flex items-center gap-2">
-          <IoColorPaletteOutline className="w-4 h-4 text-blue-400" />
+          <IoColorPaletteOutline className={`w-4 h-4 ${isDark ? 'text-[#73aa84]' : 'text-[#1f5c3f]'}`} />
           <span className="text-xs font-bold uppercase tracking-wider">Studio Inspector</span>
         </div>
         {onClose && (
@@ -174,7 +174,7 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
                   onClick={() => updateBackdropEffects({ overlay: !backdropEffects.overlay })}
                   className={`py-1.5 px-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     backdropEffects.overlay
-                      ? isDark ? 'bg-blue-600/30 border-blue-500 text-blue-200' : 'bg-blue-50 border-blue-300 text-blue-700'
+                      ? isDark ? 'bg-[#203828] border-[#73aa84] text-[#73aa84]' : 'bg-[#e8f1e2] border-[#4a7855] text-[#1f5c3f]'
                       : isDark ? 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:text-zinc-200' : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900'
                   }`}
                 >
@@ -187,7 +187,7 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
                   onClick={() => updateBackdropEffects({ effects: !backdropEffects.effects })}
                   className={`py-1.5 px-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     backdropEffects.effects
-                      ? isDark ? 'bg-blue-600/30 border-blue-500 text-blue-200' : 'bg-blue-50 border-blue-300 text-blue-700'
+                      ? isDark ? 'bg-[#203828] border-[#73aa84] text-[#73aa84]' : 'bg-[#e8f1e2] border-[#4a7855] text-[#1f5c3f]'
                       : isDark ? 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:text-zinc-200' : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900'
                   }`}
                 >
@@ -200,7 +200,7 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
                   onClick={() => updateBackdropEffects({ pattern: !backdropEffects.pattern })}
                   className={`py-1.5 px-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     backdropEffects.pattern
-                      ? isDark ? 'bg-blue-600/30 border-blue-500 text-blue-200' : 'bg-blue-50 border-blue-300 text-blue-700'
+                      ? isDark ? 'bg-[#203828] border-[#73aa84] text-[#73aa84]' : 'bg-[#e8f1e2] border-[#4a7855] text-[#1f5c3f]'
                       : isDark ? 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:text-zinc-200' : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900'
                   }`}
                 >
@@ -213,7 +213,7 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
                   onClick={() => updateBackdropEffects({ vignette: !backdropEffects.vignette })}
                   className={`py-1.5 px-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     backdropEffects.vignette
-                      ? isDark ? 'bg-blue-600/30 border-blue-500 text-blue-200' : 'bg-blue-50 border-blue-300 text-blue-700'
+                      ? isDark ? 'bg-[#203828] border-[#73aa84] text-[#73aa84]' : 'bg-[#e8f1e2] border-[#4a7855] text-[#1f5c3f]'
                       : isDark ? 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:text-zinc-200' : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900'
                   }`}
                 >
@@ -357,7 +357,9 @@ export function BackdropShadowInspector({ isOpen = true, onClose }: BackdropShad
                         onClick={() => handleSelectColor(color)}
                         className={`w-full aspect-square rounded-full border relative transition-transform hover:scale-125 shadow-xs flex items-center justify-center ${
                           isSelected
-                            ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-900 border-transparent scale-110'
+                            ? isDark
+                              ? 'ring-2 ring-[#73aa84] ring-offset-2 ring-offset-zinc-900 border-transparent scale-110'
+                              : 'ring-2 ring-[#1f5c3f] ring-offset-2 ring-offset-white border-transparent scale-110'
                             : isDark ? 'border-white/10' : 'border-black/10'
                         }`}
                         style={{ backgroundColor: color }}

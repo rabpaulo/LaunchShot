@@ -58,10 +58,10 @@ export function CustomDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl border text-sm font-medium outline-none transition-all ${
+        className={`w-full flex items-center justify-between py-2 px-3 rounded-xl border-[1.5px] text-xs font-medium outline-none transition-all ${
           isDark 
-            ? 'bg-zinc-900/60 border-zinc-700/80 text-gray-200 hover:border-zinc-600 focus:ring-2 focus:ring-zinc-600' 
-            : 'bg-white border-gray-200 text-gray-800 hover:border-gray-300 focus:ring-2 focus:ring-zinc-300 shadow-sm'
+            ? 'bg-[#1b2620] border-[#44594c] text-[#f3f6f4] hover:border-[#73aa84] focus:ring-2 focus:ring-[#2e855c]/25' 
+            : 'bg-white border-[#b6c4b2] text-[#14201d] hover:border-[#4a7855] focus:ring-2 focus:ring-[#1f5c3f]/20 shadow-sm'
         }`}
       >
         <div className="flex items-center gap-2 truncate min-w-0 flex-1">
@@ -76,27 +76,29 @@ export function CustomDropdown({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
-            <span className="ml-auto text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 flex-shrink-0">
+            <span className={`ml-auto text-[9px] font-semibold px-1.5 py-0.5 rounded-md border flex-shrink-0 ${
+              isDark ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40' : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+            }`}>
               {selectedOption.badge}
             </span>
           )}
         </div>
-        <IoChevronDown className={`w-4 h-4 transition-transform duration-200 ml-1.5 flex-shrink-0 ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-zinc-400' : 'text-gray-400'}`} />
+        <IoChevronDown className={`w-4 h-4 transition-transform duration-200 ml-1.5 flex-shrink-0 ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-[#a3b2aa]' : 'text-[#4a5752]'}`} />
       </button>
 
       {isOpen && (
         <div 
-          className={`absolute z-50 w-full mt-1.5 py-1.5 rounded-xl border shadow-xl max-h-64 overflow-y-auto scrollbar-thin ${
+          className={`absolute z-50 w-full mt-1.5 py-1.5 rounded-xl border-[1.5px] shadow-xl max-h-64 overflow-y-auto scrollbar-thin ${
             isDark 
-              ? 'bg-zinc-900 border-zinc-700 shadow-black/50 scrollbar-thumb-zinc-700' 
-              : 'bg-white border-gray-100 shadow-gray-200/50 scrollbar-thumb-gray-200'
+              ? 'bg-[#141c18] border-[#34443a] shadow-black/50 scrollbar-thumb-zinc-700' 
+              : 'bg-white border-[#c5cec2] shadow-gray-200/50 scrollbar-thumb-gray-200'
           }`}
         >
           {hasCategories && groupedOptions ? (
             Object.entries(groupedOptions).map(([category, opts]) => (
               <div key={category}>
                 <div className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${
-                  isDark ? 'text-zinc-500 bg-zinc-900/90 sticky top-0 backdrop-blur-md' : 'text-gray-400 bg-white/90 sticky top-0 backdrop-blur-md'
+                  isDark ? 'text-[#a3b2aa] bg-[#141c18]/95 sticky top-0 backdrop-blur-md' : 'text-[#4a5752] bg-white/95 sticky top-0 backdrop-blur-md'
                 }`}>
                   {category}
                 </div>
@@ -108,10 +110,10 @@ export function CustomDropdown({
                       onChange(opt.value);
                       setIsOpen(false);
                     }}
-                    className={`w-full text-left px-3.5 py-2 text-sm transition-colors ${
+                    className={`w-full text-left px-3.5 py-2 text-xs transition-colors ${
                       opt.value === value 
-                        ? isDark ? 'bg-zinc-800 text-white' : 'bg-gray-50 text-gray-900 font-semibold'
-                        : isDark ? 'text-gray-300 hover:bg-zinc-800/60' : 'text-gray-600 hover:bg-gray-50'
+                        ? isDark ? 'bg-[#203828] text-white font-semibold' : 'bg-[#e8f1e2] text-[#14201d] font-semibold'
+                        : isDark ? 'text-[#f3f6f4] hover:bg-[#1d2922]' : 'text-[#14201d] hover:bg-[#f8f9f5]'
                     }`}
                     style={opt.fontFamily ? { fontFamily: opt.fontFamily } : {}}
                   >
@@ -124,7 +126,9 @@ export function CustomDropdown({
                         <span className="truncate">{opt.label}</span>
                       </div>
                       {opt.badge && (
-                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 flex-shrink-0">
+                        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-md border flex-shrink-0 ${
+                          isDark ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40' : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+                        }`}>
                           {opt.badge}
                         </span>
                       )}
@@ -142,10 +146,10 @@ export function CustomDropdown({
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-3.5 py-2 text-sm transition-colors ${
+                className={`w-full text-left px-3.5 py-2 text-xs transition-colors ${
                   opt.value === value 
-                    ? isDark ? 'bg-zinc-800 text-white' : 'bg-gray-50 text-gray-900 font-semibold'
-                    : isDark ? 'text-gray-300 hover:bg-zinc-800/60' : 'text-gray-600 hover:bg-gray-50'
+                    ? isDark ? 'bg-[#203828] text-white font-semibold' : 'bg-[#e8f1e2] text-[#14201d] font-semibold'
+                    : isDark ? 'text-[#f3f6f4] hover:bg-[#1d2922]' : 'text-[#14201d] hover:bg-[#f8f9f5]'
                 }`}
                 style={opt.fontFamily ? { fontFamily: opt.fontFamily } : {}}
               >
@@ -158,7 +162,9 @@ export function CustomDropdown({
                     <span className="truncate">{opt.label}</span>
                   </div>
                   {opt.badge && (
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/25 flex-shrink-0">
+                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-md border flex-shrink-0 ${
+                      isDark ? 'bg-[#203828] text-[#73aa84] border-[#73aa84]/40' : 'bg-[#e8f1e2] text-[#1f5c3f] border-[#4a7855]/30'
+                    }`}>
                       {opt.badge}
                     </span>
                   )}

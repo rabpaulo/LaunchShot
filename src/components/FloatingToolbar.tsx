@@ -100,7 +100,7 @@ export function FloatingToolbar({ onToggleInspector, isInspectorOpen }: Floating
           onClick={onToggleInspector}
           className={`p-2 rounded-full transition-all cursor-pointer ${
             isInspectorOpen
-              ? 'bg-blue-600 text-white shadow-md'
+              ? isDark ? 'bg-[#2e855c] text-white shadow-md' : 'bg-[#1f5c3f] text-white shadow-md'
               : isDark
               ? 'hover:bg-zinc-800 text-zinc-300'
               : 'hover:bg-zinc-100 text-zinc-700'
