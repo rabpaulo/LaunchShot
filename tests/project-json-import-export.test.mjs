@@ -214,6 +214,24 @@ test('importProjectsJson validates and rejects corrupted or invalid JSON', async
   assert.equal(badVersion.success, false);
 });
 
+test('importProjectsJson imports dayle.json project successfully with embedded assets and no emojis', async () => {
+  const jsonContent = await readFile(new URL('../dayle.json', import.meta.url), 'utf-8');
+  const store = useEditorStore;
+  const result = await store.getState().importProjectsJson(jsonContent);
+  assert.equal(result.success, true);
+  assert.equal(result.count, 1);
+
+  const active = store.getState().projects.find((p) => p.id === store.getState().activeProjectId);
+  assert.ok(active);
+  assert.equal(active.name, 'Dayle');
+  assert.equal(store.getState().canvases.length, 5);
+  assert.ok(store.getState().canvases[0].imageSrc);
+  assert.ok(store.getState().canvases[3].tertiaryImageSrc);
+
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]/u;
+  assert.equal(emojiRegex.test(jsonContent), false, 'dayle.json must contain no emojis');
+});
+
 test('ProjectManagerModal and store contain no emojis in UI and copy', async () => {
   const modalContent = await readFile(new URL('../src/components/ProjectManagerModal.tsx', import.meta.url), 'utf-8');
   const storeContent = await readFile(new URL('../src/store/useEditorStore.ts', import.meta.url), 'utf-8');
@@ -223,3 +241,5 @@ test('ProjectManagerModal and store contain no emojis in UI and copy', async () 
   assert.equal(emojiRegex.test(modalContent), false, 'ProjectManagerModal must contain no emojis');
   assert.equal(emojiRegex.test(storeContent), false, 'useEditorStore must contain no emojis');
 });
+
+
