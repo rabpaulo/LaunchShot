@@ -46,16 +46,18 @@ export async function collectAllFontEmbedCSS(): Promise<string> {
     });
   }
 
-  // Extract all @font-face rules from stylesheets
+  // Extract all @font-face rules from stylesheets, tracking the parent href
+  // so we can resolve relative font URLs correctly (against the stylesheet URL,
+  // not the page URL).
   const sheets = typeof document !== 'undefined' ? Array.from(document.styleSheets) : [];
-  const fontFaceRules: CSSFontFaceRule[] = [];
+  const fontFaceRules: { rule: CSSFontFaceRule; sheetHref: string | null }[] = [];
 
   for (const sheet of sheets) {
     try {
       const rules = Array.from(sheet.cssRules || []);
       for (const rule of rules) {
         if (rule instanceof CSSFontFaceRule) {
-          fontFaceRules.push(rule);
+          fontFaceRules.push({ rule, sheetHref: sheet.href });
         }
       }
     } catch {
@@ -63,20 +65,51 @@ export async function collectAllFontEmbedCSS(): Promise<string> {
     }
   }
 
-  // Convert font URLs to base64 Data URLs
-  for (const rule of fontFaceRules) {
+  // Also collect @font-face rules from <style> elements that may not appear
+  // in document.styleSheets (e.g. dynamically injected by Next.js)
+  if (typeof document !== 'undefined') {
+    for (const style of Array.from(document.querySelectorAll('style'))) {
+      try {
+        const sheet = style.sheet;
+        if (!sheet) continue;
+        // Skip if already collected via document.styleSheets
+        if (sheets.includes(sheet)) continue;
+        for (const rule of Array.from(sheet.cssRules || [])) {
+          if (rule instanceof CSSFontFaceRule) {
+            fontFaceRules.push({ rule, sheetHref: sheet.href });
+          }
+        }
+      } catch {
+        // Ignore inaccessible sheets
+      }
+    }
+  }
+
+  function escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // Convert font URLs to base64 Data URLs and adjust for SVG embedding
+  for (const { rule, sheetHref } of fontFaceRules) {
     let ruleCss = rule.cssText;
     const urlMatches = Array.from(ruleCss.matchAll(/url\((['"]?)([^'")]+)\1\)/g));
+    // Resolve relative font URLs against the stylesheet URL rather than the page
+    // URL, because browsers may return the source-relative path in cssText.
+    const baseUrl = sheetHref || window.location.href;
 
     for (const match of urlMatches) {
       const fullMatch = match[0];
       const fontUrl = match[2];
       if (!fontUrl.startsWith('data:')) {
-        const resolvedUrl = new URL(fontUrl, window.location.href).href;
+        const resolvedUrl = new URL(fontUrl, baseUrl).href;
         const dataUrl = await getCachedFontDataUrl(resolvedUrl);
         ruleCss = ruleCss.replace(fullMatch, `url("${dataUrl}")`);
       }
     }
+
+    // Replace font-display: swap with block so the browser waits for the
+    // embedded font instead of showing a fallback in the SVG rendering context.
+    ruleCss = ruleCss.replace(/font-display:\s*swap/g, 'font-display: block');
 
     cssRulesList.push(ruleCss);
 
@@ -87,15 +120,16 @@ export async function collectAllFontEmbedCSS(): Promise<string> {
       const cleanName = font.name;
       const normalizedName = font.id.replace(/-/g, '_').toLowerCase();
       if (familyName.toLowerCase().includes(normalizedName) || familyName.toLowerCase() === cleanName.toLowerCase()) {
+        const escapedFamily = escapeRegex(familyName);
         const alias1 = ruleCss.replace(
-          new RegExp(`font-family:\\s*['"]?${familyName}['"]?`, 'g'),
+          new RegExp(`font-family:\\s*['"]?${escapedFamily}['"]?`, 'g'),
           `font-family: "${cleanName}"`
         );
         const alias2 = ruleCss.replace(
-          new RegExp(`font-family:\\s*['"]?${familyName}['"]?`, 'g'),
+          new RegExp(`font-family:\\s*['"]?${escapedFamily}['"]?`, 'g'),
           `font-family: "${font.id}"`
         );
-        cssRulesList.push(alias1);
+        if (alias1 !== ruleCss) cssRulesList.push(alias1);
         cssRulesList.push(alias2);
       }
     }
@@ -118,6 +152,20 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     const node = host.querySelector<HTMLElement>(`#${renderId}`);
     if (!node) throw new Error('Could not render this slide.');
     await document.fonts.ready;
+
+    // Pre-compute the font embed CSS so fonts are fetched and base64-encoded early.
+    const fontEmbedCSS = await collectAllFontEmbedCSS();
+
+    // Explicitly load the active font into the browser's FontFaceSet to guarantee
+    // it is decoded and ready before html-to-image clones computed styles.
+    const activeFontId = props.canvas.fontFamily || props.settings.fontFamily || 'plus-jakarta';
+    const activeFontConfig = FONT_OPTIONS.find(f => f.id === activeFontId) || FONT_OPTIONS[0];
+    try {
+      await document.fonts.load(`bold 16px "${activeFontConfig.name}"`);
+    } catch {
+      // Non-fatal: the font may already be loaded or not available
+    }
+
     await Promise.all(Array.from(node.querySelectorAll('img')).map(image => image.decode()));
     // Background assets do not have image elements, so decode them explicitly too.
     if (props.canvas.backgroundImageSrc && !isTransparent(props.canvas)) {
@@ -129,7 +177,6 @@ export async function renderSlideImage(props: Omit<SlideRendererProps, 'renderId
     const overflowingText = Array.from(node.querySelectorAll<HTMLElement>('[data-render-text]')).some(text => text.scrollHeight > text.clientHeight + 1 || text.scrollWidth > text.clientWidth + 1);
     if (overflowingText) throw new Error('Text does not fit at its chosen size. Widen the text box, reduce the font size, or shorten the copy.');
     const size = resolveCanvasSize(props.canvas, props.settings);
-    const fontEmbedCSS = await collectAllFontEmbedCSS();
     const blob = await toBlob(node, {
       width: size.logicalWidth, height: size.logicalHeight,
       canvasWidth: size.width, canvasHeight: size.height, pixelRatio: 1,
