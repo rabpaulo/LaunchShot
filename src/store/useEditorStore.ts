@@ -201,11 +201,34 @@ interface EditorState {
   ensurePlatformForStore: (store: 'app-store' | 'play-store') => void;
   setZoomScale: (scale: number) => void;
   toggleTheme: () => void;
-  applyBackgroundToAll: (bg: string, textColor?: string) => void;
+  applyBackgroundToAll: (bg: string, textColor?: string, backdropEffects?: BackdropEffects, backgroundImageSrc?: string) => void;
   applyFontToAll: (fontFamily: string) => void;
+  applyTextStyleToAll: (typography: {
+    fontFamily?: string;
+    titleFontSize?: number;
+    subtitleFontSize?: number;
+    textBoxWidth?: number;
+    textAlign?: 'left' | 'center' | 'right';
+    textColor?: string;
+    subtitleColor?: string;
+    gradientText?: boolean;
+  }) => void;
+  applyDeviceSettingsToAll: (settings: {
+    layout?: LayoutType;
+    mockupStyle?: MockupStyle;
+    showNotch?: boolean;
+    mediaScale?: number;
+    mediaOffset?: { x: number; y: number };
+    rotationAngle?: number;
+    yawAngle?: number;
+    imageFit?: 'cover' | 'contain';
+  }) => void;
   applyLayoutToAll: (layout: LayoutType) => void;
   applyContentToAll: (title: string, subtitle: string) => void;
   applyTextBoxToAll: (textBoxWidth?: number, titleFontSize?: number, subtitleFontSize?: number, textAlign?: 'left' | 'center' | 'right') => void;
+  applyShadowToAll: (shadow: ShadowSettings) => void;
+  applyStatusBarToAll: (statusBar: StatusBarConfig) => void;
+  applyAllDesignToAll: (canvasId?: string) => void;
   applyAppIconToAll: (appIconSrc: string) => void;
   removeAppIconFromAll: () => void;
   applyDoodlesToAll: (doodle: DoodleConfig) => void;
@@ -952,20 +975,83 @@ export const useEditorStore = create<EditorState>()(
           },
         })),
 
-      applyBackgroundToAll: (bg, textColor) =>
+      applyBackgroundToAll: (bg, textColor, backdropEffects, backgroundImageSrc) =>
         set((state) => {
-          const nextCanvases = state.canvases.map((c) => ({
-            ...c,
+          const selected = state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          const targetKind = selected ? designKind(selected) : 'screenshot';
+          const nextSettings = {
+            ...state.globalSettings,
             backgroundColor: bg,
             ...(textColor ? { textColor } : {}),
-          }));
-          return pushHistory(state, nextCanvases);
+            ...(backdropEffects !== undefined ? { backdropEffects } : {}),
+            ...(backgroundImageSrc !== undefined ? { backgroundImageSrc } : {}),
+          };
+          const nextCanvases = state.canvases.map((c) => {
+            if (selected && designKind(c) !== targetKind) return c;
+            return {
+              ...c,
+              backgroundColor: bg,
+              ...(textColor ? { textColor } : {}),
+              ...(backdropEffects !== undefined ? { backdropEffects } : {}),
+              ...(backgroundImageSrc !== undefined ? { backgroundImageSrc } : {}),
+            };
+          });
+          return pushHistory(state, nextCanvases, nextSettings);
         }),
 
       applyFontToAll: (fontFamily) =>
         set((state) => {
           const nextSettings = { ...state.globalSettings, fontFamily };
           const nextCanvases = state.canvases.map((c) => ({ ...c, fontFamily }));
+          return pushHistory(state, nextCanvases, nextSettings);
+        }),
+
+      applyTextStyleToAll: (typography) =>
+        set((state) => {
+          const selected = state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          const targetKind = selected ? designKind(selected) : 'screenshot';
+          const nextSettings = typography.fontFamily ? { ...state.globalSettings, fontFamily: typography.fontFamily } : state.globalSettings;
+          const nextCanvases = state.canvases.map((c) => {
+            if (selected && designKind(c) !== targetKind) return c;
+            return {
+              ...c,
+              ...(typography.fontFamily ? { fontFamily: typography.fontFamily } : {}),
+              ...(typography.titleFontSize !== undefined ? { titleFontSize: typography.titleFontSize } : {}),
+              ...(typography.subtitleFontSize !== undefined ? { subtitleFontSize: typography.subtitleFontSize } : {}),
+              ...(typography.textBoxWidth !== undefined ? { textBoxWidth: typography.textBoxWidth } : {}),
+              ...(typography.textAlign !== undefined ? { textAlign: typography.textAlign } : {}),
+              ...(typography.textColor ? { textColor: typography.textColor } : {}),
+              ...(typography.subtitleColor !== undefined ? { subtitleColor: typography.subtitleColor } : {}),
+              ...(typography.gradientText !== undefined ? { gradientText: typography.gradientText } : {}),
+            };
+          });
+          return pushHistory(state, nextCanvases, nextSettings);
+        }),
+
+      applyDeviceSettingsToAll: (settings) =>
+        set((state) => {
+          const selected = state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          const targetKind = selected ? designKind(selected) : 'screenshot';
+          const nextSettings = {
+            ...state.globalSettings,
+            ...(settings.mockupStyle ? { mockupStyle: settings.mockupStyle } : {}),
+            ...(settings.showNotch !== undefined ? { showNotch: settings.showNotch } : {}),
+            ...(settings.imageFit ? { imageFit: settings.imageFit } : {}),
+          };
+          const nextCanvases = state.canvases.map((c) => {
+            if (selected && designKind(c) !== targetKind) return c;
+            return {
+              ...c,
+              ...(settings.layout ? { layout: settings.layout } : {}),
+              ...(settings.mockupStyle ? { mockupStyle: settings.mockupStyle } : {}),
+              ...(settings.showNotch !== undefined ? { showNotch: settings.showNotch } : {}),
+              ...(settings.mediaScale !== undefined ? { mediaScale: settings.mediaScale } : {}),
+              ...(settings.mediaOffset ? { mediaOffset: settings.mediaOffset } : {}),
+              ...(settings.rotationAngle !== undefined ? { rotationAngle: settings.rotationAngle } : {}),
+              ...(settings.yawAngle !== undefined ? { yawAngle: settings.yawAngle } : {}),
+              ...(settings.imageFit ? { imageFit: settings.imageFit } : {}),
+            };
+          });
           return pushHistory(state, nextCanvases, nextSettings);
         }),
 
@@ -1000,6 +1086,40 @@ export const useEditorStore = create<EditorState>()(
             ...(subtitleFontSize !== undefined ? { subtitleFontSize } : {}),
             ...(textAlign !== undefined ? { textAlign } : {}),
           }));
+          return pushHistory(state, nextCanvases);
+        }),
+
+      applyShadowToAll: (shadow) =>
+        set((state) => {
+          const selected = state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          const targetKind = selected ? designKind(selected) : 'screenshot';
+          const nextSettings = { ...state.globalSettings, shadow };
+          const nextCanvases = state.canvases.map((c) => {
+            if (selected && designKind(c) !== targetKind) return c;
+            return { ...c, shadow };
+          });
+          return pushHistory(state, nextCanvases, nextSettings);
+        }),
+
+      applyStatusBarToAll: (statusBar) =>
+        set((state) => {
+          const selected = state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          const targetKind = selected ? designKind(selected) : 'screenshot';
+          const nextSettings = { ...state.globalSettings, statusBar };
+          const nextCanvases = state.canvases.map((c) => {
+            if (selected && designKind(c) !== targetKind) return c;
+            return { ...c, statusBar };
+          });
+          return pushHistory(state, nextCanvases, nextSettings);
+        }),
+
+      applyAllDesignToAll: (canvasId) =>
+        set((state) => {
+          const target = (canvasId ? state.canvases.find(c => c.id === canvasId) : undefined) || state.canvases.find(c => c.id === state.selectedCanvasId) || state.canvases[0];
+          if (!target) return state;
+          const design = captureDesign(target, state.globalSettings);
+          const targetKind = designKind(target);
+          const nextCanvases = state.canvases.map(canvas => designKind(canvas) === targetKind ? applyDesign(canvas, design) : canvas);
           return pushHistory(state, nextCanvases);
         }),
 
