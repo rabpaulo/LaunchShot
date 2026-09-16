@@ -31,7 +31,8 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
     duplicateProject,
     deleteProject,
     exportProjectFile,
-    importProjectFile,
+    exportAllProjectsFile,
+    importProjectsJson,
     globalSettings,
   } = useEditorStore();
 
@@ -39,6 +40,8 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
   const [editingName, setEditingName] = useState('');
   const [newProjectName, setNewProjectName] = useState('');
   const [showCreateInput, setShowCreateInput] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isExportingAll, setIsExportingAll] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isDark = globalSettings.theme !== 'light';
@@ -64,18 +67,30 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
     toast.success(`Created "${name}"`);
   };
 
+  const handleImportText = async (text: string) => {
+    try {
+      const result = await importProjectsJson(text);
+      if (result.success) {
+        if (result.count === 1) {
+          toast.success('Project imported successfully');
+        } else {
+          toast.success(`Imported ${result.count} projects successfully`);
+        }
+      } else {
+        toast.error(result.error || 'Invalid project JSON format.');
+      }
+    } catch {
+      toast.error('Failed to import project JSON.');
+    }
+  };
+
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       const text = await file.text();
-      const success = await importProjectFile(text);
-      if (success) {
-        toast.success('Project imported successfully!');
-      } else {
-        toast.error('Invalid project file format.');
-      }
+      await handleImportText(text);
     } catch {
       toast.error('Failed to read project file.');
     } finally {
@@ -85,35 +100,84 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
     }
   };
 
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      await handleImportText(text);
+    } catch {
+      toast.error('Failed to read dropped file.');
+    }
+  };
+
+  const handleExportAll = async () => {
+    if (isExportingAll) return;
+    setIsExportingAll(true);
+    try {
+      await exportAllProjectsFile();
+      toast.success('Workspace backup exported');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to export workspace backup.');
+    } finally {
+      setIsExportingAll(false);
+    }
+  };
+
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDraggingFile(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsDraggingFile(false);
+        }
+      }}
+      onDrop={handleDrop}
+    >
       <div
-        className={`w-full max-w-3xl rounded-3xl border shadow-2xl flex flex-col max-h-[85vh] overflow-hidden ${
+        className={`relative w-full max-w-3xl rounded-3xl border shadow-2xl flex flex-col max-h-[85vh] overflow-hidden ${
           isDark ? 'bg-zinc-900 border-zinc-800 text-white' : 'bg-white border-gray-200 text-gray-900'
         }`}
       >
+        {isDraggingFile && (
+          <div className="absolute inset-0 z-50 bg-blue-600/90 backdrop-blur-sm flex flex-col items-center justify-center gap-3 text-white border-2 border-dashed border-white/50 m-2 rounded-2xl animate-in fade-in">
+            <IoCloudUploadOutline className="w-12 h-12 animate-bounce" />
+            <div className="text-center">
+              <h3 className="text-base font-bold">Drop JSON Project File</h3>
+              <p className="text-xs text-blue-100 mt-0.5">Release to import single or multi-project JSON files.</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
-        <div className={`p-6 border-b flex items-center justify-between ${isDark ? 'border-zinc-800' : 'border-gray-100'}`}>
-          <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-2xl ${isDark ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-100 text-zinc-700'}`}>
+        <div className={`p-6 border-b flex items-center justify-between gap-4 ${isDark ? 'border-zinc-800' : 'border-gray-100'}`}>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`p-2.5 rounded-2xl flex-shrink-0 ${isDark ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-100 text-zinc-700'}`}>
               <IoFolderOpenOutline className="w-6 h-6" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="text-lg font-extrabold tracking-tight">Projects & Drafts</h2>
-              <p className={`text-xs ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
-                Switch between app showcases, export backups, or import project files.
+              <p className={`text-xs truncate ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
+                Switch between app showcases, export backups, or import JSON project files.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileImport}
-              accept=".launchshot,.json"
+              accept=".json,.launchshot,application/json"
               className="hidden"
             />
 
@@ -124,9 +188,24 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
                   ? 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
                   : 'bg-zinc-50 hover:bg-zinc-100 border-gray-300 text-zinc-700'
               }`}
+              title="Import project from JSON file"
             >
               <IoCloudUploadOutline className="w-4 h-4" />
-              Import File
+              Import JSON
+            </button>
+
+            <button
+              onClick={handleExportAll}
+              disabled={isExportingAll}
+              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
+                isDark
+                  ? 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200 disabled:opacity-50'
+                  : 'bg-zinc-50 hover:bg-zinc-100 border-gray-300 text-zinc-700 disabled:opacity-50'
+              }`}
+              title="Export all projects as JSON backup bundle"
+            >
+              <IoDownloadOutline className="w-4 h-4" />
+              Export All (JSON)
             </button>
 
             <button
@@ -308,13 +387,13 @@ export function ProjectManagerModal({ onClose }: ProjectManagerModalProps) {
                   <button
                     onClick={() => {
                       void exportProjectFile(proj.id)
-                        .then(() => toast.success(`Exported "${proj.name}.launchshot"`))
-                        .catch(error => toast.error(error.message || 'Project export failed.'));
+                        .then(() => toast.success(`Exported "${proj.name}.json"`))
+                        .catch((error) => toast.error(error.message || 'Project export failed.'));
                     }}
                     className={`p-2 rounded-xl border transition-colors ${
                       isDark ? 'border-zinc-800 hover:bg-zinc-800 text-zinc-400' : 'border-gray-200 hover:bg-gray-100 text-gray-500'
                     }`}
-                    title="Export Project (.launchshot file)"
+                    title="Export Project (JSON)"
                   >
                     <IoDownloadOutline className="w-4 h-4" />
                   </button>

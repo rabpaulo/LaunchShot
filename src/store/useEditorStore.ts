@@ -19,9 +19,9 @@ import { applyDesign, captureDesign, type SavedDesign, type SlideDesign } from '
 
 const saveAs = (FileSaver as { saveAs?: (blob: Blob, name: string) => void })?.saveAs || (FileSaver as unknown as (blob: Blob, name: string) => void);
 
-function downloadBlob(blob: Blob, filename: string) {
+export function downloadBlob(blob: Blob, filename: string) {
   try {
-    if (typeof saveAs === 'function') {
+    if (typeof window !== 'undefined' && typeof saveAs === 'function') {
       saveAs(blob, filename);
       return;
     }
@@ -152,6 +152,12 @@ export interface Project {
   globalSettings: GlobalSettings;
 }
 
+export interface ProjectImportResult {
+  success: boolean;
+  count: number;
+  error?: string;
+}
+
 interface HistorySnapshot {
   canvases: CanvasItem[];
   globalSettings: GlobalSettings;
@@ -187,6 +193,8 @@ interface EditorState {
   duplicateProject: (projectId: string) => void;
   deleteProject: (projectId: string) => void;
   exportProjectFile: (projectId?: string) => Promise<void>;
+  exportAllProjectsFile: () => Promise<void>;
+  importProjectsJson: (jsonText: string) => Promise<ProjectImportResult>;
   importProjectFile: (jsonText: string) => Promise<boolean>;
 
   // Actions on Canvases
@@ -664,45 +672,126 @@ export const useEditorStore = create<EditorState>()(
           },
         };
 
-        const blob = new Blob([JSON.stringify(await portableProject(exportPayload), null, 2)], { type: 'application/json' });
-        const sanitizedName = (project.name || 'project').toLowerCase().replace(/[^a-z0-9]/g, '-');
-        downloadBlob(blob, `${sanitizedName}.launchshot`);
+        const portable = await portableProject(exportPayload);
+        const blob = new Blob([JSON.stringify(portable, null, 2)], { type: 'application/json' });
+        const sanitizedName = (project.name || 'project')
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '') || 'project';
+        downloadBlob(blob, `${sanitizedName}.json`);
       },
 
-      importProjectFile: async (jsonText: string): Promise<boolean> => {
+      exportAllProjectsFile: async () => {
+        const state = get();
+        const syncedProjects = state.projects.map((p) =>
+          p.id === state.activeProjectId
+            ? { ...p, canvases: state.canvases, globalSettings: state.globalSettings, updatedAt: Date.now() }
+            : p
+        );
+
+        const exportPayload = {
+          version: '2.0.0',
+          type: 'launchshot-projects-bundle',
+          exportedAt: new Date().toISOString(),
+          activeProjectId: state.activeProjectId,
+          projects: syncedProjects,
+        };
+
+        const portable = await portableProject(exportPayload);
+        const blob = new Blob([JSON.stringify(portable, null, 2)], { type: 'application/json' });
+        const dateStr = new Date().toISOString().slice(0, 10);
+        downloadBlob(blob, `launchshot-workspace-backup-${dateStr}.json`);
+      },
+
+      importProjectsJson: async (jsonText: string): Promise<ProjectImportResult> => {
         try {
           const parsed = JSON.parse(jsonText);
-          if (parsed.version && !['1.0.0', '2.0.0'].includes(parsed.version)) return false;
-          const projectData = parsed.project || parsed;
-
-          if (!projectData || !Array.isArray(projectData.canvases)) {
-            throw new Error('Invalid project file: missing canvases');
+          if (!parsed || typeof parsed !== 'object') {
+            return { success: false, count: 0, error: 'Invalid project JSON format.' };
           }
 
-          if (projectData.canvases.some((canvas: CanvasItem) => !canvas || typeof canvas.title !== 'string' || typeof canvas.subtitle !== 'string' || typeof canvas.id !== 'string' || (canvas.imageSrc != null && typeof canvas.imageSrc !== 'string') || !validCreationFields(canvas))) return false;
-          const newId = `project-${crypto.randomUUID()}`;
-          const importedProject: Project = {
-            id: newId,
-            name: projectData.name || 'Imported Project',
-            createdAt: projectData.createdAt || Date.now(),
-            updatedAt: Date.now(),
-            canvases: await restoreProjectImages(projectData.canvases) as CanvasItem[],
-            globalSettings: { ...defaultGlobalSettings, ...projectData.globalSettings },
-          };
+          let candidates: Array<Record<string, unknown>> = [];
+          if (Array.isArray(parsed)) {
+            candidates = parsed.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'));
+          } else {
+            const obj = parsed as Record<string, unknown>;
+            if (obj.version && typeof obj.version === 'string' && !['1.0.0', '2.0.0'].includes(obj.version)) {
+              return { success: false, count: 0, error: 'Unsupported project file version.' };
+            }
+            if (Array.isArray(obj.projects)) {
+              candidates = obj.projects.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'));
+            } else if (obj.project && typeof obj.project === 'object' && !Array.isArray(obj.project)) {
+              candidates = [obj.project as Record<string, unknown>];
+            } else if (Array.isArray(obj.canvases)) {
+              candidates = [obj];
+            }
+          }
+
+          if (candidates.length === 0) {
+            return { success: false, count: 0, error: 'No projects found in JSON file.' };
+          }
+
+          const validProjects: Project[] = [];
+          for (const cand of candidates) {
+            if (!cand || typeof cand !== 'object' || !Array.isArray(cand.canvases)) {
+              return { success: false, count: 0, error: 'Project data is missing canvases.' };
+            }
+
+            const normalizedCanvases: CanvasItem[] = [];
+            for (const item of cand.canvases) {
+              if (!item || typeof item !== 'object') return { success: false, count: 0, error: 'Invalid canvas data.' };
+              const c = { ...(item as Record<string, unknown>) };
+              if (!c.id || typeof c.id !== 'string') {
+                c.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36);
+              }
+              if (c.title === undefined || c.title === null) c.title = '';
+              if (c.subtitle === undefined || c.subtitle === null) c.subtitle = '';
+              if (typeof c.title !== 'string' || typeof c.subtitle !== 'string') {
+                return { success: false, count: 0, error: 'Canvas headline or subtitle must be text.' };
+              }
+              if (c.imageSrc !== undefined && c.imageSrc !== null && typeof c.imageSrc !== 'string') {
+                return { success: false, count: 0, error: 'Canvas image source is invalid.' };
+              }
+              if (!validCreationFields(c as CanvasItem)) {
+                return { success: false, count: 0, error: 'Canvas contains invalid creation fields.' };
+              }
+              normalizedCanvases.push(c as CanvasItem);
+            }
+
+            const restoredCanvases = (await restoreProjectImages(normalizedCanvases)) as CanvasItem[];
+            const newId = `project-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)}`;
+            validProjects.push({
+              id: newId,
+              name: typeof cand.name === 'string' && cand.name.trim() ? cand.name.trim() : 'Imported Project',
+              createdAt: typeof cand.createdAt === 'number' ? cand.createdAt : Date.now(),
+              updatedAt: Date.now(),
+              canvases: restoredCanvases,
+              globalSettings: {
+                ...defaultGlobalSettings,
+                ...(typeof cand.globalSettings === 'object' && cand.globalSettings ? cand.globalSettings : {}),
+              },
+            });
+          }
+
+          if (validProjects.length === 0) {
+            return { success: false, count: 0, error: 'No valid projects could be loaded.' };
+          }
 
           set((state) => {
-            // Save active project before importing
             const updatedProjects = state.projects.map((p) =>
               p.id === state.activeProjectId
                 ? { ...p, canvases: state.canvases, globalSettings: state.globalSettings, updatedAt: Date.now() }
                 : p
             );
 
+            const firstImported = validProjects[0];
+
             return {
-              projects: [...updatedProjects, importedProject],
-              activeProjectId: newId,
-              canvases: importedProject.canvases,
-              globalSettings: importedProject.globalSettings,
+              projects: [...updatedProjects, ...validProjects],
+              activeProjectId: firstImported.id,
+              canvases: firstImported.canvases,
+              globalSettings: firstImported.globalSettings,
               past: [],
               future: [],
               canUndo: false,
@@ -710,10 +799,19 @@ export const useEditorStore = create<EditorState>()(
             };
           });
 
-          return true;
-        } catch {
-          return false;
+          return { success: true, count: validProjects.length };
+        } catch (err) {
+          return {
+            success: false,
+            count: 0,
+            error: err instanceof Error ? err.message : 'Failed to parse JSON project file.',
+          };
         }
+      },
+
+      importProjectFile: async (jsonText: string): Promise<boolean> => {
+        const result = await get().importProjectsJson(jsonText);
+        return result.success;
       },
 
       addCanvas: (initialData) =>
