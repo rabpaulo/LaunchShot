@@ -4303,6 +4303,78 @@ const RAW_TEMPLATES: { name: string; apply: (loadTemplate: (canvases: CanvasItem
         }
       ]);
     }
+  },
+  {
+    name: 'Clean Education App (4 Screens)',
+    apply: (loadTemplate, _updateGlobalSettings) => {
+      _updateGlobalSettings({ mockupStyle: 'dark', targetSize: 'ios-6.9' });
+      loadTemplate([
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Your best learning material\nis already around you',
+          subtitle: 'Turn everyday moments into personal lessons and make reviewing them feel as good as creating them.',
+          layout: 'multi-screen-center',
+          backgroundColor: '#ffffff',
+          textColor: '#1a1a1a',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#374151',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Learn from anything',
+          subtitle: 'Create your own material from photos, videos, and conversations.',
+          layout: 'basic-top',
+          backgroundColor: '#ffffff',
+          textColor: '#1a1a1a',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#374151',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Practice it from\nevery angle',
+          subtitle: 'Multiple study modes to master your material.',
+          layout: 'tilt-left',
+          backgroundColor: '#ffffff',
+          textColor: '#1a1a1a',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#374151',
+            doodles: []
+          }
+        },
+        {
+          id: crypto.randomUUID(),
+          imageSrc: null,
+          title: 'Create with AI',
+          subtitle: 'Describe a topic and get a complete deck of useful words and sentences.',
+          layout: 'multi-screen-center',
+          backgroundColor: '#ffffff',
+          textColor: '#1a1a1a',
+          subtitleColor: '#9ca3af',
+          fontFamily: 'inter',
+          doodle: {
+            enabled: false,
+            color: '#374151',
+            doodles: []
+          }
+        }
+      ]);
+    }
   }
 ];
 export const TEMPLATES: TemplateDefinition[] = RAW_TEMPLATES.map((raw) => {

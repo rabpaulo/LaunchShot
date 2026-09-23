@@ -751,4 +751,18 @@ export const TEMPLATE_LOGOS: Record<string, TemplateLogo> = {
       '<path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-6 8h2v4H6v-4zm4-3h2v10h-2V7zm4 2h2v6h-2V9zm4 2h2v2h-2v-2z"/>'
     ),
   },
+
+  'Clean Education App (4 Screens)': {
+    appName: 'LearnBase',
+    style: 'Clean Minimal Education',
+    icon: 'book',
+    bgGradient: 'linear-gradient(135deg, #374151 0%, #111827 100%)',
+    accentColor: '#374151',
+    svgDataUri: createTemplateLogoSvg(
+      '#374151',
+      '#111827',
+      '<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',
+      true
+    ),
+  },
 };
