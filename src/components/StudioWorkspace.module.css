@@ -85,7 +85,7 @@
 .canvasFooter button { min-width:30px; height:30px; border:1.5px solid var(--canvas-button-border); background:var(--canvas-button); border-radius:6px; padding:5px 8px; font-weight:650; color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,0.04); }
 .canvasFooter button:hover:not(:disabled) { background:var(--hover); border-color:var(--selected-border); }
 .canvasFooter svg { width:14px; height:14px; }
-.inspector { border-left:1.5px solid var(--line); background:var(--surface); overflow:auto; padding:22px 20px; }
+.inspector { border-left:1.5px solid var(--line); background:var(--surface); overflow:hidden; min-height:0; display:flex; flex-direction:column; }
 .inspector > .sectionHeading { margin-bottom:18px; }
 .inspector section { border-bottom:1.5px solid var(--line); padding-bottom:18px; margin-bottom:20px; }
 .inspector section > label:first-child { margin-top:0; }
@@ -184,3 +184,31 @@
   background-size: 20px 20px;
 }
 
+.inspectorHeader { position:sticky; top:0; z-index:2; background:var(--surface); padding:20px 20px 0; border-bottom:1px solid var(--line); }
+.inspectorHeader > .sectionHeading { font-size:11px; color:var(--muted); margin-bottom:12px; }
+.inspectorTabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.inspectorTabs button { min-height:40px; border:0; border-bottom:2px solid transparent; background:transparent; color:var(--muted); font-size:12px; }
+.inspectorTabs button[aria-selected=true] { color:var(--accent); border-bottom-color:var(--accent); background:var(--surface-soft); }
+.inspectorScroll { flex:1; min-height:0; overflow:auto; padding:18px 20px 24px; scrollbar-gutter:stable; }
+.inspectorPanel[hidden] { display:none; }
+.inspectorPanel > section:first-child > .eyebrow { margin-bottom:12px; }
+.inspectorPanel .controlGroup { margin-top:12px; }
+.workspace .returnExport { width:100%; padding:10px; margin:10px 0; background:var(--selected); color:var(--accent); border:1px solid var(--selected-border); border-radius:6px; font-size:12px; }
+.readiness h3 { font-size:13px; font-weight:650; margin-bottom:12px; }
+.workspace .issueList { padding:0; margin:12px 0; list-style:none; }
+.issueList li { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:11px; line-height:1.6; }
+.issueList li > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.issueList button { flex-shrink:0; padding:5px 9px; border:1px solid var(--btn-border); border-radius:6px; background:var(--btn-bg); font-size:11px; }
+.workspace .reorderHandle { width:100%; min-height:28px; padding:3px 8px; margin-bottom:4px; justify-content:flex-end; border:0; border-radius:4px; background:transparent; color:var(--muted); font-size:10px; cursor:grab; touch-action:none; }
+.workspace .reorderHandle[aria-pressed=true] { cursor:grabbing; color:var(--accent); background:var(--selected); }
+.dark .inspectorTabs button[aria-selected=true], .dark .returnExport, .dark .reorderHandle[aria-pressed=true] { color:var(--selected-border); }
+.reordering .thumbnail { opacity:.55; }
+.thumbnailCard { position:relative; }
+.insertionMarker { height:3px; min-height:3px; background:var(--accent); border-radius:2px; pointer-events:none; }
+.thumbnailCard > .insertionMarker { position:absolute; top:-9px; left:0; right:0; }
+.visuallyHidden { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+@media (max-width:850px) {
+  .inspector { display:flex; min-height:480px; max-height:640px; }
+  .inspectorHeader { padding:16px 16px 0; }
+  .inspectorScroll { padding:16px; }
+}

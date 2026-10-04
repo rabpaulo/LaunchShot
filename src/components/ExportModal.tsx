@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type SetStateAction } from 'react';
 import { createPortal } from 'react-dom';
 import { IoCloseOutline, IoDownloadOutline } from 'react-icons/io5';
 import { useEditorStore } from '@/store/useEditorStore';
 import { TARGET_SIZES, isAndroidDevice, type TargetSizeId } from '@/config/sizes';
 import { SUPPORTED_LANGUAGES } from '@/config/languages';
 import { designKind } from '@/config/creation';
-import { exportImages, slideExportIssue, type ExportResult } from '@/utils/export';
+import { exportImages, getExportIssues, type ExportResult, type ExportSelection, type ExportIssue } from '@/utils/export';
 import styles from './StudioWorkspace.module.css';
 
 const PRESETS: { id: TargetSizeId; label: string; store: 'ios' | 'android' }[] = [
@@ -19,22 +19,25 @@ const PRESETS: { id: TargetSizeId; label: string; store: 'ios' | 'android' }[] =
   { id: 'play-feature-graphic', label: 'Google Play · Feature graphic', store: 'android' },
 ];
 
-export function ExportModal({ onClose }: { onClose: () => void }) {
+export function ExportModal({ onClose, selection, onSelectionChange, onFix }: {
+  onClose: () => void;
+  selection: ExportSelection;
+  onSelectionChange: (selection: ExportSelection) => void;
+  onFix: (issue: ExportIssue) => void;
+}) {
   const { canvases, globalSettings } = useEditorStore();
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(['original']);
-  const [selectedLanguages, setSelectedLanguages] = useState([globalSettings.activeLanguage || 'en']);
+  const { sizes: selectedSizes, languages: selectedLanguages } = selection;
+  const setSelectedSizes = (update: SetStateAction<string[]>) => onSelectionChange({ ...selection, sizes: typeof update === 'function' ? update(selectedSizes) : update });
+  const setSelectedLanguages = (update: SetStateAction<string[]>) => onSelectionChange({ ...selection, languages: typeof update === 'function' ? update(selectedLanguages) : update });
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ExportResult | null>(null);
   const [error, setError] = useState('');
   const currentLanguage = globalSettings.activeLanguage || 'en';
-  const issues = selectedLanguages.flatMap(language => canvases.flatMap((canvas, index) => {
-    const message = selectedSizes.includes('original') || designKind(canvas) === 'screenshot' ? slideExportIssue(canvas, language, currentLanguage) : undefined;
-    return message ? [`Slide ${index + 1} (${language}): ${message}`] : [];
-  }));
+  const issues = getExportIssues(canvases, selection, currentLanguage);
   const platform = isAndroidDevice(globalSettings.targetSize) ? 'android' : 'ios';
   const visible = PRESETS.filter(preset => preset.store === platform);
-  const availableLanguages = SUPPORTED_LANGUAGES.filter(language => language.code === currentLanguage || canvases.some(canvas => canvas.translations?.[language.code]));
+  const availableLanguages = SUPPORTED_LANGUAGES.filter(language => language.code === currentLanguage || selectedLanguages.includes(language.code) || canvases.some(canvas => canvas.translations?.[language.code]));
   const screenshotCount = canvases.filter(canvas => designKind(canvas) === 'screenshot').length;
   const count = selectedLanguages.length * selectedSizes.reduce((sum, size) => sum + (size === 'original' ? canvases.length : screenshotCount), 0);
   const label = screenshotCount === canvases.length ? 'Export screenshots' : 'Export designs';
@@ -59,7 +62,10 @@ export function ExportModal({ onClose }: { onClose: () => void }) {
         </label>)}</fieldset>
         <details><summary>Additional sizes and devices</summary><div className={styles.extraSizes}>{Object.values(TARGET_SIZES).filter(size => !visible.some(preset => preset.id === size.id)).map(size => <label className={styles.checkLabel} key={size.id}><input type="checkbox" checked={selectedSizes.includes(size.id)} onChange={() => setSelectedSizes(previous => previous.includes(size.id) ? previous.filter(id => id !== size.id) : [...previous, size.id])} /><span>{size.name}<small>{size.width} × {size.height}</small></span></label>)}</div></details></>}
         <fieldset><legend>Language</legend><div className={styles.languageOptions}>{availableLanguages.map(language => <label className={styles.checkLabel} key={language.code}><input type="checkbox" checked={selectedLanguages.includes(language.code)} onChange={() => setSelectedLanguages(previous => previous.includes(language.code) ? previous.filter(code => code !== language.code) : [...previous, language.code])} /><span>{language.name}</span></label>)}</div></fieldset>
-        {issues.length > 0 && <div className={styles.notice} role="alert"><strong>A few things need your attention</strong><ul>{issues.slice(0,8).map(issue => <li key={issue}>{issue}</li>)}</ul></div>}
+        {issues.length > 0 && <div className={styles.notice} role="alert"><strong>A few things need your attention</strong><ul className={styles.issueList}>{issues.map(issue => {
+          const description = `${screenshotCount === canvases.length ? 'Slide' : 'Design'} ${canvases.findIndex(canvas => canvas.id === issue.canvasId) + 1} (${issue.language}): ${issue.message}`;
+          return <li key={`${issue.canvasId}-${issue.language}`}><span>{description}</span><button aria-label={`Fix ${description}`} onClick={() => onFix(issue)}>Fix</button></li>;
+        })}</ul></div>}
         {(error || result?.failures.length) ? <div className={styles.notice} role="alert"><strong>{error || `${result?.exported} PNGs exported; ${result?.failures.length} failed.`}</strong><ul>{result?.failures.map((failure, index) => <li key={index}>Slide {failure.slide} · {failure.language} · {failure.size}: {failure.message}</li>)}</ul><p>Retry export after correcting the issue. Successful images are included in the ZIP.</p></div> : result && <p role="status">{result.exported} PNGs exported successfully.</p>}
         <footer><button onClick={onClose}>{result && !result.failures.length ? 'Done' : 'Back to editing'}</button><button className={styles.primary} disabled={!count || issues.length > 0} onClick={() => void runExport()}><IoDownloadOutline />{error || result?.failures.length ? 'Retry export' : `Export ${count} PNG${count === 1 ? '' : 's'}`}</button></footer>
       </>}

@@ -8,7 +8,6 @@ import { BACKGROUND_PRESETS, DEFAULT_BACKDROP_EFFECTS } from '@/config/backgroun
 import { DEFAULT_SHADOW } from '@/utils/shadowEngine';
 import { DOODLE_PRESETS, DOODLE_TYPE_OPTIONS, DOODLE_POSITION_OPTIONS, type DoodleItem } from '@/config/doodles';
 import { DEFAULT_STATUS_BAR } from '@/config/statusBar';
-import { captureDesign } from '@/config/designs';
 import { designKind, mediaPresentation, mediaSlotCount, resolveMediaImages, resolveCanvasSize } from '@/config/creation';
 import { DESIGN_PRESETS, presetChanges } from '@/config/designPresets';
 import { SlideRenderer } from './SlideRenderer';
@@ -57,7 +56,6 @@ export function WorkspacePresets({ canvas }: { canvas: CanvasItem }) {
         <span>{preset.name}</span>
       </button>;
     })}</div>
-    {state.canvases.length > 1 && <button className={styles.applyAllButton} onClick={() => { state.applyAllDesignToAll(canvas.id); toast.success('Preset design applied to all screenshots'); }}>Apply this look to all screenshots</button>}
     <p className={styles.hint}>Scroll for more looks. Empty previews use sample content; your images and copy stay yours.</p>
   </section>;
 }
@@ -96,7 +94,7 @@ export function WorkspaceTypography({ canvas }: { canvas: CanvasItem }) {
   </Group>;
 }
 
-export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { canvas: CanvasItem; onTemplates: () => void; onImageEdit: () => void }) {
+export function WorkspaceDesignControls({ canvas, onTemplates }: { canvas: CanvasItem; onTemplates: () => void }) {
   const state = useEditorStore();
   const [templateName, setTemplateName] = useState('');
   const update = (changes: Partial<CanvasItem>) => state.updateCanvas(canvas.id, changes);
@@ -124,7 +122,6 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       {mediaPresentation(canvas) === 'device' && <Range label="Device yaw" value={canvas.yawAngle ?? 0} min={-60} max={60} unit="°" onChange={yawAngle => update({ yawAngle })} />}
       <div className={styles.row}><button onClick={() => update({ mediaOffset: { x: 0, y: 0 } })}>Center media</button><button onClick={() => update({ mediaScale: 1, mediaOffset: { x: 0, y: 0 }, rotationAngle: 0, yawAngle: 0 })}>Reset placement</button></div>
       <label>Screenshot fit<select aria-label="Screenshot fit" value={canvas.imageFit || state.globalSettings.imageFit} onChange={event => update({ imageFit: event.target.value as 'cover' | 'contain' })}><option value="contain">Show entire screenshot</option><option value="cover">Fill device screen</option></select></label>
-      <button className={styles.fullButton} disabled={!canvas.imageSrc} onClick={onImageEdit}>Crop & image filters</button>
       </>}
       <button className={styles.applyAllButton} onClick={() => { state.applyDeviceSettingsToAll({ layout: canvas.layout, mockupStyle: canvas.mockupStyle || state.globalSettings.mockupStyle, showNotch: state.globalSettings.showNotch, mediaScale: canvas.mediaScale, mediaOffset: canvas.mediaOffset, rotationAngle: canvas.rotationAngle, yawAngle: canvas.yawAngle, imageFit: canvas.imageFit || state.globalSettings.imageFit }); toast.success('Layout and device settings applied to all screenshots'); }}>Apply layout and device settings to all screenshots</button>
       <AssetInput label="App icon" onChange={appIconSrc => update({ appIconSrc })} />
@@ -192,7 +189,6 @@ export function WorkspaceDesignControls({ canvas, onTemplates, onImageEdit }: { 
       <p className={styles.hint}>Save this slide’s layout, colors, typography, shadows, decorations, background image, and app icon. Each slide keeps its screenshots and copy.</p>
       <button className={styles.fullButton} disabled={!templateName.trim()} onClick={() => { state.saveDesign(templateName, canvas.id); setTemplateName(''); toast.success('Template saved'); }}>Save as template</button>
       {state.savedDesigns.filter(template => (template.design.kind || 'screenshot') === designKind(canvas)).map(template => <div className={styles.savedTemplate} key={template.id}><button onClick={() => state.applySlideDesign(template.design, canvas.id)}>Apply {template.name}</button><button aria-label={`Delete template ${template.name}`} onClick={() => state.removeDesign(template.id)}>Delete</button></div>)}
-      <button className={styles.applyAllButton} onClick={() => { state.applyAllDesignToAll(canvas.id); toast.success('Full design applied to all screenshots'); }}>Apply complete design to all screenshots</button>
     </Group>
   </div>;
 }

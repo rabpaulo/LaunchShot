@@ -202,6 +202,7 @@ interface EditorState {
   updateCanvas: (id: string, updates: Partial<CanvasItem>) => void;
   removeCanvas: (id: string) => void;
   moveCanvas: (id: string, direction: 'left' | 'right') => void;
+  reorderCanvas: (id: string, toIndex: number) => void;
   duplicateCanvas: (id: string) => void;
   updateGlobalSettings: (updates: Partial<GlobalSettings>) => void;
   switchToAppStore: () => void;
@@ -895,6 +896,16 @@ export const useEditorStore = create<EditorState>()(
           newCanvases.splice(targetIndex, 0, moved);
 
           return pushHistory(state, newCanvases);
+        }),
+
+      reorderCanvas: (id, toIndex) =>
+        set((state) => {
+          const fromIndex = state.canvases.findIndex(canvas => canvas.id === id);
+          if (fromIndex < 0 || !Number.isInteger(toIndex) || toIndex < 0 || toIndex >= state.canvases.length || fromIndex === toIndex) return state;
+          const canvases = [...state.canvases];
+          const [moved] = canvases.splice(fromIndex, 1);
+          canvases.splice(toIndex, 0, moved);
+          return pushHistory(state, canvases);
         }),
 
       duplicateCanvas: (id) =>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   IoClose,
@@ -28,9 +28,11 @@ import {
 
 interface TranslationModalProps {
   onClose: () => void;
+  initialLanguage?: string;
+  initialCanvasId?: string;
 }
 
-export function TranslationModal({ onClose }: TranslationModalProps) {
+export function TranslationModal({ onClose, initialLanguage, initialCanvasId }: TranslationModalProps) {
   const {
     canvases,
     globalSettings,
@@ -40,7 +42,16 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
   const isDark = globalSettings.theme !== 'light';
   const currentActiveLanguage = globalSettings.activeLanguage || 'en';
 
-  const [selectedLang, setSelectedLang] = useState<string>(currentActiveLanguage);
+  const [selectedLang, setSelectedLang] = useState<string>(initialLanguage || currentActiveLanguage);
+  const initialRow = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!initialCanvasId) return;
+    const frame = requestAnimationFrame(() => {
+      initialRow.current?.scrollIntoView({ block: 'nearest' });
+      initialRow.current?.querySelector<HTMLInputElement>('input')?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [initialCanvasId]);
   const [isTranslatingCurrent, setIsTranslatingCurrent] = useState(false);
   const [isTranslatingAll, setIsTranslatingAll] = useState(false);
   const [translationProgress, setTranslationProgress] = useState<{ current: number; total: number } | null>(null);
@@ -589,6 +600,8 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
               return (
                 <div
                   key={canvas.id}
+                  ref={canvas.id === initialCanvasId ? initialRow : undefined}
+                  data-translation-canvas={canvas.id}
                   className={`p-5 rounded-2xl border-[1.5px] transition-all ${
                     isDark ? 'bg-[#141c18] border-[#34443a] hover:border-[#4e6557]' : 'bg-[#f8f9f5] border-[#c5cec2] hover:border-[#8fa895]'
                   }`}
@@ -677,6 +690,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                         </label>
                         <input
                           type="text"
+                          aria-label={`Title (${selectedLangObj.name}) for slide ${index + 1}`}
                           value={currentValues.title}
                           onChange={(e) => handleInputChange(canvas.id, 'title', e.target.value)}
                           placeholder={`Enter headline in ${selectedLangObj.name}...`}
@@ -694,6 +708,7 @@ export function TranslationModal({ onClose }: TranslationModalProps) {
                           Subtitle ({selectedLangObj.name}):
                         </label>
                         <textarea
+                          aria-label={`Subtitle (${selectedLangObj.name}) for slide ${index + 1}`}
                           value={currentValues.subtitle}
                           onChange={(e) => handleInputChange(canvas.id, 'subtitle', e.target.value)}
                           placeholder={`Enter description in ${selectedLangObj.name}...`}

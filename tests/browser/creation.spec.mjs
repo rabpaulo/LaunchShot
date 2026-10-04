@@ -1,3 +1,4 @@
+import { inspectorTab } from './inspector.mjs';
 import { test, expect } from '@playwright/test';
 import { Buffer } from 'node:buffer';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -13,6 +14,7 @@ async function uploadImage(page) {
   await page.getByLabel('Replace slide screenshot', { exact: true }).setInputFiles({ name: 'screen.png', mimeType: 'image/png', buffer: Buffer.from(base64, 'base64') });
 }
 async function openLayout(page) {
+  await inspectorTab(page, 'Design');
   const group = page.locator('details').filter({ has: page.locator('summary', { hasText: /^Layout & device$/ }) });
   if (await group.getAttribute('open') === null) await group.locator('summary').click();
 }
@@ -24,7 +26,9 @@ async function add(page, kind) {
 
 test('every selectable font loads and text stays above overlapping phone frames', async ({ page }) => {
   await page.goto('/');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Your ideas deserve space to grow and shine');
+  await inspectorTab(page, 'Design');
   const fonts = page.getByLabel('Font family', { exact: true });
   const ids = await fonts.locator('option').evaluateAll(options => options.map(option => option.value));
   const title = page.locator('[id^="workspace-"] [data-render-text]').first();
@@ -40,8 +44,10 @@ test('every selectable font loads and text stays above overlapping phone frames'
   await fonts.selectOption('playfair');
   await page.getByRole('button', { name: /Apply font to all/ }).click();
   await openLayout(page);
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Text box width').fill('100');
   for (const layout of ['banner-stack-right', 'banner-kinetic-stack']) {
+    await inspectorTab(page, 'Design');
     await page.getByLabel('Slide layout').selectOption(layout);
     const overlap = await page.locator('[id^="workspace-"]').evaluate(stage => {
       const text = stage.querySelector('[data-render-text]') || stage.querySelector('.group\\/textbox span');
@@ -63,13 +69,19 @@ test('every selectable font loads and text stays above overlapping phone frames'
 
 test('mixed designs persist and export independent dimensions and transparent tablet mockups', async ({ page }) => {
   await page.goto('/');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Make room for progress');
   await uploadImage(page);
   await add(page, 'banner');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('A new perspective');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Font family').selectOption('playfair');
+  await inspectorTab(page, 'Output');
   await page.getByLabel('Width (px)').fill('900');
+  await inspectorTab(page, 'Output');
   await page.getByLabel('Height (px)').fill('450');
+  await inspectorTab(page, 'Output');
   await page.getByRole('button', { name: 'Apply dimensions' }).click();
   await expect(page.locator('[id^="workspace-"] [data-device-frame]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
@@ -78,7 +90,9 @@ test('mixed designs persist and export independent dimensions and transparent ta
   await expect(page.getByLabel('Width (px)')).toHaveValue('900');
   await add(page, 'mockup');
   await uploadImage(page);
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Device model').selectOption('ipad-12.9');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Transparent background').check();
   const frame = await page.locator('[id^="workspace-"] [data-device-frame]').boundingBox();
   expect(frame.width / frame.height).toBeCloseTo(2048 / 2732, 2);
@@ -116,25 +130,34 @@ test('mixed designs persist and export independent dimensions and transparent ta
 test('banner media, custom-size validation, and multiple tablet frames use the selected design', async ({ page }) => {
   await page.goto('/');
   await add(page, 'banner');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Make something memorable');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Banner media').selectOption('image');
   await uploadImage(page);
   await openLayout(page);
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Slide layout').selectOption('banner-split');
   await expect(page.locator('[id^="workspace-"] [data-banner-image] img')).toBeVisible();
   await expect(page.locator('[id^="workspace-"] [data-device-frame]')).toHaveCount(0);
+  await inspectorTab(page, 'Output');
   await page.getByLabel('Width (px)').fill('4097');
+  await inspectorTab(page, 'Output');
   await page.getByRole('button', { name: 'Apply dimensions' }).click();
   expect(await page.getByLabel('Width (px)').evaluate(input => input.validity.rangeOverflow)).toBe(true);
+  await inspectorTab(page, 'Output');
   await page.getByLabel('Width (px)').fill('1200');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Banner media').selectOption('device');
   await expect(page.locator('[id^="workspace-"] [data-device-frame]')).toHaveCount(1);
   await page.getByRole('button', { name: 'Fit', exact: true }).click();
   await page.screenshot({ path: 'test-results/banner-workspace.png' });
   await add(page, 'mockup');
   await uploadImage(page);
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Device model').selectOption('ipad-12.9');
   await openLayout(page);
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Slide layout').selectOption('trio-row');
   await expect(page.locator('[id^="workspace-"] [data-device-frame]')).toHaveCount(3);
   const framesFit = await page.locator('[id^="workspace-"]').evaluate(stage => {
@@ -151,8 +174,10 @@ test('banner media, custom-size validation, and multiple tablet frames use the s
 
 test('design removal is visible, keyboard accessible, undoable, and image clearing persists', async ({ page }) => {
   await page.goto('/');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Keep this headline');
   await uploadImage(page);
+  await inspectorTab(page, 'Content');
   await page.getByRole('button', { name: 'Clear image', exact: true }).click();
   await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Keep this headline');
   await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(0);
@@ -160,9 +185,12 @@ test('design removal is visible, keyboard accessible, undoable, and image cleari
   await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(1);
   await add(page, 'mockup');
   await uploadImage(page);
+  await inspectorTab(page, 'Design');
   await page.getByRole('button', { name: 'Apply Dark device trio' }).click();
   await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(3);
+  await inspectorTab(page, 'Content');
   await page.getByRole('button', { name: 'Clear secondary image', exact: true }).click();
+  await inspectorTab(page, 'Content');
   await page.getByRole('button', { name: 'Clear third image', exact: true }).click();
   await expect(page.locator('[id^="workspace-"] [data-device-frame] img')).toHaveCount(1);
   await expect(page.getByRole('status').filter({ hasText: 'Saved locally' })).toBeVisible();
@@ -197,20 +225,28 @@ test('six visual presets preserve copy and export positioned media at the chosen
     // Preview samples must not become real project content.
     if (kind === 'banner') await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('');
     await uploadImage(page);
+    await inspectorTab(page, 'Content');
     if (kind === 'banner') await page.getByLabel('Headline', { exact: true }).fill('Make room for progress');
+    await inspectorTab(page, 'Design');
     await page.getByRole('button', { name: `Apply ${name}`, exact: true }).click();
     if (kind === 'banner') await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Make room for progress');
     if (kind === 'mockup' || name === 'Dark layered devices') {
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Shadow style', { exact: true }).selectOption('none');
       await expect.poll(() => page.locator('[id^="workspace-"] [data-device-frame]').evaluateAll(frames => frames.every(frame => getComputedStyle(frame).boxShadow === 'none'))).toBe(true);
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Shadow style', { exact: true }).selectOption('spread');
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Device yaw', { exact: true }).fill('30');
     }
     await page.getByRole('button', { name: 'Fit', exact: true }).click();
     await page.screenshot({ path: `test-results/preset-default-${index + 1}.png` });
     if (name !== 'Bold centered headline') {
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Media scale', { exact: true }).fill('75');
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Horizontal position', { exact: true }).fill('8');
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Vertical position', { exact: true }).fill('-5');
       const transform = await page.locator('[id^="workspace-"] [data-media-composition]').evaluate(el => ({ scale: getComputedStyle(el).scale, translate: getComputedStyle(el).translate }));
       expect(transform.scale).toContain('0.75');
@@ -222,11 +258,15 @@ test('six visual presets preserve copy and export positioned media at the chosen
       await expect(page.getByLabel('Media scale', { exact: true })).toHaveValue('100');
       if (kind === 'mockup' || name === 'Dark layered devices') {
         await expect(page.getByLabel('Device yaw', { exact: true })).toHaveValue('0');
+        await inspectorTab(page, 'Design');
         await page.getByLabel('Device yaw', { exact: true }).fill(index % 2 ? '-40' : '40');
       }
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Media scale', { exact: true }).fill('75');
+      await inspectorTab(page, 'Design');
       await page.getByLabel('Horizontal position', { exact: true }).fill('8');
     }
+    await inspectorTab(page, 'Design');
     if (name === 'Clean single device') await page.getByLabel('Transparent background').check();
     await page.getByRole('button', { name: 'Fit', exact: true }).click();
     await page.screenshot({ path: `test-results/preset-${index + 1}.png` });
@@ -292,6 +332,7 @@ async function greenBounds(page, base64) {
 test('device yaw turns every phone while preserving layout, flat rotation and copy', async ({ page }) => {
   await page.goto('/');
   await uploadImage(page);
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('A new angle');
   await openLayout(page);
   const stage = page.locator('[id^="workspace-"]');
@@ -300,9 +341,13 @@ test('device yaw turns every phone while preserving layout, flat rotation and co
   await expect(yaw).toHaveValue('0');
   await expect(frames).toHaveCSS('transform', 'none');
   for (const [layout, count] of [['basic-top', 1], ['duo-row', 2], ['trio-row', 3], ['3d-isometric-right', 1]]) {
+    await inspectorTab(page, 'Design');
     await page.getByLabel('Slide layout').selectOption(layout);
+    await inspectorTab(page, 'Design');
     await page.getByLabel('Media scale', { exact: true }).fill('75');
+    await inspectorTab(page, 'Design');
     await page.getByLabel('Horizontal position', { exact: true }).fill('8');
+    await inspectorTab(page, 'Design');
     await page.getByLabel('Device rotation', { exact: true }).fill('15');
     await expect(frames).toHaveCount(count);
     await page.mouse.move(0, 0);

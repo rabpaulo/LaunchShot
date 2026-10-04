@@ -18,12 +18,34 @@ export function downloadBlob(blob: Blob, filename: string) {
 
 export interface ExportFailure { slide: number; size: string; language: string; message: string }
 export interface ExportResult { exported: number; failures: ExportFailure[] }
-export function slideExportIssue(canvas: CanvasItem, language: string, currentLanguage: string): string | undefined {
-  if (mediaPresentation(canvas) !== 'none' && !canvas.imageSrc) return 'Replace the missing screenshot.';
+export interface ExportSelection { sizes: string[]; languages: string[] }
+export interface ExportIssue {
+  canvasId: string;
+  language: string;
+  reason: 'missing-image' | 'missing-headline' | 'missing-translation';
+  message: string;
+}
+
+export function getSlideExportIssue(canvas: CanvasItem, language: string, currentLanguage: string): ExportIssue | undefined {
+  const issue = (reason: ExportIssue['reason'], message: string): ExportIssue => ({ canvasId: canvas.id, language, reason, message });
+  if (mediaPresentation(canvas) !== 'none' && !canvas.imageSrc) return issue('missing-image', 'Replace the missing screenshot.');
   if (designKind(canvas) === 'mockup') return;
   const copy = canvas.translations?.[language] || (language === currentLanguage ? canvas : undefined);
-  if (!copy) return `Add the ${language} translation first.`;
-  if (designKind(canvas) === 'screenshot' && !['device-only', 'duo-row', 'trio-row'].includes(canvas.layout) && !copy.title.trim()) return 'Write a headline before exporting.';
+  if (!copy) return issue('missing-translation', `Add the ${language} translation first.`);
+  if (designKind(canvas) === 'screenshot' && !['device-only', 'duo-row', 'trio-row'].includes(canvas.layout) && !copy.title.trim()) return issue('missing-headline', 'Write a headline before exporting.');
+}
+
+export function slideExportIssue(canvas: CanvasItem, language: string, currentLanguage: string): string | undefined {
+  return getSlideExportIssue(canvas, language, currentLanguage)?.message;
+}
+
+export function getExportIssues(canvases: CanvasItem[], selection: ExportSelection, currentLanguage: string): ExportIssue[] {
+  if (!selection.sizes.length) return [];
+  return selection.languages.flatMap(language => canvases.flatMap(canvas => {
+    if (!selection.sizes.includes('original') && designKind(canvas) !== 'screenshot') return [];
+    const issue = getSlideExportIssue(canvas, language, currentLanguage);
+    return issue ? [issue] : [];
+  }));
 }
 
 /** The job owns a snapshot; rendering never changes the editor or its history. */

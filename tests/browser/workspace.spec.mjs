@@ -1,3 +1,4 @@
+import { inspectorTab } from './inspector.mjs';
 import { test, expect } from '@playwright/test';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
@@ -29,6 +30,7 @@ async function saved(page) { await expect(page.getByRole('status').filter({ hasT
 test('dark mode themes only the editor UI and persists after reload', async ({ page }) => {
   await page.goto('/');
   const canvas = page.locator('[id^="workspace-"]').first();
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Design stays the same');
   await expect(canvas).toHaveCSS('background-color', 'rgb(242, 240, 235)');
   const lightDesign = await canvas.evaluate(element => {
@@ -60,18 +62,24 @@ test('dark mode themes only the editor UI and persists after reload', async ({ p
 
 test('chosen text size stays fixed when copy wraps and the text box narrows', async ({ page }) => {
   await page.goto('/');
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('A short headline');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Title size', { exact: true }).fill('48');
   const title = page.locator('[id^="workspace-"] [data-render-text]').first();
   await expect(title).toHaveCSS('font-size', '48px');
   const phone = page.locator('[id^="workspace-"] [data-device-frame]');
   const originalPhone = await phone.boundingBox();
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Bring all your ideas together, make room for meaningful progress, and build better habits every single day with a clear plan for the work that matters most.');
   await expect(title).toHaveCSS('font-size', '48px');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Text box width', { exact: true }).fill('45');
   await expect(title).toHaveCSS('font-size', '48px');
   expect(await phone.boundingBox()).toEqual(originalPhone);
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Supporting text', { exact: true }).fill('Supporting copy that should keep its selected size even when there is more than one line to display.');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Subtitle size', { exact: true }).fill('30');
   await expect(page.locator('[id^="workspace-"] [data-render-text]').nth(1)).toHaveCSS('font-size', '30px');
   await saved(page);
@@ -126,13 +134,17 @@ test('workspace scale stays fixed until Fit or zoom is explicitly requested', as
 test('upload, style, edit later slide, reopen and export opaque PNGs without changing the editor', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await upload(page);
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Find your daily focus');
   await page.getByRole('button', { name: 'Select slide 2', exact: true }).click();
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Build habits that last');
+  await inspectorTab(page, 'Design');
   await page.getByRole('button', { name: 'Apply Clean Dark' }).click();
   await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Build habits that last');
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Apply Clean Light' })).toHaveAttribute('aria-pressed', 'true');
+  await inspectorTab(page, 'Design');
   await page.getByRole('button', { name: 'Apply Bold Gradient' }).click();
   await saved(page);
   await page.screenshot({ path: 'test-results/workspace.png', fullPage: true });
@@ -165,6 +177,7 @@ test('upload, style, edit later slide, reopen and export opaque PNGs without cha
 
 test('portable project includes images and reimports into a fresh browser context', async ({ page, browser }) => {
   await upload(page, 1);
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('A portable project');
   await saved(page);
   await page.getByRole('button', { name: /Default Project|Untitled project/i }).click();
@@ -194,13 +207,14 @@ test('invalid images, empty headlines and storage failures are actionable', asyn
   await page.locator('input[type=file][multiple]').setInputFiles(await screenshots(page, 1));
   await page.getByRole('button', { name: 'Export screenshots', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Export 1 PNG', exact: true })).toBeDisabled();
-  await expect(page.getByText(/Write a headline before exporting/)).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Export screenshots' }).getByText(/Write a headline before exporting/)).toBeVisible();
   await page.getByRole('button', { name: 'Back to editing' }).click();
   await saved(page);
   await page.evaluate(() => {
     window.originalPut = IDBObjectStore.prototype.put;
     IDBObjectStore.prototype.put = function () { throw new DOMException('Full', 'QuotaExceededError'); };
   });
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Still here after a failed save');
   await expect(page.getByText('Could not save', { exact: true })).toBeVisible();
   await page.evaluate(() => { IDBObjectStore.prototype.put = window.originalPut; });
@@ -212,8 +226,10 @@ test('invalid images, empty headlines and storage failures are actionable', asyn
 
 test('partial export lists the failed slide, retries, and keeps the selected slide', async ({ page }) => {
   await upload(page);
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Start with a clear plan');
   await page.getByRole('button', { name: 'Select slide 2', exact: true }).click();
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Make room for what matters');
   const brokenSource = await page.locator('[id^="workspace-"] img').first().getAttribute('src');
   await page.evaluate(source => {
@@ -243,8 +259,10 @@ test('translation failure, five-slide listing and long headlines at laptop size'
   await upload(page, 5);
   for (let i = 1; i <= 5; i++) {
     await page.getByRole('button', { name: `Select slide ${i}`, exact: true }).click();
+    await inspectorTab(page, 'Content');
     await page.getByLabel('Headline', { exact: true }).fill(i === 5 ? 'Bring your ideas together, stay focused on the work that matters, and make a little progress every single day' : `A clear benefit for slide ${i}`);
   }
+  await inspectorTab(page, 'Output');
   await page.getByRole('button', { name: 'Languages & translations' }).click();
   await page.getByRole('button', { name: /^Spanish 0\/5$/ }).click();
   await page.route('https://translate.googleapis.com/**', route => route.fulfill({ status: 503, body: '{}' }));
@@ -259,6 +277,7 @@ test('translation failure, five-slide listing and long headlines at laptop size'
   await page.screenshot({ path: 'test-results/listing-preview.png' });
   await page.getByRole('button', { name: 'Close preview' }).click();
   // Long copy is sized explicitly; the renderer must never shrink it automatically.
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Title size', { exact: true }).fill('24');
   await page.getByRole('button', { name: 'Export screenshots', exact: true }).click();
   const downloadPromise = page.waitForEvent('download');
@@ -288,10 +307,13 @@ test('workspace layout edits target the selected slide without an advanced scree
   await upload(page);
   await page.getByRole('button', { name: 'Select slide 2', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Advanced tools', exact: true })).toHaveCount(0);
+  await inspectorTab(page, 'Design');
   await page.getByText('Layout & device', { exact: true }).click();
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Slide layout', { exact: true }).selectOption('device-only');
   await expect(page.locator('[id^="workspace-"] [data-render-text]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Select slide 1', exact: true }).click();
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('First slide still has a headline');
   await expect(page.locator('[id^="workspace-"] [data-render-text]')).toHaveText('First slide still has a headline');
 });
@@ -299,7 +321,9 @@ test('workspace layout edits target the selected slide without an advanced scree
 test('blank workspace supports fonts, resizing, decorations, templates and persistence', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByLabel('Headline', { exact: true })).toBeVisible();
+  await inspectorTab(page, 'Content');
   await page.getByLabel('Headline', { exact: true }).fill('Designed in the workspace');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Font family').selectOption('playfair');
   await expect(page.locator('[id^="workspace-"] [data-render-text]')).toHaveCSS('font-family', /Playfair Display/);
   const stage = page.locator('[id^="workspace-"]');
@@ -313,20 +337,27 @@ test('blank workspace supports fonts, resizing, decorations, templates and persi
   expect(Number(await page.getByLabel('Text box width').inputValue())).toBeLessThan(100);
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(page.getByLabel('Text box width')).toHaveValue('100');
+  await inspectorTab(page, 'Design');
   await page.getByText('Shadows & lighting', { exact: true }).click();
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Shadow style', { exact: true }).selectOption('hug');
   await page.getByRole('button', { name: 'Light row 1 column 5', exact: true }).click();
+  await inspectorTab(page, 'Design');
   await page.getByText('Doodles', { exact: true }).click();
   await page.getByRole('button', { name: 'Add doodle', exact: true }).click();
   await expect(page.getByLabel('Show doodles')).toBeChecked();
+  await inspectorTab(page, 'Design');
   await page.getByText('Reusable templates', { exact: true }).click();
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Template name').fill('Editorial launch');
   await page.getByRole('button', { name: 'Save as template', exact: true }).click();
   await saved(page);
   await page.reload();
   await expect(page.getByLabel('Headline', { exact: true })).toHaveValue('Designed in the workspace');
   await expect(page.getByLabel('Font family')).toHaveValue('playfair');
+  await inspectorTab(page, 'Design');
   await page.getByLabel('Font family').selectOption('inter');
+  await inspectorTab(page, 'Design');
   await page.getByText('Reusable templates', { exact: true }).click();
   await page.getByRole('button', { name: 'Apply Editorial launch', exact: true }).click();
   await expect(page.getByLabel('Font family')).toHaveValue('playfair');
@@ -338,5 +369,6 @@ test('blank workspace supports fonts, resizing, decorations, templates and persi
   await page.getByRole('button', { name: 'Delete design 1', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Create a blank design' })).toBeVisible();
   await page.getByRole('button', { name: 'Create a blank design' }).click();
+  await inspectorTab(page, 'Content');
   await expect(page.getByLabel('Headline', { exact: true })).toBeVisible();
 });

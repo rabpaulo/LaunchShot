@@ -9,9 +9,17 @@ Turn raw app screenshots into a consistent App Store or Google Play listing.
 3. Select a slide in the thumbnail strip, write a benefit-led headline, and add optional supporting text. Use the visible **Duplicate** and **Delete** actions beside each thumbnail, or **Clear image** to empty a screenshot slot while keeping its design. Deletion and clearing support Undo/Redo; clearing a secondary or third image prevents automatic image reuse in that slot.
 4. Preview the listing and export full-resolution PNGs organized by language and destination.
 
-The workspace fits the selected slide to the available area. Longer headlines automatically shrink in the standard portrait layouts. Missing images, empty headlines, missing translations, and text that cannot fit are reported before or during export.
+The workspace fits the selected slide to the available area. Chosen font sizes stay fixed; widen the text box, shorten the copy, or reduce the size when text does not fit. Missing images, empty headlines, missing translations, and text that cannot fit are reported before or during export.
 
-The inspector includes layout, typography, device frames, cropping and filters, backgrounds, shadows, doodles, and status-bar controls. New projects start without ratings, review counts, awards, or status-bar overlays.
+The inspector has three tabs with a fixed header:
+
+- **Content**: Edit headlines and supporting text, replace or clear screenshots, choose banner media, and crop or filter images.
+- **Design**: Choose presets, typography, device models, layouts, backgrounds, lighting, doodles, status bars, transparent mockup backgrounds, and reusable looks. A single **Apply this look to all** action copies styling to designs of the same type.
+- **Output**: Set dimensions, app name and store destination; open translations; copy the design image; and review export readiness for your selected sizes and languages.
+
+The active tab and each tab’s scroll position remain available when switching designs during the workspace session. Content opens initially and places copy first so the headline is immediately accessible on a laptop. New projects start without ratings, review counts, awards, or status-bar overlays.
+
+Drag a thumbnail’s **Move** handle with a mouse or touch to reorder designs. An insertion marker previews the drop position, and the list scrolls when the pointer approaches an edge. Each completed move is one undoable action and preserves the selected design. The existing earlier/later buttons remain available. For keyboard reordering, focus the handle, press Space to grab, use arrow keys to choose a position, and press Enter or Space to drop; Escape cancels without editing the project.
 
 The header provides Undo/Redo actions (also accessible via `Cmd+Z` / `Ctrl+Z` and `Shift+Cmd+Z` / `Shift+Ctrl+Z`), project switching, listing preview, export, and a studio theme toggle. The theme toggle switches between light and dark modes for the editor chrome without altering slide artwork, canvas backgrounds, or exported colors, and persists in local settings.
 
@@ -285,7 +293,8 @@ The export engine generates pixel-perfect, store-ready PNG assets:
 
 - **Headless Snapshot Surface**: Renders an isolated off-screen DOM tree at native device resolution using `html-to-image`, ensuring editor controls, zoom levels, and selection states never interfere with output quality.
 - **Asset Readiness Verification**: Verifies all web fonts, image elements, and background textures are fully loaded and decoded before capturing.
-- **Pre-Export Validation**: Detects and warns about missing screenshots, empty headlines, or missing translations prior to export.
+- **Pre-Export Validation**: Detects and warns about missing screenshots, empty headlines, or missing translations prior to export. Each warning has a **Fix** action that selects the affected design and focuses its image or headline control, or opens the translation editor at the relevant language and slide.
+- **Correction Round Trips**: Use **Return to export** after a correction. Selected sizes and languages stay intact within the open project, and warnings recalculate from the current content. Switching projects resets export selections to each design’s own size and the new project’s active language. Readiness checks cover required content; the rendering step additionally checks text fit and asset loading.
 - **Multi-Size & Multi-Language ZIP Packaging**:
   - Organizes exported PNGs into clean directory structures: `[language]/[device_size]/[slide_number].png`.
   - Generates `export-errors.json` in partial export scenarios detailing any failed slides with actionable diagnostics.
@@ -295,7 +304,9 @@ The export engine generates pixel-perfect, store-ready PNG assets:
 
 - `Cmd+Z` / `Ctrl+Z`: Undo last change.
 - `Shift+Cmd+Z` / `Shift+Ctrl+Z`: Redo change.
-- `Escape`: Close open modals and previews.
+- `Escape`: Close open modals and previews, or cancel thumbnail reordering.
+- `Space`, arrow keys, `Enter`: Grab, position, and drop a focused thumbnail reorder handle.
+- Left/Right arrows, `Home`, `End` (on inspector tabs): Navigate Content, Design, and Output.
 - `Enter` (in ASO / Niche inputs): Trigger instant generation.
 
 ## Development and Testing
@@ -342,11 +353,12 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The browser suite covers design deletion and image clearing, presets, placement/export parity, narrow screens, upload, later-slide selection, style undo, durable image restoration, portable project transfer, save failure/retry, partial PNG export/retry, translation failure, long headlines, legacy image recovery, studio dark mode theming and persistence, per-slide phone yaw rotation, and typography font loading. Generated screenshots and traces are written to ignored `test-results/`.
+The browser suite covers inspector tab navigation and scroll restoration, mouse/touch/keyboard reordering and cancellation, edge scrolling, export warning corrections and retained selections, design deletion and image clearing, presets, placement/export parity, narrow screens, upload, later-slide selection, style undo, durable image restoration, portable project transfer, save failure/retry, partial PNG export/retry, translation failure, long headlines, legacy image recovery, studio dark mode theming and persistence, per-slide phone yaw rotation, and typography font loading. Generated screenshots and traces are written to ignored `test-results/`.
 
 ## Implementation Boundaries
 
-- `StudioWorkspace`: Owns the workspace layout, filmstrip reordering, canvas stage, zoom fitting, and modal orchestrations.
+- `StudioWorkspace`: Owns the workspace layout, Content/Design/Output inspector navigation, canvas stage, zoom fitting, project-specific export selections, and modal orchestrations.
+- `ReorderableDesignList`: Owns thumbnail pointer and keyboard gestures, insertion markers, edge scrolling, and accessible move announcements. Completed moves use the store’s atomic `reorderCanvas` action.
 - `MinimalPhoneFrame`: Renders authentic hardware styling (Apple, Samsung Galaxy, general Android, iPad), bezels, shadows, status bars, and 3D yaw perspective transforms.
 - `SlideRenderer`: Pure functional component passing explicit slide data, settings, language, and dimensions to the shared canvas composition.
 - `CanvasEditor`: Renders the high-fidelity interactive canvas composition, badge stickers, doodles, floating cards, text boxes, and responsive scaling.

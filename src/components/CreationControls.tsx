@@ -6,12 +6,17 @@ import { BANNER_SIZES, designKind, mediaPresentation, resolveCanvasSize, resolve
 import { TARGET_SIZES } from '@/config/sizes';
 import styles from './StudioWorkspace.module.css';
 
-export function CreationControls({ canvas }: { canvas: CanvasItem }) {
+export function CreationControls({ canvas, section = 'output' }: { canvas: CanvasItem; section?: 'content' | 'design' | 'output' }) {
   const state = useEditorStore();
   const size = resolveCanvasSize(canvas, state.globalSettings);
   const kind = designKind(canvas);
   const [error, setError] = useState('');
   const update = (changes: Partial<CanvasItem>) => state.updateCanvas(canvas.id, changes);
+  if (section === 'content') return kind === 'banner' ? <label>Banner media<select aria-label="Banner media" value={mediaPresentation(canvas)} onChange={event => update({ mediaPresentation: event.target.value as CanvasItem['mediaPresentation'] })}><option value="none">Text and background</option><option value="image">Unframed image</option><option value="device">Device mockup</option></select></label> : null;
+  if (section === 'design') return <>
+    {mediaPresentation(canvas) === 'device' && <label>Device model<select aria-label="Device model" value={resolveDeviceTarget(canvas, state.globalSettings)} onChange={event => update({ deviceTarget: event.target.value as CanvasItem['deviceTarget'] })}>{Object.values(TARGET_SIZES).filter(target => target.category !== 'Header').map(target => <option key={target.id} value={target.id}>{target.name}</option>)}</select></label>}
+    {kind === 'mockup' && <label className={styles.checkLabel}><input type="checkbox" checked={!!canvas.transparentBackground} onChange={event => update({ transparentBackground: event.target.checked })} />Transparent background</label>}
+  </>;
   return <section>
     <span className={styles.eyebrow}>{kind} settings</span>
     <label>Canvas size<select aria-label="Canvas size" value={`${size.width}x${size.height}`} onChange={event => {
@@ -35,8 +40,5 @@ export function CreationControls({ canvas }: { canvas: CanvasItem }) {
       <button className={styles.fullButton} type="submit">Apply dimensions</button>
       {error && <p role="alert">{error}</p>}
     </form>
-    {kind === 'banner' && <label>Banner media<select aria-label="Banner media" value={mediaPresentation(canvas)} onChange={event => update({ mediaPresentation: event.target.value as CanvasItem['mediaPresentation'] })}><option value="none">Text and background</option><option value="image">Unframed image</option><option value="device">Device mockup</option></select></label>}
-    {mediaPresentation(canvas) === 'device' && <label>Device model<select aria-label="Device model" value={resolveDeviceTarget(canvas, state.globalSettings)} onChange={event => update({ deviceTarget: event.target.value as CanvasItem['deviceTarget'] })}>{Object.values(TARGET_SIZES).filter(target => target.category !== 'Header').map(target => <option key={target.id} value={target.id}>{target.name}</option>)}</select></label>}
-    {kind === 'mockup' && <label className={styles.checkLabel}><input type="checkbox" checked={!!canvas.transparentBackground} onChange={event => update({ transparentBackground: event.target.checked })} />Transparent background</label>}
   </section>;
 }
